@@ -1,0 +1,74 @@
+{
+  "name": "soaring-spots",
+  "title": "Notable soaring sites around the world",
+  "description": "A curated, editorial seed list of notable soaring places, keyed by the code used to load them from the OGN FlightBook. Meant for DISCOVERY — so someone new to the sport can go and look at where it happens. It is NOT a navigation database and must never be used as one: an aerodrome closes, changes frequency or goes private, and nothing here is maintained against that.",
+  "profile": "tabular-data-package",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0"
+    }
+  ],
+  "resources": [
+    {
+      "name": "spots",
+      "path": "spots.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {
+        "delimiter": ",",
+        "header": true
+      },
+      "schema": {
+        "primaryKey": "code",
+        "fields": [
+          {
+            "name": "code",
+            "type": "string",
+            "title": "Airfield code",
+            "description": "Identifier used to load flights from the OGN FlightBook (ICAO where available, otherwise a national/FAA identifier)."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "title": "Site name"
+          },
+          {
+            "name": "country",
+            "type": "string",
+            "title": "Country",
+            "description": "ISO 3166-1 alpha-2 code."
+          },
+          {
+            "name": "continent",
+            "type": "string",
+            "title": "Continent"
+          },
+          {
+            "name": "lat",
+            "type": "number",
+            "title": "Latitude (deg)"
+          },
+          {
+            "name": "lon",
+            "type": "number",
+            "title": "Longitude (deg)"
+          },
+          {
+            "name": "flightbook_checked",
+            "type": "date",
+            "title": "Last FlightBook check",
+            "description": "Date the code was last verified on the OGN FlightBook (see scripts/check-spots.ts); empty means not found there."
+          },
+          {
+            "name": "blurb",
+            "type": "string",
+            "title": "Description"
+          }
+        ]
+      }
+    }
+  ]
+}

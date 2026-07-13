@@ -1,0 +1,93 @@
+{
+  "name": "soaring-landmarks",
+  "title": "Visual landmarks for soaring navigation",
+  "description": "Coastlines, national borders, lakes and named peaks — a visual reference a pilot navigates BY. Deliberately contains NO aerodromes (they change) and NO outlanding fields (their choice is the pilot's judgement and responsibility). Everything here is geographically stable.",
+  "profile": "data-package",
+  "created": "2026-07-13",
+  "licenses": [
+    {
+      "name": "CC0-1.0",
+      "title": "Public domain (Natural Earth)",
+      "path": "https://www.naturalearthdata.com/about/terms-of-use/"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Natural Earth (1:110m physical & cultural; 1:10m elevation points)",
+      "path": "https://www.naturalearthdata.com/"
+    }
+  ],
+  "resources": [
+    {
+      "name": "peaks",
+      "path": "peaks.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "title": "Named peaks (644)",
+      "dialect": {
+        "delimiter": ",",
+        "header": true
+      },
+      "schema": {
+        "primaryKey": [
+          "name",
+          "lon",
+          "lat"
+        ],
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "title": "Landmark name",
+            "description": "Not unique on its own: the world holds two Mount Olympuses, and both belong here. The key is (name, lon, lat)."
+          },
+          {
+            "name": "kind",
+            "type": "string",
+            "title": "Natural Earth feature class",
+            "description": "e.g. 'mountain', 'range/mtn', 'depression'."
+          },
+          {
+            "name": "elev_m",
+            "type": "integer",
+            "title": "Elevation (m)",
+            "description": "EMPTY when the source gives none — never zero, which would place a summit at sea level."
+          },
+          {
+            "name": "lon",
+            "type": "number",
+            "title": "Longitude (°, WGS84, east positive)"
+          },
+          {
+            "name": "lat",
+            "type": "number",
+            "title": "Latitude (°, WGS84, north positive)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "coastline",
+      "path": "coastline.geojson",
+      "format": "geojson",
+      "mediatype": "application/geo+json",
+      "title": "World coastline (1:110m)"
+    },
+    {
+      "name": "borders",
+      "path": "borders.geojson",
+      "format": "geojson",
+      "mediatype": "application/geo+json",
+      "title": "National borders, land (1:110m)"
+    },
+    {
+      "name": "lakes",
+      "path": "lakes.geojson",
+      "format": "geojson",
+      "mediatype": "application/geo+json",
+      "title": "Lakes (1:110m)"
+    }
+  ]
+}

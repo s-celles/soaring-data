@@ -1,0 +1,21 @@
+# A catalogue of dead links is worse than no catalogue: it tells a pilot, on the ground, that his
+# airspace file is available when it is not. So the links are re-checked on a schedule — a source
+# that disappears is noticed by US, not by him.
+name: validate
+
+on:
+  push: { branches: [main] }
+  pull_request:
+  schedule:
+    - cron: '17 5 * * 1'      # every Monday morning
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Schema + every catalogued link
+        run: bun run scripts/validate.ts

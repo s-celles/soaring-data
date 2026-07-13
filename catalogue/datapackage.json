@@ -1,0 +1,42 @@
+{
+  "name": "soaring-catalogue",
+  "title": "A catalogue of soaring data — pointers, not payloads",
+  "description": "Where to find the files a soaring flight computer needs. This package contains NO airspace, NO aerodromes and NO waypoints: it says where each file lives, who maintains it, under what terms, and what it does NOT contain. An airspace file goes wrong faster than a repository can be updated, and a stale copy is worse than none — so we point at the maintainers, who republish as it changes, and the app shows the pilot the date it downloaded.",
+  "profile": "tabular-data-package",
+  "licenses": [
+    {
+      "name": "AGPL-3.0",
+      "title": "The catalogue itself (the pointers and their descriptions)",
+      "path": "https://www.gnu.org/licenses/agpl-3.0.html"
+    }
+  ],
+  "resources": [
+    {
+      "name": "catalogue",
+      "path": "catalogue.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": { "delimiter": ",", "header": true },
+      "schema": {
+        "primaryKey": "id",
+        "fields": [
+          { "name": "id", "type": "string", "title": "Stable identifier", "constraints": { "required": true, "unique": true } },
+          { "name": "kind", "type": "string", "title": "What the file is", "constraints": { "required": true, "enum": ["airspace", "waypoints", "flarmnet", "weather", "other"] } },
+          { "name": "format", "type": "string", "title": "Wire format", "description": "Which parser reads it.", "constraints": { "required": true, "enum": ["openair", "cup", "dat", "wpt", "fln", "csv", "geojson", "unknown"] } },
+          { "name": "area", "type": "string", "title": "Area covered", "description": "ISO 3166-1 alpha-2, uppercase — or WORLD.", "constraints": { "required": true } },
+          { "name": "name", "type": "string", "title": "Human name", "constraints": { "required": true } },
+          { "name": "uri", "type": "string", "format": "uri", "title": "Where the file actually lives", "description": "We link. We do not rehost.", "constraints": { "required": true } },
+          { "name": "source", "type": "string", "title": "Who maintains it", "description": "The people a correction should go to." },
+          { "name": "source_url", "type": "string", "format": "uri", "title": "The maintainers' own home" },
+          { "name": "licence", "type": "string", "title": "Licence name", "description": "EMPTY when we have not established it. Empty is a statement — not knowing is not the same as being allowed." },
+          { "name": "licence_url", "type": "string", "format": "uri", "title": "Licence text" },
+          { "name": "redistributable", "type": "boolean", "title": "May a cache also SHARE this file?", "description": "FALSE when the licence is unknown. A cache that redistributes on a guess is a lawsuit with a pilot's name on it.", "constraints": { "required": true } },
+          { "name": "updated", "type": "date", "title": "Upstream's own last-update date", "description": "EMPTY when upstream publishes none — an app must be able to say 'age unknown', because an airspace file is dangerous when stale and a blank date must never read as fresh." },
+          { "name": "coverage", "type": "string", "title": "What the file holds AND WHAT IT DOES NOT", "description": "The second half is the one that prevents a pilot inferring a coverage nobody promised." }
+        ]
+      }
+    }
+  ]
+}

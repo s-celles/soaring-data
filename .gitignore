@@ -1,0 +1,15 @@
+# Allowlist mode: ignore everything by default, then explicitly un-ignore what belongs.
+*
+!*/
+!*.ts
+!*.json
+!*.csv
+!*.geojson
+!*.md
+!*.yml
+!justfile
+!LICENSE
+!.gitignore
+!/bun.lock
+node_modules/
+/CLAUDE.md

@@ -1,0 +1,236 @@
+{
+  "name": "soaring-polars",
+  "title": "Glider polars — the three-point speed/sink curves a flight computer flies on",
+  "description": "The performance polar of 155 wings — 144 gliders, 7 paragliders and 4 hang gliders, as three (speed, sink) points plus the masses and the wing area they were measured at. This is what a MacCready solver, a speed-to-fly director and a final glide are computed from: get it wrong and every one of them is wrong, plausibly and silently. Transcribed from the .plr files LK8000 distributes, into one tabular resource that needs no parser to read. It holds gliders, hang gliders and paragliders, and `wing_class` keeps them apart — because their speed envelopes do not overlap and a computer that confuses them answers confidently and wrongly. Wingspan and FAI class are established by scripts/classify-gliders.ts, which fills only what it can source and leaves the rest visibly empty.",
+  "profile": "tabular-data-package",
+  "licenses": [
+    {
+      "name": "GPL-2.0-only",
+      "title": "GNU General Public License v2.0 — inherited from LK8000, which distributes these files",
+      "path": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
+    }
+  ],
+  "sources": [
+    {
+      "title": "LK8000 — Common/Distribution/LK8000/_Polars (157 .plr files)",
+      "path": "https://github.com/LK8000/LK8000/tree/master/Common/Distribution/LK8000/_Polars"
+    }
+  ],
+  "resources": [
+    {
+      "name": "polars",
+      "path": "polars.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {
+        "delimiter": ",",
+        "header": true
+      },
+      "schema": {
+        "primaryKey": "name",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "title": "Glider name, as the source file names it",
+            "constraints": {
+              "required": true,
+              "unique": true
+            }
+          },
+          {
+            "name": "model",
+            "type": "string",
+            "description": "The AIRCRAFT, stripped of everything in `name` that describes how it is being FLOWN rather than what it is. `DG-500 PAS` and `DG-500 PIL` are one glider with and without a passenger; `ASW-27 Wnglts` has its winglets on; `Discus B from Cumulus Soaring GN II` carries the name of the website that distributed the file. Those words are true and they are not the aeroplane. This is the column every question to the outside world is asked about — Wikipedia, Wikidata, EASA — and 38 EASA-certified gliders had no Wikidata identifier for no better reason than that we were asking about the file instead of the aircraft; most of them already had an item. The parenthesised span goes too (`Ventus B (15m)` → `Ventus B`): it is a configuration of the aircraft the item describes, and its number was actively misleading the matcher. Only a LOWERCASE m is stripped — the M of `DG1000-20M` is a Motor. `name` is left exactly as the polar file wrote it: it is the provenance, and provenance is not ours to tidy."
+          },
+          {
+            "name": "wing_class",
+            "type": "string",
+            "title": "What kind of wing this is",
+            "description": "glider | hang_glider | paraglider. INFERRED from the source file names — LK8000's .plr files carry no class field — and frozen here as data rather than left to every consumer's own guess. It is not decoration: a paraglider's FASTEST measured point (~44 km/h) is slower than a glider's SLOWEST (54 km/h), so a flight computer that clamps one into the other's speed envelope does not fail, it ANSWERS, with a speed the wing cannot fly and a sink that follows from it. A consumer for gliders should filter on this column.",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "glider",
+                "hang_glider",
+                "paraglider"
+              ]
+            }
+          },
+          {
+            "name": "mass_dry_gross_kg",
+            "type": "number",
+            "title": "Dry gross mass (kg)",
+            "description": "The all-up mass, without water, at which the three points below were measured. It is not decoration: a polar quoted at 350 kg and flown at 500 kg is a different curve, and the difference is the final glide.",
+            "constraints": {
+              "required": true,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "max_water_ballast_l",
+            "type": "number",
+            "title": "Maximum water ballast (litres)",
+            "description": "0 for a glider that carries none — here a zero is a MEASUREMENT (it really carries none), not an absence.",
+            "constraints": {
+              "minimum": 0
+            }
+          },
+          {
+            "name": "speed1_kmh",
+            "type": "number",
+            "title": "Speed of the first polar point (km/h)",
+            "constraints": {
+              "required": true,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sink1_ms",
+            "type": "number",
+            "title": "Sink at the first point (m/s, NEGATIVE)",
+            "description": "Sink is negative throughout. A positive sink would be a glider that climbs in still air, and the least-squares fit downstream would return a polar that promises exactly that.",
+            "constraints": {
+              "required": true,
+              "maximum": 0
+            }
+          },
+          {
+            "name": "speed2_kmh",
+            "type": "number",
+            "title": "Speed of the second polar point (km/h)",
+            "constraints": {
+              "required": true,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sink2_ms",
+            "type": "number",
+            "title": "Sink at the second point (m/s, negative)",
+            "constraints": {
+              "required": true,
+              "maximum": 0
+            }
+          },
+          {
+            "name": "speed3_kmh",
+            "type": "number",
+            "title": "Speed of the third polar point (km/h)",
+            "constraints": {
+              "required": true,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sink3_ms",
+            "type": "number",
+            "title": "Sink at the third point (m/s, negative)",
+            "constraints": {
+              "required": true,
+              "maximum": 0
+            }
+          },
+          {
+            "name": "wing_area_m2",
+            "type": "number",
+            "title": "Wing area (m²)",
+            "description": "EMPTY for the 12 entries whose source file gives none — and empty, never zero. A wing area of zero is a wing loading of infinity, and a solver handed that would not fail: it would answer, confidently and wrongly. The place survives, the number does not.",
+            "constraints": {
+              "minimum": 0.1
+            }
+          },
+          {
+            "name": "wing_loading_kg_m2",
+            "type": "number",
+            "title": "Wing loading (kg/m²)",
+            "description": "Derived: mass_dry_gross_kg / wing_area_m2. Empty wherever the wing area is.",
+            "constraints": {
+              "minimum": 0.1
+            }
+          },
+          {
+            "name": "flaps_mass_kg",
+            "type": "number",
+            "title": "Reference mass for the flap settings (kg)",
+            "description": "Empty for the great majority — only a handful of source files carry flap data."
+          },
+          {
+            "name": "flaps_count",
+            "type": "integer",
+            "title": "Number of flap positions",
+            "constraints": {
+              "minimum": 0
+            }
+          },
+          {
+            "name": "flaps",
+            "type": "string",
+            "title": "Flap settings, verbatim from the source",
+            "description": "Kept as the source wrote it rather than pre-digested: nothing here interprets it yet, and a field parsed by nobody is a field that must not be silently reshaped."
+          },
+          {
+            "name": "span_m",
+            "type": "number",
+            "title": "Wingspan (m)",
+            "description": "Wing span, metres. Empty when unknown — see span_source for where a present value came from. Never inferred from the polar itself: a polar does not carry a span.",
+            "constraints": {
+              "minimum": 8,
+              "maximum": 35
+            }
+          },
+          {
+            "name": "span_source",
+            "type": "string",
+            "constraints": {
+              "enum": [
+                "name",
+                "wikipedia",
+                "easa",
+                ""
+              ]
+            },
+            "description": "WHERE span_m came from, because the three sources do not have the same evidentiary value and must not be pooled. `easa`: the Dimensions field of the aircraft's EASA Type Certificate Data Sheet — the certification authority's own document, identified by matching the TCDS's stated wing area against ours. The strongest source, and NOT the safest: a TCDS states the span AS CERTIFIED, and a glider with removable tips flies a span its certificate does not name, so variable-span aircraft are refused rather than recorded (see easa_tcds). `name`: read off the polar's own file name (`Ventus B (15m)`), and only when the name says `m` in lowercase — a bare number is a MODEL number, and an uppercase M is a motor. `wikipedia`: the aircraft infobox of the matching English Wikipedia article, cross-checked against wing_area_m2. Empty when span_m is empty."
+          },
+          {
+            "name": "fai_class",
+            "type": "string",
+            "title": "FAI competition class, WHERE THE SPAN ALONE SETTLES IT",
+            "description": "18m, 13.5m and open are filled because the span decides them and nothing else can. Everything else is EMPTY ON PURPOSE — and that emptiness is the most carefully considered thing in this package. A 15 m wing is Standard class without flaps and 15-Metre class WITH them; these files record the flaps of ten wings out of 155, so 41 gliders of exactly 15.0 m have no class here. A 20 m machine is 20-Metre Multi-seat if it seats two and Open if it seats one, and nothing here records the seats. A machine that cannot see the wing must not name its class: an empty cell a human can see is worth more than a plausible cell nobody will ever re-check.",
+            "constraints": {
+              "enum": [
+                "13.5m",
+                "18m",
+                "open"
+              ]
+            }
+          },
+          {
+            "name": "wikidata_qid",
+            "type": "string",
+            "constraints": {
+              "pattern": "^(Q[0-9]+)?$"
+            },
+            "description": "The Wikidata item for this aircraft (e.g. Q7433248), or empty. This is the column that makes the table JOINABLE: a stable, global, language-free identifier for the machine, not a name. It POINTS at the commons rather than copying it — the day somebody sources a wingspan to an EASA type certificate, that better number reaches us through this column without a line of scraping. Established only when the English Wikipedia article is about this aircraft AND its wing area agrees with our own wing_area_m2; empty otherwise, because a wrong pointer is worse than no pointer: a wrong span is a number a human might re-check, a wrong identifier is silent, machine-readable, and will be joined against and believed. Several rows may legitimately share one item — PIK-20B/D/E are variants of the aircraft the item describes."
+          },
+          {
+            "name": "easa_tcds",
+            "type": "string",
+            "constraints": {
+              "pattern": "^(EASA\\.[A-Z0-9.]+)?$"
+            },
+            "description": "The EASA Type Certificate Data Sheet that states this span (e.g. EASA.A.221), or empty. Present only when span_source is `easa`. The glider is identified INSIDE the document by its wing area — EASA certifies families, so the model is in the PDF, not in its title — and the certificate is refused when it describes a variable-span aircraft, when its sections disagree, or when the span it states contradicts the span the glider's own name states. Of the 43 spans it certifies, it CORRECTED none: it agreed with Wikipedia in every case. Its value is not a better number, it is a better reference."
+          },
+          {
+            "name": "easa_url",
+            "type": "string",
+            "format": "uri",
+            "description": "Direct link to that TCDS PDF, so the number can be checked by anyone in one click."
+          }
+        ]
+      }
+    }
+  ]
+}
