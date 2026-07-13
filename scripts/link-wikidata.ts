@@ -37,7 +37,7 @@
 // Run:  just link-wikidata      → rewrites polars.csv, adding/refreshing wikidata_qid
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { titleMatches, modelOf } from './classify-gliders';
+import { titleStrength, modelOf } from './classify-gliders';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
 const WP = 'https://en.wikipedia.org/w/api.php';
@@ -103,7 +103,8 @@ export async function findQid(name: string, ourAreaM2: number | null): Promise<s
   const hits = ((s.query as { search?: { title: string }[] })?.search ?? []).map(h => h.title);
 
   for (const title of hits) {
-    if (!titleMatches(name, title)) continue;
+    const strength = titleStrength(name, title);
+    if (strength === 'none') continue;
 
     const p = await api({
       action: 'query', prop: 'revisions|pageprops', rvprop: 'content', rvslots: 'main',
@@ -120,17 +121,20 @@ export async function findQid(name: string, ourAreaM2: number | null): Promise<s
     const qid = page?.pageprops?.wikibase_item;
     if (text === undefined || qid === undefined) continue;
 
-    // THE CORROBORATION, and it must actually HAPPEN.
-    //
-    // This read `if (theirArea !== null && ...)` — so an article with NO wing area skipped the check
-    // entirely and its identifier was written down unchecked. `Discus A` thereby matched `Discus
-    // Launch Glider`: a hand-thrown radio-control model, two metres of wing, no aircraft infobox and
-    // therefore no area to disagree with. We were one paste from publishing a 15-metre wingspan onto
-    // a model aeroplane's Wikidata item.
-    //
-    // The header of this file already SAID an item is written "only when the article is about this
-    // aircraft AND its wing area agrees with our own". The code did not do it. An unverifiable match
-    // is not a match: no area, no identifier.
+    // A STRONG title match IS the identification. `ASG29-18` against `Schleicher ASG 29`: word and
+    // number both land, and there is nothing a wing area could add. Demanding one anyway refused
+    // gliders whose identity was never in question — some because WE hold no wing area (a fact about
+    // our file, offered as though it were a fact about the aircraft), others because the article
+    // states ONE area for ONE configuration while our row describes another. A failure of
+    // CONFIGURATION, dressed up as a failure of IDENTITY.
+    if (strength === 'strong') return qid;
+
+    // A WEAK match is a suspicion, and every disaster this repository records was a weak match:
+    // `LS-8-15` against the SCHLEICHER K 8 (a shared 8, nothing else), `Discus A` against `Discus
+    // Launch Glider` (a hand-thrown radio-control MODEL, two metres of wing, no aircraft infobox and
+    // therefore no area to disagree with). So a weak match must be corroborated against a number we
+    // did not get from the article — and if there is no such number, there is no identifier. An
+    // unverifiable suspicion is not a match.
     const theirArea = num(/\|\s*wing\s*area\s*sqm\s*=\s*([\d.,]+)/i.exec(text)?.[1]);
     if (ourAreaM2 === null || theirArea === null) continue;
     if (Math.abs(theirArea - ourAreaM2) > AREA_TOLERANCE_M2) continue;

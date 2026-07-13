@@ -49,13 +49,14 @@
             "name": "wing_class",
             "type": "string",
             "title": "What kind of wing this is",
-            "description": "glider | hang_glider | paraglider. INFERRED from the source file names — LK8000's .plr files carry no class field — and frozen here as data rather than left to every consumer's own guess. It is not decoration: a paraglider's FASTEST measured point (~44 km/h) is slower than a glider's SLOWEST (54 km/h), so a flight computer that clamps one into the other's speed envelope does not fail, it ANSWERS, with a speed the wing cannot fly and a sink that follows from it. A consumer for gliders should filter on this column.",
+            "description": "What KIND of wing this is, because a paraglider's FASTEST point (44 km/h) is slower than a glider's SLOWEST (54 km/h), and a flight computer that mixes them will answer a question about one with the curve of the other. `microlight` is a powered aircraft that is not a sailplane at all — the ICP Savannah is here because LK8000 ships its polar, and it was labelled `glider`, which put an engine-driven aeroplane in a pilot's glider picker. A row that is not an aircraft at all — LK8000's `Example` template — is not reclassified but REMOVED: it is not a wing, and no class describes it.",
             "constraints": {
               "required": true,
               "enum": [
                 "glider",
+                "paraglider",
                 "hang_glider",
-                "paraglider"
+                "microlight"
               ]
             }
           },

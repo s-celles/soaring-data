@@ -161,42 +161,53 @@ function tokens(s: string): { words: string[]; digits: string[] } {
   return { words: parts.filter(p => /[a-z]/.test(p)), digits: parts.filter(p => /\d/.test(p)) };
 }
 
-/** Is this article about THIS glider? The check the wing area cannot make.
+/** HOW WELL does this article's title match this glider? Not WHETHER — how well.
  *
- *  Wikipedia's search will happily answer `LS-8-18` with the article on the Glaser-Dirks DG-600,
- *  and `SF27` with the Scheibe SF 32. Both articles carry a plausible span and a wing area close
- *  enough to pass; the answer is a wrong number wearing a right one's authority, and it is the exact
- *  failure this whole file exists to avoid. We published 15 m for an eighteen-metre LS 8 that way.
+ *  A designation is a WORD and a NUMBER — `ASG` and `29`, `LS` and `8`, `SF` and `27` — and that
+ *  gives three degrees of agreement, which do not deserve the same treatment:
  *
- *  THE NUMBER decides where both names have one: `SF27` vs `Scheibe SF 32` → 27 ∉ {32}, not our
- *  glider. A word decides where one of them has none: `Carat` → `AMS-Flight Carat`.
+ *    STRONG  both land. `ASG29-18` against `Schleicher ASG 29`. The aircraft is IDENTIFIED, by its
+ *            designation, and there is nothing left to doubt. findQid asks for nothing further.
  *
- *  And that is ALL this function does, deliberately. It once ALSO demanded a shared WORD, added after
- *  `LS-8-15` matched the article on the SCHLEICHER K 8 — they share an 8 and nothing else. But the
- *  word requirement was a second belt over a fastened one: the real guard is that findQid now REFUSES
- *  a match it cannot corroborate against our own wing area, and `LS-8-15` carries no wing area, so it
- *  gets no item however the titles read. What the word requirement did instead was reject ten TRUE
- *  matches, where our name is the MODEL and the title is the MANUFACTURER — `H-206_Hornet` against
- *  `Glasflügel 206`, `Mosquito` against `Glasflügel 303`. They share no word and they are the same
- *  aircraft, to the square centimetre.
+ *    WEAK    one lands. `LS-8-15` against `Schleicher K 8` shares an 8 and NOTHING else — the match
+ *            that nearly published a wingspan onto the wrong Schleicher. `Discus A` against `Discus
+ *            Launch Glider` — a radio-controlled model aeroplane — shares a word and nothing else.
+ *            A weak match is a SUSPICION, and findQid will not act on one unless our own wing area
+ *            agrees with the article's.
  *
- *  A guard that costs ten true answers to repeat a refusal another guard already makes is not caution.
- *  It is a second lock on a door, fitted while the window stands open.
+ *    NONE    the numbers CONTRADICT. `SF27` against `Scheibe SF 32`: 27 is not 32, and no shared
+ *            word rescues it. Two designations that both carry numbers, and disagree, are two
+ *            aircraft.
  *
- *  It is a coarse test and it is meant to be. It does not try to decide which article is RIGHT — it
- *  refuses the ones that are visibly about another aircraft, and refusing is the only judgement a
- *  script is entitled to make here. */
-export function titleMatches(ourName: string, title: string): boolean {
+ *  EVERY DISASTER THIS FILE RECORDS HAD A WEAK MATCH. Not one had a strong one. That is why the wing
+ *  area — which used to be demanded in every case alike — is now demanded only where the designation
+ *  leaves room for doubt.
+ *
+ *  What that rule cost, before this: `ASG29-18` IS a Schleicher ASG 29, beyond argument, and it was
+ *  refused an identifier because WE hold no wing area for it — a fact about our file, offered as
+ *  though it were a fact about the aircraft. Others were refused because the article states ONE wing
+ *  area, for ONE configuration, while our row describes another: a failure of CONFIGURATION, dressed
+ *  up as a failure of IDENTITY. */
+export type Strength = 'strong' | 'weak' | 'none';
+
+export function titleStrength(ourName: string, title: string): Strength {
   const ours = tokens(ourName), theirs = tokens(title);
 
-  // Both sides carry numbers → they must AGREE on one. This is the whole of the rule, and it is
-  // where `SF27` is parted from `Scheibe SF 32`.
-  if (ours.digits.length > 0 && theirs.digits.length > 0) {
-    return ours.digits.some(d => theirs.digits.includes(d));
-  }
-  // One side has none → a word must carry it. `Carat` → `AMS-Flight Carat`; `Ventus B (15m)` →
-  // `Schempp-Hirth Ventus`, the aircraft, which has no number of its own.
-  return ours.words.some(w => w.length >= 4 && theirs.words.includes(w));
+  const word = ours.words.some(w => w.length >= 2
+    && theirs.words.some(t => t === w || t.startsWith(w) || w.startsWith(t)));
+
+  const bothNumbered = ours.digits.length > 0 && theirs.digits.length > 0;
+  const digit = bothNumbered && ours.digits.some(d => theirs.digits.includes(d));
+
+  if (bothNumbered && !digit) return 'none';
+  if (word && digit) return 'strong';
+  if (word || digit) return 'weak';
+  return 'none';
+}
+
+/** Could this article be about this glider at all? */
+export function titleMatches(ourName: string, title: string): boolean {
+  return titleStrength(ourName, title) !== 'none';
 }
 
 const api = async (params: Record<string, string>): Promise<Record<string, unknown>> => {
@@ -221,8 +232,12 @@ async function wikipediaSpan(name: string, ourAreaM2: number | null): Promise<nu
   const s = await api({ action: 'query', list: 'search', srsearch: `${name} glider`, srlimit: '3' });
   const hits = ((s.query as { search?: { title: string }[] })?.search ?? []).map(h => h.title);
   for (const title of hits) {
-    // Refused before it is even fetched: an article visibly about another aircraft.
-    if (!titleMatches(name, title)) continue;
+    // A SPAN is a number we will publish. An IDENTIFIER points at an item somebody else can inspect.
+    // The first is the graver claim, so this stays strict where link-wikidata now relaxes: a weak
+    // title match may earn an identifier if the wing area corroborates it, but a NUMBER is only ever
+    // taken from an article whose wing area agrees with ours — see below, and note that we do not
+    // shortcut a strong match here.
+    if (titleStrength(name, title) === 'none') continue;
     const p = await api({
       action: 'query', prop: 'revisions', rvprop: 'content', rvslots: 'main',
       titles: title, redirects: '1',

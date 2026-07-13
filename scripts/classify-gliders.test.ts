@@ -6,7 +6,7 @@
 // nothing at all, and where a regular expression that tried harder would produce a confident lie.
 
 import { test, expect } from 'bun:test';
-import { spanFromName, classFromSpan, titleMatches, modelOf } from './classify-gliders';
+import { spanFromName, classFromSpan, titleMatches, titleStrength, modelOf } from './classify-gliders';
 
 // ---- reading the span off the name ----
 
@@ -187,4 +187,33 @@ test('a name with nothing to strip is left alone', () => {
   for (const n of ['1-26E', 'Nimbus 3', 'SZD-48-2 Jantar Std 2', 'ASK-21']) {
     expect(modelOf(n)).toBe(n);
   }
+});
+
+// ---- how well, not whether ----
+
+test('EVERY disaster this repository records had a WEAK match — not one had a strong one', () => {
+  // That is the whole justification for the two tiers, and it is checkable. The wing area is now
+  // demanded only where the designation leaves room for doubt; where word AND number both land, the
+  // aircraft is identified and there is nothing an area could add.
+  expect(titleStrength('LS-8-15', 'Schleicher K 8')).toBe('weak');        // a shared 8, nothing else
+  expect(titleStrength('Discus A', 'Discus Launch Glider')).toBe('weak'); // a radio-control MODEL
+  expect(titleStrength('ASK-13', 'L-13 Blanik')).toBe('weak');            // a shared 13
+  expect(titleStrength('Mosquito', 'De Havilland Mosquito')).toBe('weak');// a bomber
+  expect(titleStrength('Apis', 'Apis')).toBe('weak');                     // the genus of the honeybee
+});
+
+test('a designation that lands on both is an identification', () => {
+  // These were refused an identifier — some because WE hold no wing area (a fact about our file,
+  // offered as though it were a fact about the aircraft), others because the article states ONE area
+  // for ONE configuration while our row describes another.
+  expect(titleStrength('ASG29-18', 'Schleicher ASG 29')).toBe('strong');
+  expect(titleStrength('ASH-26E', 'Schleicher ASH 26')).toBe('strong');
+  expect(titleStrength('LS-8-15', 'Rolladen-Schneider LS8')).toBe('strong');
+  expect(titleStrength('DG-400', 'Glaser-Dirks DG-400')).toBe('strong');
+});
+
+test('two numbers that contradict are two aircraft, whatever else they share', () => {
+  expect(titleStrength('SF27', 'Scheibe SF 32')).toBe('none');
+  expect(titleStrength('Discus 2c', 'DG Flugzeugbau LS10')).toBe('none');
+  expect(titleStrength('DG-400', 'Glaser-Dirks DG-200')).toBe('none');
 });
