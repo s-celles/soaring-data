@@ -93,6 +93,14 @@ function checkPolarInvariants(rows: Record<string, string>[]): void {
     if (span !== null && src === '') {
       note(`polars: ${name} holds a span of ${span} m from nowhere — span_source is empty`);
     }
+    // A span READ OFF AN ARTICLE means the article was found, and an article has an item. A row that
+    // says `wikipedia` and carries no identifier is a row that contradicts itself: we looked, we
+    // corroborated, we took the number — and then recorded that the glider has no Wikidata item.
+    // Four gliders were in that state and nothing noticed, because an empty cell is also what an
+    // honest "not found" looks like.
+    if (src === 'wikipedia' && (r.wikidata_qid ?? '') === '') {
+      note(`polars: ${name} took its span from an article and has no Wikidata item — one of the two is wrong`);
+    }
   }
 }
 

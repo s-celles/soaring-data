@@ -63,13 +63,33 @@ const num = (s: string | undefined): number | null => {
   return Number.isFinite(v) ? v : null;
 };
 
+/** A TRANSIENT FAILURE IS NOT AN ANSWER, and this is the bug it hides.
+ *
+ *  This used to throw on the first bad response, and the caller caught it and left the cell empty —
+ *  a hole indistinguishable, in the finished file, from "this glider has no Wikidata item". Four
+ *  gliders lost their identifier that way (the Taurus, the Zuni, the Diana 2, the VSO-10) while
+ *  KEEPING a span whose source column said `wikipedia`: we had read their article, corroborated it
+ *  against our wing area, taken its number — and recorded that they had no item. The file
+ *  contradicted itself and nothing noticed, because an empty cell is what an honest failure looks
+ *  like too.
+ *
+ *  So: retry, and if it still fails, THROW rather than shrug. An empty cell must mean we looked and
+ *  found nothing — not that we were unable to look. validate.ts now refuses a file where a span came
+ *  from Wikipedia and no item came with it. */
 const api = async (params: Record<string, string>): Promise<Record<string, unknown>> => {
-  const r = await fetch(`${WP}?${new URLSearchParams({ format: 'json', ...params })}`, {
-    headers: { 'User-Agent': UA },
-    signal: AbortSignal.timeout(25_000),
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json() as Promise<Record<string, unknown>>;
+  let last: unknown;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 800 * attempt));
+    try {
+      const r = await fetch(`${WP}?${new URLSearchParams({ format: 'json', ...params })}`, {
+        headers: { 'User-Agent': UA },
+        signal: AbortSignal.timeout(25_000),
+      });
+      if (r.ok) return await r.json() as Record<string, unknown>;
+      last = new Error(`HTTP ${r.status}`);
+    } catch (e) { last = e; }
+  }
+  throw last instanceof Error ? last : new Error('Wikipedia unreachable');
 };
 
 /** The Wikidata item behind the English Wikipedia article about THIS glider — or null.
@@ -159,9 +179,12 @@ if (import.meta.main) {
       try {
         qid = (await findQid(name, num(at(r, 'wing_area_m2')))) ?? '';
         if (qid !== '') found++; else none++;
-      } catch {
-        // A source that is down is not a reason to guess an identifier. The cell stays empty.
-        none++;
+      } catch (e) {
+        // A source that is down is not a reason to guess an identifier — and it is not a reason to
+        // write an empty cell either. An empty cell says "no item exists". We do not know that.
+        console.error(`\nFAILED on ${name}: ${e instanceof Error ? e.message : String(e)}`);
+        console.error('Nothing written. An unreachable source is not an answer; run it again.\n');
+        process.exit(1);
       }
     }
 
