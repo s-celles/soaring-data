@@ -37,10 +37,11 @@
 // Run:  just link-wikidata      → rewrites polars.csv, adding/refreshing wikidata_qid
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { titleStrength, modelOf } from './classify-gliders';
+import { titleStrength, match, modelOf } from './classify-gliders';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
 const WP = 'https://en.wikipedia.org/w/api.php';
+const WD = 'https://www.wikidata.org/w/api.php';
 const UA = 'soaring-data/0.2 (https://github.com/s-celles/soaring-data)';
 const AREA_TOLERANCE_M2 = 0.8;
 
@@ -76,12 +77,12 @@ const num = (s: string | undefined): number | null => {
  *  So: retry, and if it still fails, THROW rather than shrug. An empty cell must mean we looked and
  *  found nothing — not that we were unable to look. validate.ts now refuses a file where a span came
  *  from Wikipedia and no item came with it. */
-const api = async (params: Record<string, string>): Promise<Record<string, unknown>> => {
+const api = async (params: Record<string, string>, base = WP): Promise<Record<string, unknown>> => {
   let last: unknown;
   for (let attempt = 0; attempt < 4; attempt++) {
     if (attempt > 0) await new Promise(r => setTimeout(r, 800 * attempt));
     try {
-      const r = await fetch(`${WP}?${new URLSearchParams({ format: 'json', ...params })}`, {
+      const r = await fetch(`${base}?${new URLSearchParams({ format: 'json', ...params })}`, {
         headers: { 'User-Agent': UA },
         signal: AbortSignal.timeout(25_000),
       });
@@ -144,6 +145,47 @@ export async function findQid(name: string, ourAreaM2: number | null): Promise<s
   return null;
 }
 
+/** Ask WIKIDATA, when Wikipedia had nothing to say.
+ *
+ *  The route above goes ARTICLE → item, and it is the better one: an article carries an infobox, and
+ *  an infobox carries a wing area we can check. But it can only find gliders that Wikipedia's search
+ *  returns for the string in our file, and it does not return `Speed Astir` (the article is `Grob
+ *  G104 Speed Astir`), nor `SZD-38 Jantar`, nor `Glasflügel 604`.
+ *
+ *  Wikidata's own search reads LABELS AND ALIASES, and it finds all three. It also finds, for `Apis`,
+ *  the FAMILY NAME; for `Phoebus`, a MALE GIVEN NAME; for `Ka 8`, an experimental KAMOV HELICOPTER.
+ *  So it needs a guard, and Wikidata hands us one that the article route never had: the item's own
+ *  DESCRIPTION, written by a human, in a sentence. `German competition sailplane, 1978` is a glider.
+ *  `family name` is not.
+ *
+ *  Two guards, and the second one is subtler than it looks:
+ *
+ *    · the DESCRIPTION must say this is a glider. Cheap, decisive, and human-written.
+ *
+ *    · the match must be STRONG, or WEAK BY THE WORD — never weak by the DIGIT ALONE. `Speed Astir`
+ *      against `Grob G104 Speed Astir` shares two distinctive words and no number: weak by the letter
+ *      of the rule, overwhelming in fact. `LS-8-15` against `Schleicher K 8` shares the digit 8 and
+ *      nothing else — and the K 8 IS a glider, so the description guard would wave it straight
+ *      through. That is the match that nearly put a wingspan on the wrong Schleicher, and here it
+ *      would arrive wearing a certificate of good character.
+ *
+ *  A shared word is evidence. A shared small number is a coincidence waiting to be believed. */
+const IS_GLIDER = /\b(glider|sailplane|segelflugzeug)\b/i;
+
+export async function findQidOnWikidata(name: string): Promise<string | null> {
+  const d = await api({ action: 'wbsearchentities', language: 'en', limit: '6', search: name }, WD);
+  const hits = (d.search as { id: string; label: string; description?: string }[] | undefined) ?? [];
+
+  for (const h of hits) {
+    if (!IS_GLIDER.test(h.description ?? '')) continue;
+    const m = match(name, h.label);
+    if (m.strength === 'strong') return h.id;
+    if (m.strength === 'weak' && m.word) return h.id;
+    // weak by the digit alone: refused. See above — the K 8 is a glider too.
+  }
+  return null;
+}
+
 // ---- the run ----
 //
 // Guarded like the classifier's: this module exports findQid, and importing one function must not
@@ -164,7 +206,7 @@ if (import.meta.main) {
   const cols = iQid >= 0 ? head : [...head, 'wikidata_qid'];
   const qidAt = cols.indexOf('wikidata_qid');
 
-  let held = 0, found = 0, none = 0;
+  let held = 0, found = 0, none = 0, fromWd = 0;
   const rows: { name: string; qid: string }[] = [];
   const out = [cols.join(',')];
 
@@ -182,6 +224,9 @@ if (import.meta.main) {
     else {
       try {
         qid = (await findQid(name, num(at(r, 'wing_area_m2')))) ?? '';
+        // Wikipedia's search did not know this glider by the name our file gives it. Wikidata's does:
+        // it reads aliases, and it hands us a description to check the answer against.
+        if (qid === '') { qid = (await findQidOnWikidata(name)) ?? ''; if (qid !== '') fromWd++; }
         if (qid !== '') found++; else none++;
       } catch (e) {
         // A source that is down is not a reason to guess an identifier — and it is not a reason to
@@ -211,7 +256,7 @@ if (import.meta.main) {
   console.log(`
 wings: ${held + found + none}
   identifier already held   ${held}   (kept; the API is not asked twice for the same answer)
-  identifier established    ${found}
+  identifier established    ${found}   (of which ${fromWd} from Wikidata's own search, by alias)
   NO item, left empty       ${none}   ← a wrong pointer is worse than none: it is permanent
 
   distinct Wikidata items   ${byQid.size}

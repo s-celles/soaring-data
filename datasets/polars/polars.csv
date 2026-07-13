@@ -22,7 +22,7 @@ ASK-13,ASK-13,glider,380.0,0.0,70.0,-0.747,110.0,-1.453,136.0,-2.537,17.5,21.71,
 ASK-21,ASK-21,glider,450.0,0.0,100.0,-0.82,120.0,-1.1,150.0,-1.9,17.95,25.07,,,,17,easa,,Q613581,EASA.A.221,https://www.easa.europa.eu/en/downloads/7234/en
 ASK-23,ASK-23,glider,330.0,0.0,100.0,-0.85,120.0,-1.19,150.0,-2.02,12.9,25.58,,,,15,wikipedia,,Q1469380,,
 Astir CS,Astir CS,glider,330.0,90.0,75.0,-0.7,93.0,-0.74,185.0,-3.1,12.4,26.61,,,,15,wikipedia,,Q260836,,
-ASW-12,ASW-12,glider,948.0,189.0,95.0,-0.57,148.0,-1.48,183.09,-2.6,13.0,72.92,,,,,,,,,
+ASW-12,ASW-12,glider,948.0,189.0,95.0,-0.57,148.0,-1.48,183.09,-2.6,13.0,72.92,,,,,,,Q1626226,,
 ASW-15,ASW-15,glider,349.0,91.0,97.56,-0.77,156.12,-1.9,195.15,-3.4,11.0,31.73,,,,15,wikipedia,,Q366103,,
 ASW-17,ASW-17,glider,522.0,151.0,114.5,-0.7,169.05,-1.68,206.5,-2.9,14.84,35.18,,,,20,wikipedia,,Q2238705,,
 ASW-19,ASW-19,glider,363.0,125.0,97.47,-0.74,155.96,-1.64,194.96,-3.1,11.0,33.0,,,,15,wikipedia,,Q489183,,
@@ -43,8 +43,8 @@ Delta USHPA-4,Delta USHPA-4,hang_glider,100.0,0.0,37.0,-0.89,48.3,-1.02,76.5,-3.
 DG-100,DG-100,glider,300.0,100.0,100.0,-0.73,120.0,-1.0,150.0,-1.7,11.0,27.27,,,,15,easa,,Q442463,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
 DG-200,DG-200,glider,300.0,120.0,100.0,-0.68,120.0,-0.86,150.0,-1.3,10.0,30.0,,,,15,easa,,Q776714,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
 DG-300,DG-300,glider,340.0,65.0,95.0,-0.65,140.0,-1.29,160.0,-1.84,10.27,33.11,,,,15,easa,,Q1153381,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-400 (15m),DG-400,glider,440.0,90.0,115.0,-0.76,160.53,-1.22,210.22,-2.3,10.0,44.0,,,,15,easa,,,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-400 (17m),DG-400,glider,444.0,90.0,118.28,-0.68,163.77,-1.15,198.35,-1.8,10.57,42.01,,,,17,name,,,,
+DG-400 (15m),DG-400,glider,440.0,90.0,115.0,-0.76,160.53,-1.22,210.22,-2.3,10.0,44.0,,,,15,easa,,Q1153378,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-400 (17m),DG-400,glider,444.0,90.0,118.28,-0.68,163.77,-1.15,198.35,-1.8,10.57,42.01,,,,17,name,,Q1153378,,
 DG-500 PAS,DG-500,glider,660.0,160.0,115.5,-0.72,152.16,-1.28,190.22,-2.3,18.29,36.09,,,,22,easa,open,Q1153385,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
 DG-500 PIL,DG-500,glider,570.0,160.0,107.5,-0.66,141.33,-1.19,176.66,-2.1,18.29,31.16,,,,22,easa,open,Q1153385,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
 DG-500M PAS,DG-500M,glider,750.0,100.0,121.6,-0.75,162.12,-1.37,202.66,-2.5,18.29,41.01,,,,22,easa,open,Q1153385,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
@@ -64,7 +64,7 @@ Duo Discus (PIL),Duo Discus,glider,537.0,201.0,94.06,-0.72,155.49,-1.43,188.21,-
 Duo Discus XT (PAS),Duo Discus XT,glider,700.0,50.0,110.0,-0.664,155.0,-1.206,200.0,-2.287,16.4,42.68,,,,20,easa,,,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
 Duo Discus XT (PIL),Duo Discus XT,glider,580.0,170.0,100.0,-0.605,150.0,-1.271,200.0,-2.668,16.4,35.37,,,,20,easa,,,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
 DuoDiscus T (PAS),DuoDiscus T,glider,615.0,80.0,103.0,-0.64,152.0,-1.25,200.0,-2.51,16.4,37.5,,,,20,easa,,Q1341050,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-EB_28,EB 28,glider,670.0,180.0,100.0,-0.46,120.0,-0.61,150.0,-0.96,16.8,39.88,,,,28,easa,open,,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
+EB_28,EB 28,glider,670.0,180.0,100.0,-0.46,120.0,-0.61,150.0,-0.96,16.8,39.88,,,,28,easa,open,Q863610,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
 EB_28_Edition,EB 28 Edition,glider,670.0,180.0,100.0,-0.47,120.0,-0.63,150.0,-0.97,16.5,40.61,,,,28.3,easa,open,,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
 Genesis II,Genesis II,glider,374.0,151.0,94.0,-0.61,141.05,-1.18,172.4,-2.0,11.24,33.27,,,,15,wikipedia,,Q2312580,,
 Glasfluegel_304,Glasfluegel 304,glider,305.0,145.0,100.0,-0.78,120.0,-0.97,150.0,-1.43,9.9,30.81,,,,15,wikipedia,,Q1529455,,
@@ -128,7 +128,7 @@ PW-5 Smyk,PW-5 Smyk,glider,300.0,0.0,99.5,-0.95,158.48,-2.85,198.1,-5.1,10.16,29
 Russia AC-4,Russia AC-4,glider,250.0,0.0,99.3,-0.92,140.01,-1.8,170.01,-2.9,7.7,32.47,,,,12.6,wikipedia,,Q2874276,,
 SF27,SF27,glider,300.0,0.0,100.0,-0.81,120.0,-1.27,150.0,-2.5,13.0,23.08,,,,,,,,,
 Silent 2 electro,Silent 2 electro,glider,276.0,0.0,80.0,-0.65,90.0,-0.65,150.0,-1.55,8.9,31.01,276.0,5,0:L;75:+1;90:0;110:-1;150:S,13.3,wikipedia,13.5m,Q4727237,,
-Speed Astir,Speed Astir,glider,351.0,90.0,90.0,-0.63,105.0,-0.72,157.0,-2.0,,,,,,,,,,,
+Speed Astir,Speed Astir,glider,351.0,90.0,90.0,-0.63,105.0,-0.72,157.0,-2.0,,,,,,,,,Q1547165,,
 Stemme S-10 PAS,Stemme S-10,glider,850.0,0.0,133.47,-0.83,167.75,-1.41,205.03,-2.3,18.7,45.45,,,,23,easa,open,Q1456624,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
 Stemme S-10 PIL,Stemme S-10,glider,759.0,0.0,125.8,-0.82,158.51,-1.33,193.74,-2.2,18.7,40.59,,,,23,easa,open,Q1456624,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
 SZD-30 Pirat,SZD-30 Pirat,glider,340.0,0.0,75.0,-0.7,83.0,-0.739,150.0,-2.46,13.8,24.64,,,,15,wikipedia,,Q1273276,,

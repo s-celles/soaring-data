@@ -6,7 +6,7 @@
 // nothing at all, and where a regular expression that tried harder would produce a confident lie.
 
 import { test, expect } from 'bun:test';
-import { spanFromName, classFromSpan, titleMatches, titleStrength, modelOf } from './classify-gliders';
+import { spanFromName, classFromSpan, titleMatches, titleStrength, match, modelOf } from './classify-gliders';
 
 // ---- reading the span off the name ----
 
@@ -216,4 +216,26 @@ test('two numbers that contradict are two aircraft, whatever else they share', (
   expect(titleStrength('SF27', 'Scheibe SF 32')).toBe('none');
   expect(titleStrength('Discus 2c', 'DG Flugzeugbau LS10')).toBe('none');
   expect(titleStrength('DG-400', 'Glaser-Dirks DG-200')).toBe('none');
+});
+
+// ---- a shared word is evidence; a shared small number is a coincidence ----
+
+test('WHY a match is weak decides whether Wikidata\'s own search may act on it', () => {
+  // Wikidata's search reads ALIASES, and finds gliders Wikipedia's article search cannot: the
+  // `Speed Astir` (whose article is `Grob G104 Speed Astir`), the ASW 12, the Binder EB28. It also
+  // finds, for `Apis`, a FAMILY NAME, and for `Ka 8`, a KAMOV HELICOPTER — and the item's own
+  // human-written DESCRIPTION throws those out.
+  //
+  // But the description cannot save us from `LS-8-15` matching the SCHLEICHER K 8, because the K 8
+  // IS a glider: the wrong answer would arrive wearing a certificate of good character. What parts
+  // them is WHY the match is weak. A shared distinctive WORD is evidence. A shared small NUMBER is a
+  // coincidence waiting to be believed.
+  const astir = match('Speed Astir', 'Grob G104 Speed Astir');
+  expect(astir.strength).toBe('weak');
+  expect(astir.word).toBe(true);          // two distinctive words, no number: acted on
+
+  const k8 = match('LS-8-15', 'Schleicher K 8');
+  expect(k8.strength).toBe('weak');
+  expect(k8.word).toBe(false);            // the digit 8, and nothing else: refused
+  expect(k8.digit).toBe(true);
 });

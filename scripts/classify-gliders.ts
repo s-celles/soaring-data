@@ -191,6 +191,18 @@ function tokens(s: string): { words: string[]; digits: string[] } {
 export type Strength = 'strong' | 'weak' | 'none';
 
 export function titleStrength(ourName: string, title: string): Strength {
+  return match(ourName, title).strength;
+}
+
+/** The same verdict, with the REASON — because a weak match by a shared WORD and a weak match by a
+ *  shared DIGIT are not equally weak, and one caller needs to tell them apart.
+ *
+ *  `Speed Astir` against `Grob G104 Speed Astir` shares two distinctive words and no number: that is
+ *  weak by the letter of the rule and overwhelming in fact. `LS-8-15` against `Schleicher K 8` shares
+ *  the digit 8 and nothing else: that is weak, and it is also the match that nearly published a
+ *  wingspan onto the wrong Schleicher. A shared word is EVIDENCE. A shared small number is a
+ *  coincidence waiting to be believed. */
+export function match(ourName: string, title: string): { strength: Strength; word: boolean; digit: boolean } {
   const ours = tokens(ourName), theirs = tokens(title);
 
   const word = ours.words.some(w => w.length >= 2
@@ -199,10 +211,10 @@ export function titleStrength(ourName: string, title: string): Strength {
   const bothNumbered = ours.digits.length > 0 && theirs.digits.length > 0;
   const digit = bothNumbered && ours.digits.some(d => theirs.digits.includes(d));
 
-  if (bothNumbered && !digit) return 'none';
-  if (word && digit) return 'strong';
-  if (word || digit) return 'weak';
-  return 'none';
+  if (bothNumbered && !digit) return { strength: 'none', word, digit };
+  if (word && digit) return { strength: 'strong', word, digit };
+  if (word || digit) return { strength: 'weak', word, digit };
+  return { strength: 'none', word, digit };
 }
 
 /** Could this article be about this glider at all? */
