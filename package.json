@@ -1,6 +1,6 @@
 {
   "name": "soaring-data",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Data for soaring, as Frictionless Data Packages: a catalogue of pointers (no airspace is shipped — it goes stale), and the only data that may be shipped because it does not change (landmarks).",
   "license": "AGPL-3.0",
   "type": "module",
