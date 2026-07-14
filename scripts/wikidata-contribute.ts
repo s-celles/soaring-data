@@ -59,6 +59,11 @@ const AREA_TOLERANCE_M2 = 0.8;
 const P_WINGSPAN = 'P2050', Q_METRE = 'Q11573', S_IMPORTED = 'S143', Q_EN_WIKI = 'Q328';
 /** P176 = manufacturer. Twenty of our gliders point at an item that does not say who built it. */
 const P_MAKER = 'P176';
+/** P1083 = "maximum capacity: number of people allowed for a venue or vehicle". It is what 612
+ *  aircraft on Wikidata already use for their seat count, the Duo Discus among them — I first
+ *  proposed P1103, which is `number of platform tracks` AT A RAILWAY STATION. Ask the commons what
+ *  it calls a thing before telling it something. */
+const P_SEATS = 'P1083';
 /** S854 = reference URL; S813 = retrieved (a date). The pair that turns a claim into a checkable one. */
 const S_URL = 'S854', S_RETRIEVED = 'S813';
 /** The same property, as it is named in a CLAIM rather than in a QuickStatements reference line. */
@@ -83,13 +88,27 @@ const num = (s: string | undefined): number | null => {
   return Number.isFinite(v) ? v : null;
 };
 
+/** A TRANSIENT FAILURE IS NOT AN ANSWER — and this function did not know that.
+ *
+ *  link-wikidata learned it the hard way and retries four times before throwing; the comment there
+ *  explains exactly why, and this file never got the lesson. It asked Wikidata a few hundred times in
+ *  a row, Wikidata answered HTTP 429 (`slow down`), and the whole batch died on the floor.
+ *
+ *  A 429 is not a fact about a glider. It is the commons asking us to be polite. */
 const api = async (base: string, params: Record<string, string>): Promise<Record<string, unknown>> => {
-  const r = await fetch(`${base}?${new URLSearchParams({ format: 'json', ...params })}`, {
-    headers: { 'User-Agent': UA },
-    signal: AbortSignal.timeout(25_000),
-  });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json() as Promise<Record<string, unknown>>;
+  let last: unknown;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 1000 * attempt * attempt));
+    try {
+      const r = await fetch(`${base}?${new URLSearchParams({ format: 'json', ...params })}`, {
+        headers: { 'User-Agent': UA },
+        signal: AbortSignal.timeout(25_000),
+      });
+      if (r.ok) return await r.json() as Record<string, unknown>;
+      last = new Error(`HTTP ${r.status}`);
+    } catch (e) { last = e; }
+  }
+  throw last instanceof Error ? last : new Error('Wikidata unreachable');
 };
 
 /** The English Wikipedia article this item is attached to — Wikidata's own sitelink, not a search.
@@ -394,10 +413,16 @@ const col = (n: string): number => head.indexOf(n);
 const iName = col('name'), iClass = col('wing_class');
 const iSpan = col('span_m'), iSrc = col('span_source'), iQid = col('wikidata_qid');
 const iTcds = col('easa_tcds'), iUrl = col('easa_url');
+const iSeats = col('seats'), iSeatSrc = col('seats_source');
 const iMaker = col('manufacturer'), iModel = col('model');
 
 interface Claim { name: string; qid: string; span: number; src: string; tcds: string; url: string }
 const candidates: Claim[] = [];
+/** Every seat count OUR TABLE holds against each item, and who said so. One item with two different
+ *  counts is an item we may not write to: `ASH-25` and `ASH-25M` are one aircraft, but if they ever
+ *  disagreed here, neither of them would be the aircraft's answer. */
+const knownSeats = new Map<string, Map<number, string[]>>();
+const seatRow = new Map<string, { name: string; seats: number; tcds: string; url: string }>();
 /** Items that point at an aircraft whose maker the commons does not name. */
 const makerless = new Map<string, string>();      // glider QID → the model, for the printout
 /** Statements that ALREADY hold our certified number, and are missing the certificate that proves it. */
@@ -432,6 +457,22 @@ for (const line of lines.slice(1)) {
   // maker the commons does not name. Collecting this AFTER the span filters (where it first sat)
   // asked the question only of the gliders that happened to survive a different one.
   if (qid !== '' && (r[iMaker] ?? '').trim() === '' && !makerless.has(qid)) makerless.set(qid, model);
+
+  // ---- THE SEATS, gathered from EVERY row before any span rule can drop one ----
+  //
+  // Asking this question only of the gliders that survived a DIFFERENT question is the mistake the
+  // manufacturer column already made once, and the comment above it still explains why. A row whose
+  // span is withheld — because it was read off a file name, or because its item is a family — still
+  // points at an aircraft whose seat count the commons may not have.
+  if (qid !== '' && (r[iSeatSrc] ?? '').trim() === 'easa') {
+    const n = num(r[iSeats]);
+    if (n !== null) {
+      const byItem = knownSeats.get(qid) ?? new Map<number, string[]>();
+      byItem.set(n, [...(byItem.get(n) ?? []), name]);
+      knownSeats.set(qid, byItem);
+      seatRow.set(qid, { name, seats: n, tcds: (r[iTcds] ?? '').trim(), url: (r[iUrl] ?? '').trim() });
+    }
+  }
 
   const span = num(r[iSpan]);
   if (span === null) continue;
@@ -561,12 +602,73 @@ for (const [qid, model] of makerless) {
   makers.push({ qid, maker: m.maker, model, label: m.label });
 }
 
+// ---- THE SEATS ----
+//
+// A count from a certification authority, with the certificate's URL behind it. Wikidata records the
+// seat count of 612 aircraft under P1083 and almost none of them are sailplanes: this is a real gap
+// in the commons, and one we can close with a reference nobody has to take on trust.
+//
+// The guards are the ones already standing. A FAMILY item is refused — `Bölkow Phoebus` covers three
+// aircraft, and the ASH 25 item is `two-seater glider family` — because a family has no seat count
+// any more than it has a wingspan. An item our own table gives TWO different counts for is refused,
+// because at least one of our rows is wrong about it and we cannot tell which. And an item that
+// already states a count keeps it: if it is the same number, the certificate is a reference that
+// statement is missing, and offering it takes nothing away from whoever wrote it.
+
+async function heldSeats(qid: string): Promise<{ values: number[]; refUrls: string[] }> {
+  const d = await api(WD, { action: 'wbgetclaims', entity: qid, property: P_SEATS });
+  const claims = ((d.claims as Record<string, unknown[]> | undefined) ?? {})[P_SEATS] ?? [];
+  const values: number[] = [], refUrls: string[] = [];
+  for (const raw of claims) {
+    const c = raw as {
+      mainsnak?: { datavalue?: { value?: { amount?: string } } };
+      references?: { snaks?: Record<string, { datavalue?: { value?: unknown } }[]> }[];
+    };
+    const a = c.mainsnak?.datavalue?.value?.amount;
+    if (a !== undefined) values.push(Number(a));
+    for (const r of c.references ?? []) {
+      for (const snak of r.snaks?.[P_REF_URL] ?? []) {
+        const u = snak.datavalue?.value;
+        if (typeof u === 'string') refUrls.push(u);
+      }
+    }
+  }
+  return { values, refUrls };
+}
+
+const seatLines: string[] = [];
+let seatNew = 0, seatRef = 0, seatFamily = 0, seatConflict = 0, seatThere = 0;
+
+for (const [qid, counts] of knownSeats) {
+  const row = seatRow.get(qid);
+  if (row === undefined || row.url === '') continue;
+
+  if (counts.size > 1) {
+    seatConflict++;
+    console.log(`  seats WITHHELD — ${qid}: our own rows say ${[...counts.keys()].join(' and ')}`);
+    continue;
+  }
+  if (await isFamily(qid)) { seatFamily++; continue; }
+
+  const held = await heldSeats(qid);
+  if (held.values.length > 0) {
+    if (!held.values.some(v => v === row.seats)) { seatThere++; continue; }   // they disagree: a human's job
+    if (held.refUrls.includes(row.url)) continue;                             // already cited
+    seatRef++;
+  } else {
+    seatNew++;
+  }
+  seatLines.push(
+    `${qid}\t${P_SEATS}\t${row.seats}\t${S_URL}\t"${row.url}"\t${S_RETRIEVED}\t+${TODAY}T00:00:00Z/11`,
+  );
+}
+
 // The references go in the SAME file: QuickStatements matches an existing statement on
 // (item, property, value) and attaches the reference to it rather than creating a duplicate.
 const line = (o: Claim): string => `${o.qid}\t${P_WINGSPAN}\t${o.span}U${Q_METRE.slice(1)}\t${refOf(o)}`;
 const makerLine = (m: { qid: string; maker: string }): string =>
   `${m.qid}\t${P_MAKER}\t${m.maker}\t${S_IMPORTED}\t${Q_EN_WIKI}`;
-const all = [...offered.map(line), ...refs.map(line), ...makers.map(makerLine)].join('\n');
+const all = [...offered.map(line), ...refs.map(line), ...seatLines, ...makers.map(makerLine)].join('\n');
 if (familyItem.length > 0) {
   console.log(`WITHHELD — the item is a FAMILY, and a family has no wingspan. It has several, and any
 one number written there is a claim about one aircraft dressed as a claim about all of them.
@@ -641,7 +743,15 @@ if (piped.length > 0) {
 }
 
 console.log(`
-Written to wikidata.qs — ${offered.length + refs.length + makers.length} line(s): ${offered.length} new span(s), ${refs.length} certificate(s), ${makers.length} manufacturer(s).
+Written to wikidata.qs — ${offered.length + refs.length + seatLines.length + makers.length} line(s):
+  ${offered.length} new span(s), ${refs.length} certificate(s) for spans already there,
+  ${seatLines.length} SEAT COUNT(S) — ${seatNew} new, ${seatRef} sourcing somebody else's number (P1083),
+  ${makers.length} manufacturer(s).
+
+the seats, withheld:
+  the item is a FAMILY            ${seatFamily}   ← a family has no seat count, any more than it has a wingspan
+  our own rows DISAGREE           ${seatConflict}   ← at least one of them is wrong about this item
+  Wikidata says a DIFFERENT count ${seatThere}   ← a certificate against a human: not this script's call
 
 Nothing has been edited. To contribute, READ the batch above (a human who knows gliders will spot
 a wrong one in a way no cross-check can), then paste the file into QuickStatements:
