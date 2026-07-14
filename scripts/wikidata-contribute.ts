@@ -176,6 +176,33 @@ async function heldWingspan(qid: string): Promise<Held> {
 /** Piped links the commons itself will not vouch for — reported, for a human to settle. */
 const piped: { target: string; shown: string }[] = [];
 
+/** Wikilinks whose article does not exist AND whose company Wikidata does not know either. A real gap
+ *  in the commons, and one only a human writing the item can close. */
+const noCompany: string[] = [];
+
+const linkedName = (link: string): string => (link.split('|')[0] ?? '').trim();
+
+/** An item for a COMPANY of this name — or undefined. The description is the guard and it is the
+ *  item's own word: an aircraft named after its maker is not its maker. */
+const IS_COMPANY = /\b(company|manufacturer|firm|enterprise|business|corporation|aircraft manufacturer)\b/i;
+const IS_AIRCRAFT = /\b(aircraft|glider|sailplane|aeroplane|airplane)\b/i;
+
+async function companyByName(name: string): Promise<string | undefined> {
+  if (name === '') return undefined;
+  const d = await api(WD, { action: 'wbsearchentities', language: 'en', limit: '6', search: name });
+  const hits = (d.search as { id: string; label: string; description?: string }[] | undefined) ?? [];
+  for (const h of hits) {
+    const desc = h.description ?? '';
+    // `type of aircraft` beats `company` in this order deliberately: an item that is BOTH is not a
+    // thing, and an item the search calls an aircraft is an aircraft.
+    if (IS_AIRCRAFT.test(desc) && !IS_COMPANY.test(desc)) continue;
+    if (!IS_COMPANY.test(desc)) continue;
+    return h.id;
+  }
+  noCompany.push(name);
+  return undefined;
+}
+
 /** The item behind an article title. */
 async function qidOfArticle(title: string): Promise<string | null> {
   const w = await api(WP, { action: 'query', prop: 'pageprops', titles: title, redirects: '1' });
@@ -242,7 +269,20 @@ async function makerFromArticle(qid: string): Promise<{ maker: string; label: st
   const words = (x: string): string[] =>
     x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? [];
   const t = words(target), sh = shown === undefined ? [] : words(shown);
-  let ok = sh.length === 0 || sh.every(w => t.includes(w));
+
+  // EITHER DIRECTION. A pipe hides two kinds of harmless rewrite, and I only allowed one:
+  //
+  //   SHORTENING   [[SA Centrair|Centrair]]         — the shown name is IN the target's
+  //   GLOSS        [[SZD|SZD (Experimental Glider   — the target's name is IN the shown one
+  //                     Establishment)]]
+  //
+  // The second reads as a different name to a subset test that only looks one way, and the SZD-42
+  // Jantar's maker was silently refused for it. An annotated name is not another name. What is a
+  // different name is one whose words OVERLAP with the target's in neither direction — and that one
+  // still goes to the item's own aliases, which is the only thing entitled to answer.
+  let ok = sh.length === 0
+    || sh.every(w => t.includes(w))         // shortening
+    || t.every(w => sh.includes(w));        // gloss
 
   // AND IF THE NAMES DO NOT OVERLAP, ASK WIKIDATA — it adjudicates its own ambiguity, and I had not
   // thought to let it.
@@ -276,7 +316,21 @@ async function makerFromArticle(qid: string): Promise<{ maker: string; label: st
   // The linked article's item — the company, by identifier.
   const w = await api(WP, { action: 'query', prop: 'pageprops', titles: linked, redirects: '1' });
   const wp = (w.query as { pages?: Record<string, { pageprops?: { wikibase_item?: string } }> })?.pages ?? {};
-  const maker = Object.values(wp)[0]?.pageprops?.wikibase_item;
+  let maker = Object.values(wp)[0]?.pageprops?.wikibase_item;
+
+  // A RED LINK IS NOT A DEAD END. Wikipedia's infobox links `[[Sportinė Aviacija]]` to an article
+  // that does not exist — and it is the manufacturer of three of our gliders. An item can exist
+  // WITHOUT an article, and that one does: Q3547120, `UAB Sportine aviacija — company`.
+  //
+  // So when the link goes nowhere, ask Wikidata for the NAME. And guard it, because the search sets a
+  // trap that would have been very hard to see: `Eiri-Avion` returns Q1310570 — `Eiri-Avion PIK-20,
+  // type of aircraft`. The AEROPLANE, named after the firm that built it. Writing that into P176
+  // would state that a glider manufactured ITSELF, and it would state it in a machine-readable field
+  // nobody would ever reopen.
+  //
+  // The description is the guard, and it is the item's own word: `company` yes, `type of aircraft`
+  // no. Nothing else this script could compute would tell them apart.
+  if (maker === undefined) maker = await companyByName(linkedName(link));
   if (maker === undefined || maker === qid) return null;       // an aircraft is not its own maker
 
   // A MANUFACTURER IS NOT A PERSON, and the infobox will happily hand us one. Gliding is full of
@@ -498,6 +552,14 @@ if (makers.length > 0) {
     console.log(`\n  (${makerUnresolved} more state a maker in plain text, unlinked. A string is not an item, and`);
     console.log(`   P176 does not take strings. They stay empty, and empty is the honest answer.)`);
   }
+  console.log('');
+}
+
+if (noCompany.length > 0) {
+  console.log('  The article links these makers to an article that does NOT EXIST, and Wikidata knows no');
+  console.log('  company by that name either. A red link with nothing behind it. Only a human writing');
+  console.log('  the item can close this one — it is a gap in the commons, not in our file:\n');
+  for (const n of [...new Set(noCompany)]) console.log(`    ${n}`);
   console.log('');
 }
 
