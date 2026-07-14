@@ -233,7 +233,7 @@ export async function findQidOnWikidata(name: string): Promise<string | null> {
  *  wing. Filling one column from the other would write a falsehood, and it would write it under the
  *  seal of a certification authority — the exact failure mode this repository has already been
  *  bitten by once, with the LS8-18's certified span. */
-async function manufacturers(qids: string[]): Promise<Map<string, string>> {
+async function manufacturers(qids: string[]): Promise<Map<string, { qid: string; name: string }>> {
   const made = new Map<string, string>();          // glider QID → manufacturer QID
   for (let i = 0; i < qids.length; i += 50) {
     const d = await api({ action: 'wbgetentities', props: 'claims', ids: qids.slice(i, i + 50).join('|') }, WD);
@@ -256,10 +256,10 @@ async function manufacturers(qids: string[]): Promise<Map<string, string>> {
     }
   }
 
-  const out = new Map<string, string>();
+  const out = new Map<string, { qid: string; name: string }>();
   for (const [glider, maker] of made) {
     const name = label.get(maker);
-    if (name !== undefined) out.set(glider, name);
+    if (name !== undefined) out.set(glider, { qid: maker, name });
   }
   return out;
 }
@@ -327,8 +327,12 @@ if (import.meta.main) {
   const cols = iQid >= 0 ? [...head] : [...head, 'wikidata_qid'];
   // `manufacturer` sits beside the model it belongs to, where a reader will look for it.
   if (!cols.includes('manufacturer')) cols.splice(cols.indexOf('model') + 1, 0, 'manufacturer');
+  // The maker's IDENTIFIER, beside the label it produces. The label is a rendering of the fact; the
+  // identifier IS the fact — see the column's description.
+  if (!cols.includes('manufacturer_qid')) cols.splice(cols.indexOf('manufacturer') + 1, 0, 'manufacturer_qid');
   const qidAt = cols.indexOf('wikidata_qid');
   const mfgAt = cols.indexOf('manufacturer');
+  const mfgQidAt = cols.indexOf('manufacturer_qid');
 
   const aliases = await declaredAliases();
   let held = 0, found = 0, none = 0, fromWd = 0, fromAlias = 0;
@@ -377,7 +381,9 @@ if (import.meta.main) {
   const maker = await manufacturers([...new Set(resolved.map(x => x.qid).filter(q => q !== ''))]);
   const out = [cols.join(',')];
   for (const { row, qid } of resolved) {
-    row[mfgAt] = quote(maker.get(qid) ?? '');
+    const m = maker.get(qid);
+    row[mfgAt] = quote(m?.name ?? '');
+    row[mfgQidAt] = quote(m?.qid ?? '');
     out.push(row.join(','));
   }
   const named = resolved.filter(x => maker.has(x.qid)).length;

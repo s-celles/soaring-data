@@ -48,7 +48,15 @@
           {
             "name": "manufacturer",
             "type": "string",
-            "description": "Who MADE this aircraft, BORROWED from the Wikidata item in wikidata_qid (property P176), under its own legal name — `Rolladen Schneider Flugzeugbau`, not `Rolladen-Schneider`. Empty where the item states none (15 of them do not, which is a gap in the commons and one we could fill). This is the first column that flows INWARD, and it is what the identifier work was for: `Antares_18S` does not contain the word `Lange`, and no cleverness applied to a polar file name ever will. It is REFRESHED on every run and never cached — a derived value is computed once and belongs to us; a borrowed one belongs to the commons and improves without us. NOT taken from the EASA type certificate, which names the `Type Certificate Holder` — a DIFFERENT FACT. Rolladen-Schneider went bankrupt and DG Flugzeugbau took over its certificates: the TCDS for the LS family names DG, while the aircraft was made by Rolladen-Schneider. The holder is who answers for the type today; the manufacturer is who built the wing. Filling one from the other would write a falsehood under the seal of a certification authority."
+            "description": "Who BUILT this aircraft, borrowed from its Wikidata item (P176) — the ENGLISH LABEL of the manufacturer's item, under its own legal name (`Rolladen Schneider Flugzeugbau`). Empty where the item states none. This is a RENDERING of the fact, not the fact: it is a string, in one language, chosen by Wikidata's editors, and it can change tomorrow. `manufacturer_qid` beside it is the fact. Read the label to show a human; join on the identifier. It will occasionally look wrong and be faithful: the VT-16 Orlík reads `Beneš-Mráz`, the pre-war name of the Choceň works, which were nationalised in 1946 and renamed Orličan — and which built the glider in 1959. Wikidata models the whole lineage as ONE company (its aliases include `Orličan n. p.`) and labels it with the earliest name. The label is Wikidata's editorial choice; we do not paraphrase our sources, and we do not patch a name from a second provenance to make it read better."
+          },
+          {
+            "name": "manufacturer_qid",
+            "type": "string",
+            "constraints": {
+              "pattern": "^(Q[0-9]+)?$"
+            },
+            "description": "The manufacturer's Wikidata item — the FACT that `manufacturer` renders. We did this for the aircraft (wikidata_qid) and, for a while, not for its maker: the script fetched the identifier and THREW IT AWAY, keeping only the label. A label is a string in one language that somebody chose; an identifier is stable, global, and language-free. With it the table becomes joinable on the MAKER as well as on the aircraft, and a consumer who finds `Beneš-Mráz` inadequate for a 1959 glider can resolve Q817135 into whatever name and language it needs. We stop freezing an editorial decision into our data — which is the same reason wikidata_qid exists, applied one level down."
           },
           {
             "name": "wing_class",

@@ -101,6 +101,19 @@ function checkPolarInvariants(rows: Record<string, string>[]): void {
     if (src === 'wikipedia' && (r.wikidata_qid ?? '') === '') {
       note(`polars: ${name} took its span from an article and has no Wikidata item — one of the two is wrong`);
     }
+
+    // The maker's LABEL and the maker's IDENTIFIER are one fact rendered two ways. A row that has one
+    // and not the other is a row where the rendering has drifted from the thing it renders — and the
+    // label is the half a human reads, so that is the half that would go unnoticed.
+    const maker = r.manufacturer ?? '', makerQid = r.manufacturer_qid ?? '';
+    if ((maker === '') !== (makerQid === '')) {
+      note(`polars: ${name} has a manufacturer '${maker}' and an identifier '${makerQid}' — one without the other`);
+    }
+    // A maker we borrowed requires an aircraft we identified. There is nowhere else it could have
+    // come from, and if it did, it came from a provenance this column does not have.
+    if (makerQid !== '' && (r.wikidata_qid ?? '') === '') {
+      note(`polars: ${name} names a maker but no aircraft item — the maker is borrowed from the aircraft's item, so it cannot exist without one`);
+    }
   }
 }
 
