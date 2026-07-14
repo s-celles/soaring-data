@@ -173,8 +173,29 @@ async function heldWingspan(qid: string): Promise<Held> {
  *
  *  Plain text that is not linked (`AB Sportinė Aviacija`) yields nothing: an unresolvable name is a
  *  string, and P176 does not take strings. It stays empty, and empty is the honest answer. */
-/** Piped links whose displayed name is not their target's — reported, for a human to settle. */
+/** Piped links the commons itself will not vouch for — reported, for a human to settle. */
 const piped: { target: string; shown: string }[] = [];
+
+/** The item behind an article title. */
+async function qidOfArticle(title: string): Promise<string | null> {
+  const w = await api(WP, { action: 'query', prop: 'pageprops', titles: title, redirects: '1' });
+  const pages = (w.query as { pages?: Record<string, { pageprops?: { wikibase_item?: string } }> })?.pages ?? {};
+  return Object.values(pages)[0]?.pageprops?.wikibase_item ?? null;
+}
+
+/** Every name an item answers to: its label, and all its aliases, in every language it has one. */
+async function namesOf(qid: string): Promise<string[]> {
+  const d = await api(WD, { action: 'wbgetentities', props: 'labels|aliases', ids: qid });
+  const e = (d.entities as Record<string, {
+    labels?: Record<string, { value: string }>;
+    aliases?: Record<string, { value: string }[]>;
+  }>)?.[qid];
+  if (e === undefined) return [];
+  return [
+    ...Object.values(e.labels ?? {}).map(l => l.value),
+    ...Object.values(e.aliases ?? {}).flat().map(a => a.value),
+  ];
+}
 
 async function makerFromArticle(qid: string): Promise<{ maker: string; label: string } | null> {
   const title = await articleOf(qid);
@@ -221,8 +242,35 @@ async function makerFromArticle(qid: string): Promise<{ maker: string; label: st
   const words = (x: string): string[] =>
     x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? [];
   const t = words(target), sh = shown === undefined ? [] : words(shown);
-  const shortening = sh.length === 0 || sh.every(w => t.includes(w));
-  if (!shortening) { piped.push({ target, shown }); return null; }
+  let ok = sh.length === 0 || sh.every(w => t.includes(w));
+
+  // AND IF THE NAMES DO NOT OVERLAP, ASK WIKIDATA — it adjudicates its own ambiguity, and I had not
+  // thought to let it.
+  //
+  //   [[Industria Aeronautică Română|ICA]]   the item's own ALIASES include `ICA-Brasov`. The company
+  //                                          was re-founded in 1968 under that name. Same firm; the
+  //                                          commons says so, in its own voice.
+  //   [[Beneš-Mráz|Orličan]]                 I was SURE this one was wrong. Beneš-Mráz was
+  //                                          nationalised in 1946 and the VT-16 is a 1959 glider, so
+  //                                          publishing the target looked like putting a pre-war
+  //                                          firm's name on a post-war sailplane. The item's aliases
+  //                                          include `Orličan n. p.` — národní podnik, the
+  //                                          nationalised form. Wikidata models the whole lineage as
+  //                                          ONE company, and it is right, and I was not.
+  //
+  // The right question was never "do these two strings look alike", and it was not "what do I know
+  // about Czech industrial history" either. It was "DOES THE ITEM ANSWER TO THIS NAME" — and the item
+  // is the only thing entitled to say. Asking it corrected me.
+  if (!ok && shown !== undefined) {
+    const targetQid = await qidOfArticle(target);
+    if (targetQid !== null) {
+      const names = await namesOf(targetQid);
+      const vocab = new Set(names.flatMap(words));
+      ok = sh.every(w => vocab.has(w));
+    }
+  }
+
+  if (!ok) { piped.push({ target, shown }); return null; }
   const linked = target;
 
   // The linked article's item — the company, by identifier.
