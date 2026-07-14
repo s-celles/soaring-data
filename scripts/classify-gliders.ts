@@ -110,12 +110,50 @@ export function spanFromName(name: string): number | null {
  *  nothing here records the seats.
  *
  *  A machine that cannot see the wing must not name its class. */
-export function classFromSpan(span: number | null): string {
+/** THE SPORTING CODE SAYS A CLASS IS A CEILING, AND THIS FUNCTION READ IT AS A TARGET.
+ *
+ *  FAI Sporting Code Section 3, chapter 6.5, in its own words:
+ *
+ *      6.5.1  Open Class        "No special rules."
+ *      6.5.2  18 metre Class    "The only limitation is a maximum span of 18,000 mm."
+ *      6.5.3  15 metre Class    "The only limitation is a maximum span of 15,000 mm."
+ *      6.5.4  Standard Class    span ≤ 15,000 mm, and "Lift increasing devices are prohibited,
+ *                                even if unusable."
+ *      6.5.6  Club Class        "The only limitation on entry ... is that it is within the agreed
+ *                                range of handicap factors FOR THE COMPETITION."
+ *      6.5.7  20 metre Multi-seat  "multi-seat gliders having a crew of two persons."
+ *
+ *  Three things follow, and the first two are corrections.
+ *
+ *  1. A MAXIMUM IS NOT A TARGET. `Math.abs(span - 18) < 0.3` accepted the Janus B at 18.2 m and
+ *     labelled it 18-Metre class — a glider that EXCEEDS the class ceiling by twenty centimetres and
+ *     cannot be entered in it. The tolerance may reach DOWNWARDS, for a glider built to the limit and
+ *     measured a few centimetres under it. It may never reach above.
+ *
+ *  2. THE 20-METRE TWO-SEAT CLASS NEEDS THE SEATS, and until the type certificates were read nothing
+ *     in this table said how many people a glider carries. Now they do — see seatsIn in easa-tcds —
+ *     and the Duo Discus, the DG-1000 and the Arcus, all exactly 20 m and all with two seats, stop
+ *     being gliders of no class at all.
+ *
+ *  3. AND A CLASS IS NOT A PROPERTY OF AN AIRCRAFT. It is an ENTRY CONDITION for a competition, and
+ *     the classes are NESTED: an ASW 24 (15 m, no flaps) may be entered in Standard, in 15-Metre, in
+ *     18-Metre and in Open. Club Class is not even a property of the glider — it depends on the
+ *     handicap range the ORGANISERS agreed for that contest. There is no authority anywhere that
+ *     publishes "the class of the ASW 20", because there is no such fact.
+ *
+ *     So what this column holds is a GROUPING — the class a glider was built for and would normally
+ *     be entered in — and it is offered as that, not as a certified attribute. Where the data cannot
+ *     establish one it stays EMPTY, which is why 15-Metre and Standard are almost never given: telling
+ *     them apart needs the FLAPS, and a certificate that does not mention flaps has not told us there
+ *     are none. The Glasflügel document names no flaps at all, and the 604, the Kestrel and the
+ *     Mosquito have them. SILENCE IS NOT ABSENCE, and Standard class is defined by an absence. */
+export function classFromSpan(span: number | null, seats: number | null = null): string {
   if (span == null) return '';
-  if (Math.abs(span - 13.5) < 0.2) return '13.5m';
-  if (Math.abs(span - 18) < 0.3) return '18m';
-  if (span >= 20.5) return 'open';
-  return '';                            // 15 m needs the flaps; 20 m needs the seats
+  if (span >= 13.3 && span <= 13.5) return '13.5m';       // ≤ 13,500 mm
+  if (seats !== null && seats >= 2 && span >= 19.7 && span <= 20.0) return '20m';
+  if (span >= 17.7 && span <= 18.0) return '18m';          // ≤ 18,000 mm — a CEILING
+  if (span >= 20.5) return 'open';                         // nothing else fits it
+  return '';                            // 15 m needs the flaps; anything else, we have not established
 }
 
 /** The AIRCRAFT, stripped of everything that describes how it is being FLOWN rather than what it is.

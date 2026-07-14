@@ -5,7 +5,7 @@
 
 import { test, expect } from 'bun:test';
 import {
-  headerNames, isSailplane, makerCandidate, readHeadedSpans, readSections, spanForArea, spanForHeader, tcdsCandidate,
+  headerNames, isSailplane, makerCandidate, passengerInName, readHeadedSpans, readSections, seatsIn, spanForArea, spanForHeader, tcdsCandidate,
 } from './easa-tcds';
 
 // ---- which certificates could possibly be this glider's ----
@@ -78,8 +78,11 @@ const LS8 = `
 `;
 
 test('the Dimensions block reads whatever order the fields come in', () => {
-  expect(readSections(ASK21)).toEqual([{ spanM: 17, areaM2: 17.95, variableSpan: false }]);
-  expect(readSections(LS8)).toEqual([{ spanM: 15, areaM2: 10.5, variableSpan: false }]);
+  // (`seats` came later — the same Dimensions block, read for a second fact. See seatsIn.)
+  expect(readSections(ASK21).map(({ spanM, areaM2, variableSpan }) => ({ spanM, areaM2, variableSpan })))
+    .toEqual([{ spanM: 17, areaM2: 17.95, variableSpan: false }]);
+  expect(readSections(LS8).map(({ spanM, areaM2, variableSpan }) => ({ spanM, areaM2, variableSpan })))
+    .toEqual([{ spanM: 15, areaM2: 10.5, variableSpan: false }]);
 });
 
 test('THE TRAP: prose that offers a span the Dimensions field does not state', () => {
@@ -201,7 +204,7 @@ test('the TABLE OF CONTENTS and the RUNNING PAGE HEADER are not headings', () =>
 
 test('`Astir CS` must not walk off with the TWIN ASTIR', () => {
   // Match on ANY shared word and `astir` hands it the Twin Astir, at 17.5 m. Every word must land.
-  expect(spanForHeader(readHeadedSpans(A250), 'Astir CS')).toEqual({ spanM: 15, header: 'ASTIR CS' });
+  expect(spanForHeader(readHeadedSpans(A250), 'Astir CS')).toEqual({ spanM: 15, header: 'ASTIR CS', seats: null });
 });
 
 test('THE PHOEBUS C IS 17 m AND THE PHOEBUS A AND B ARE 15 — the single letter IS the aircraft', () => {
@@ -213,7 +216,7 @@ SECTION F: PHOEBUS B1
 SECTION G: PHOEBUS C
                Span: 17 m
 `;
-  expect(spanForHeader(readHeadedSpans(a635), 'Phoebus C')).toEqual({ spanM: 17, header: 'PHOEBUS C' });
+  expect(spanForHeader(readHeadedSpans(a635), 'Phoebus C')).toEqual({ spanM: 17, header: 'PHOEBUS C', seats: null });
 });
 
 test('and yet the `H` of `H-206 Hornet` is NOISE, because EASA titles that section simply `HORNET`', () => {
@@ -248,7 +251,40 @@ test('when only the AREA identifies, it must be the SAME NUMBER — a near-miss 
   // the match, inside a pool of every sailplane one firm ever built. The forgiving window is not
   // offered there. Our Apis 2 sat 0.16 m² from the Pipistrel Apis-Bee — inside every tolerance we
   // own, and a different aircraft.
-  const s = [{ spanM: 18, areaM2: 11.2, variableSpan: false }];
-  expect(spanForArea(s, 11.0, false)).toEqual({ spanM: 18 });          // title path: 0.2 m² forgiven
+  const s = [{ spanM: 18, areaM2: 11.2, variableSpan: false, seats: null }];
+  expect(spanForArea(s, 11.0, false)).toEqual({ spanM: 18, seats: null });          // title path: 0.2 m² forgiven
   expect(spanForArea(s, 11.0, true)).toEqual({ refused: 'no-section' });  // maker path: it is not the same number
+});
+
+// ============ the seats, and the FAI class that needs them ============
+
+test('the certificate says how many people it carries, in the prose that describes the wing', () => {
+  expect(seatsIn('Description:  Single-seater sailplane, T-tail')).toBe(1);
+  expect(seatsIn('Beschreibung: Doppelsitziges Segelflugzeug')).toBe(2);
+  expect(seatsIn('Description:  two-seat glider, mid wing')).toBe(2);
+  expect(seatsIn('Description:  sailplane, T-tail, retractable wheel')).toBeNull();  // silence
+});
+
+test('THE PROSE WINDOW STOPPED AT 6000 CHARS AND WALKED INTO THE AIRCRAFT BEFORE', () => {
+  // The comment said "back to the previous Dimensions block, or 6000 chars". The code did only the
+  // second half. For the variable-span flag that was over-cautious, and over-cautious is safe. It
+  // stopped being safe the moment the window began ASSERTING something: EASA.A.063's Nimbus 4D read
+  // back into the Nimbus 4's description and came away SINGLE-SEATER.
+  const doc = `
+Description: Single-seater sailplane
+4. Dimensions:  Span: 26,4 m   Wing area: 17,80 m2
+Description: Two-seater sailplane
+4. Dimensions:  Span: 26,5 m   Wing area: 17,96 m2
+`;
+  expect(readSections(doc).map(s => [s.spanM, s.seats])).toEqual([[26.4, 1], [26.5, 2]]);
+});
+
+test('a polar flown with a PASSENGER may not be matched to a SINGLE-SEAT section', () => {
+  // Our `Nimbus 4D PAS` row carries the wing area of the SINGLE-SEAT Nimbus 4 (17.80 m², against the
+  // 4D's 17.96). The area is the only thing identifying it, so it put a two-seat glider on a one-seat
+  // aircraft's section and took home its span — and nothing in the row disagreed. The seats do.
+  expect(passengerInName('Nimbus 4D PAS')).toBe(true);
+  expect(passengerInName('ASH-25 (PIL)')).toBe(true);
+  expect(passengerInName('IS-28B2 Lark with 2 person')).toBe(true);
+  expect(passengerInName('Discus 2c 18m')).toBe(false);
 });

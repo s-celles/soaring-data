@@ -212,12 +212,14 @@
             "name": "fai_class",
             "type": "string",
             "title": "FAI competition class, WHERE THE SPAN ALONE SETTLES IT",
-            "description": "18m, 13.5m and open are filled because the span decides them and nothing else can. Everything else is EMPTY ON PURPOSE — and that emptiness is the most carefully considered thing in this package. A 15 m wing is Standard class without flaps and 15-Metre class WITH them; these files record the flaps of ten wings out of 155, so 41 gliders of exactly 15.0 m have no class here. A 20 m machine is 20-Metre Multi-seat if it seats two and Open if it seats one, and nothing here records the seats. A machine that cannot see the wing must not name its class: an empty cell a human can see is worth more than a plausible cell nobody will ever re-check.",
+            "description": "A GROUPING, not a certified attribute — and the FAI Sporting Code is the reason the distinction matters. SC3 chapter 6.5 defines a class as an ENTRY CONDITION for a competition, not a property of an aircraft: 6.5.2 'The only limitation [of the 18 metre Class] is a maximum span of 18,000 mm'; 6.5.1 Open Class 'No special rules'; 6.5.6 Club Class 'The only limitation on entry ... is that it is within the agreed range of handicap factors FOR THE COMPETITION'. The classes are NESTED — an ASW 24 may be entered in Standard, 15-Metre, 18-Metre and Open — and Club Class is not a fact about the glider at all. THERE IS NO AUTHORITY THAT PUBLISHES 'the class of the ASW 20', because there is no such fact. What this column holds is the class a glider was BUILT for and would normally be entered in. A maximum is not a target: the tolerance reaches downwards from the ceiling and never above it, which is why the Janus B (18.2 m) is NOT 18-Metre class, though it was labelled so until the Code was read. 20m is given where the certificate states two seats and the span is 20 m. Everything else is EMPTY ON PURPOSE: telling Standard from 15-Metre needs the FLAPS, and a certificate that never mentions flaps has not told us there are none — the Glasfluegel document names none at all, and the 604, the Kestrel and the Mosquito have them. SILENCE IS NOT ABSENCE, and Standard class is defined by an absence.",
             "constraints": {
               "enum": [
                 "13.5m",
                 "18m",
-                "open"
+                "20m",
+                "open",
+                ""
               ]
             }
           },
@@ -228,6 +230,11 @@
               "pattern": "^(Q[0-9]+)?$"
             },
             "description": "The Wikidata item for this aircraft (e.g. Q7433248), or empty. This is the column that makes the table JOINABLE: a stable, global, language-free identifier for the machine, not a name. It POINTS at the commons rather than copying it — the day somebody sources a wingspan to an EASA type certificate, that better number reaches us through this column without a line of scraping. Established only when the English Wikipedia article is about this aircraft AND its wing area agrees with our own wing_area_m2; empty otherwise, because a wrong pointer is worse than no pointer: a wrong span is a number a human might re-check, a wrong identifier is silent, machine-readable, and will be joined against and believed. Several rows may legitimately share one item — PIK-20B/D/E are variants of the aircraft the item describes."
+          },
+          {
+            "name": "seats",
+            "type": "integer",
+            "description": "How many people the aircraft carries, as stated by its EASA type certificate — 'Single-seater sailplane' / 'Doppelsitziges Segelflugzeug', read from the section the aircraft was identified in. Not from our own file names: 'Duo Discus (PAS)' and 'Duo Discus (PIL)' are one glider flown with and without a passenger, which is a fact about the polar and not about the aircraft. It exists because the FAI's 20-Metre Two-Seat class (SC3 6.5.7, 'multi-seat gliders having a crew of two persons') could not be tested without it. It also CORROBORATES: our 'Nimbus 4D' rows carry the wing area of the single-seat Nimbus 4 (17.80 m², against the 4D's 17.96), so the area put a two-seat glider on a one-seat aircraft's section and took home its span. The seats caught it. EMPTY where the certificate does not say, or where there is no certificate."
           },
           {
             "name": "easa_tcds",

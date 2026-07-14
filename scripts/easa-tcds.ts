@@ -77,7 +77,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { spanFromName, modelOf } from './classify-gliders';
+import { spanFromName, modelOf, classFromSpan } from './classify-gliders';
 
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
@@ -310,6 +310,36 @@ export interface Section {
   /** True when the prose around it offers a span the Dimensions field does not state: a glider with
    *  removable tips, whose certificate names one span and whose airframe flies another. */
   variableSpan: boolean;
+  /** How many people the certificate says it carries — or null when it does not say. */
+  seats: number | null;
+}
+
+/** THE SEATS, AND WHY THEY ARE HERE AND NOT GUESSED.
+ *
+ *  The FAI's 20-Metre Two-Seat class is the one competition class whose entry condition our table
+ *  could not test, because nothing in it said how many people a glider carries. The certificate does,
+ *  in the same prose that describes the wing:
+ *
+ *        Description:   Single-seater sailplane, T-tail, retractable ...
+ *        Beschreibung:  Doppelsitziges Segelflugzeug ...
+ *
+ *  A count from a certification authority, not from a name. `Duo Discus (PAS)` and `Duo Discus (PIL)`
+ *  are our own filenames for one glider flown with and without a passenger; they are a fact about our
+ *  polar files, not about the aircraft. */
+/** Does OUR OWN FILE NAME say this glider carries a passenger? `Nimbus 4D PAS`, `ASH-25 (PIL)`,
+ *  `IS-28B2 Lark with 2 person` — the person who measured the polar recorded a second body in it.
+ *
+ *  That is not a fact about the aircraft, it is a fact about the flight. But it is enough to KNOW that
+ *  the aircraft has two seats, and therefore enough to catch a certificate section that says it has
+ *  one. */
+export function passengerInName(fileName: string): boolean {
+  return /\bPAS\b|\bPIL\b|\b\d+\s*persons?\b/i.test(fileName);
+}
+
+export function seatsIn(prose: string): number | null {
+  if (/\b(two|twin|double|dual)[\s-]?seat|doppelsitz|zweisitz/i.test(prose)) return 2;
+  if (/\bsingle[\s-]?seat|einsitz/i.test(prose)) return 1;
+  return null;
 }
 
 /** Every (span, wing area) the document states, with the one flag that decides whether it may be
@@ -335,21 +365,38 @@ export function readSections(text: string): Section[] {
   // expression is the one kind of output that cannot be checked by looking at it.
   const dims = new RegExp(String.raw`Span\s*:?\s+${N}\s*m\b[\s\S]{0,1500}?Wing\s*area\s*:?\s+${N}\s*m`, 'gi');
   const out: Section[] = [];
+  /** Where the previous section demonstrably ended. The window may not reach past it. */
+  let prevEnd = 0;
 
   for (const m of text.matchAll(dims)) {
     const spanM = num(m[1]), areaM2 = num(m[2]);
     if (spanM === null || areaM2 === null) continue;
     if (spanM < 5 || spanM > 40 || areaM2 < 3 || areaM2 > 40) continue;
 
-    // The prose belonging to this section: back to the previous Dimensions block, or 6000 chars.
-    const from = Math.max(0, m.index - 6000);
+    // THE PROSE BELONGING TO THIS SECTION, and this line used to LIE.
+    //
+    // The comment said "back to the previous Dimensions block, or 6000 chars". The code did only the
+    // second half, so the window walked backwards straight through the section boundary and into the
+    // aircraft before. For the variable-span flag that was merely over-cautious — a stray `18 m span`
+    // from the neighbour makes us refuse, and refusing is safe.
+    //
+    // It stopped being safe the moment this window began ASSERTING something. EASA.A.063 covers the
+    // Nimbus 4 (single-seat) and the Nimbus 4D (two-seat), and the 4D's Dimensions block read back
+    // into the 4's description and came away with SINGLE-SEATER. A two-seat glider declared a
+    // single-seater, on a certification authority's paper, and the 20-Metre Two-Seat class silently
+    // withheld from it.
+    //
+    // The boundary is the previous Dimensions block, because that is where the previous aircraft's
+    // section demonstrably ended. Now the code does what the comment always claimed.
+    const from = Math.max(prevEnd, m.index - 6000);
     const prose = text.slice(from, m.index);
+    prevEnd = m.index + m[0].length;
     const spoken = [...prose.matchAll(new RegExp(String.raw`${N}\s*m\s*(?:span|Spannweite)`, 'gi'))]
       .map(x => num(x[1]))
       .filter((x): x is number => x !== null && x >= 5 && x <= 40);
 
     const variableSpan = spoken.some(s => Math.abs(s - spanM) > 0.05);
-    out.push({ spanM, areaM2, variableSpan });
+    out.push({ spanM, areaM2, variableSpan, seats: seatsIn(prose) });
   }
   return out;
 }
@@ -380,7 +427,7 @@ export function readSections(text: string): Section[] {
 // It stays the LAST resort all the same, used only where no wing area exists to be asked, because a
 // number is checkable and a name is a judgement.
 
-export interface Headed { header: string; spanM: number; variableSpan: boolean }
+export interface Headed { header: string; spanM: number; variableSpan: boolean; seats: number | null }
 
 /** Every (section heading, span) this document states.
  *
@@ -420,7 +467,10 @@ export function readHeadedSpans(text: string): Headed[] {
     const spoken = [...prose.matchAll(new RegExp(String.raw`${N}\s*m\s*(?:span|Spannweite)`, 'gi'))]
       .map(x => num(x[1]))
       .filter((x): x is number => x !== null && x >= 5 && x <= 40);
-    out.push({ header: head.title, spanM, variableSpan: spoken.some(s => Math.abs(s - spanM) > 0.05) });
+    out.push({
+      header: head.title, spanM, seats: seatsIn(prose),
+      variableSpan: spoken.some(s => Math.abs(s - spanM) > 0.05),
+    });
   }
   return out;
 }
@@ -481,13 +531,14 @@ export function headerNames(ourName: string, header: string): boolean {
  *  a running-header artefact, or a genuine sub-variant — and then they must AGREE. */
 export function spanForHeader(
   headed: Headed[], ourName: string,
-): { spanM: number; header: string } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
+): { spanM: number; header: string; seats: number | null } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
   const hits = headed.filter(h => headerNames(ourName, h.header));
   if (hits.length === 0) return { refused: 'no-section' };
   if (hits.some(h => h.variableSpan)) return { refused: 'variable-span' };
   const spans = new Set(hits.map(h => h.spanM));
   if (spans.size > 1) return { refused: 'conflict' };
-  return { spanM: hits[0].spanM, header: hits[0].header };
+  const seats = new Set(hits.map(h => h.seats).filter((x): x is number => x !== null));
+  return { spanM: hits[0].spanM, header: hits[0].header, seats: seats.size === 1 ? [...seats][0] : null };
 }
 
 /** The span this certificate states for the glider whose wing area is ours — or null, with a reason.
@@ -498,7 +549,7 @@ export function spanForHeader(
  *  we are not the ones to choose. */
 export function spanForArea(
   sections: Section[], ourAreaM2: number, exactOnly = false,
-): { spanM: number } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
+): { spanM: number; seats: number | null } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
   // An EXACT area match outranks a merely close one, and the difference is not pedantry.
   //
   // The Nimbus 4's certificate holds `26.4 m @ 17.80 m²` and `26.5 m @ 17.96 m²`. Our polar says
@@ -532,7 +583,10 @@ export function spanForArea(
 
   const spans = new Set(hits.map(s => s.spanM));
   if (spans.size > 1) return { refused: 'conflict' };
-  return { spanM: hits[0].spanM };
+  // The seats must agree too, and where they do not the document is describing more than one
+  // aircraft. Silence is not disagreement: a section that says nothing about seats says nothing.
+  const seats = new Set(hits.map(s => s.seats).filter((x): x is number => x !== null));
+  return { spanM: hits[0].spanM, seats: seats.size === 1 ? [...seats][0] : null };
 }
 
 // ---- the run ----
@@ -556,12 +610,21 @@ if (import.meta.main) {
   // A column that already exists KEEPS ITS PLACE — see link-wikidata: appending afresh made the
   // file's header depend on the order the scripts ran in.
   const cols = [...head];
+  // A column that already exists KEEPS ITS PLACE (see link-wikidata: appending afresh made the file's
+  // header depend on the order the scripts ran in). A NEW column is born where it belongs — `seats` is
+  // an aircraft fact and sits with them, not tacked on after the certificate's URL.
+  if (!cols.includes('seats')) {
+    const before = cols.indexOf('easa_tcds');
+    cols.splice(before < 0 ? cols.length : before, 0, 'seats');
+  }
   for (const c of ['easa_tcds', 'easa_url']) if (!cols.includes(c)) cols.push(c);
   const out = [cols.join(',')];
 
   let upgraded = 0, agreed = 0, corrected = 0, noArea = 0, noCert = 0, notASailplane = 0, notNamed = 0;
-  let viaTitle = 0, viaMakerN = 0;
-  const refusals: Record<string, number> = { 'no-section': 0, 'variable-span': 0, conflict: 0 };
+  let viaTitle = 0, viaMakerN = 0, seated = 0;
+  const refusals: Record<string, number> = { 'no-section': 0, 'variable-span': 0, conflict: 0, seats: 0 };
+  const refusedSeats: string[] = [];
+  const revoked: string[] = [];
   const certNoArea = new Set<string>();
   const headDisagreed: string[] = [];
   let viaHeader = 0;
@@ -576,7 +639,7 @@ if (import.meta.main) {
     const name = declared !== '' ? declared : modelOf(fileName);
     const ourArea = num(at(r, 'wing_area_m2'));
     const hadSpan = num(at(r, 'span_m'));
-    let spanM: number | null = null, tcds = '', url = '';
+    let spanM: number | null = null, seats: number | null = null, tcds = '', url = '';
 
     if (at(r, 'wing_class') !== 'glider') {
       // A paraglider has no type certificate. Not a failure — a category error, and silent.
@@ -640,7 +703,7 @@ if (import.meta.main) {
             refusedVariable.push(`${name} — ${c.id} says ${h.spanM} m, the name says ${named} m`);
             continue;
           }
-          spanM = h.spanM; tcds = c.id; url = c.pdf; found = true; viaHeader++;
+          spanM = h.spanM; seats = h.seats; tcds = c.id; url = c.pdf; found = true; viaHeader++;
           break;
         }
 
@@ -650,6 +713,22 @@ if (import.meta.main) {
         if (ourArea === null) continue;   // the area path, and we have no area to bring to it
 
         const verdict = spanForArea(sections, ourArea, viaMaker);
+        // THE SEATS CAUGHT A WRONG SECTION, which is what a second independent number is FOR.
+        //
+        // EASA.A.063 holds the Nimbus 4 at 26.4 m / 17.80 m² (SINGLE-SEAT) and the Nimbus 4D at
+        // 26.5 m / 17.96 m² (TWO-SEAT). Our `Nimbus 4D PAS` row carries a wing area of 17.80 — the
+        // SINGLE-SEATER's — so the area, which is the only thing identifying it, put a two-seat
+        // glider on a one-seat aircraft's section and took home its span.
+        //
+        // Nothing caught it, because nothing else in the row disagreed. The seats do: `PAS` means
+        // our own polar was flown with a passenger in it. A row whose name says two bodies may not be
+        // matched to a section that says one seat, and this is the same rule as `the row may not
+        // contradict the span its own name states` — a second number, and a second door.
+        if (!('refused' in verdict) && verdict.seats === 1 && passengerInName(fileName)) {
+          refusals['seats']++;
+          refusedSeats.push(`${fileName} — ${c.id} says SINGLE-SEAT, and our own polar was flown with a passenger`);
+          continue;
+        }
         if ('refused' in verdict) {
           refusals[verdict.refused]++;
           if (verdict.refused === 'variable-span') refusedVariable.push(`${name} — ${c.id}`);
@@ -670,11 +749,28 @@ if (import.meta.main) {
           refusedVariable.push(`${name} — ${c.id} says ${verdict.spanM} m, the name says ${named} m`);
           continue;
         }
-        spanM = verdict.spanM; tcds = c.id; url = c.pdf; found = true;
+        spanM = verdict.spanM; seats = verdict.seats; tcds = c.id; url = c.pdf; found = true;
         if (viaMaker) viaMakerN++; else viaTitle++;
         break;
       }
-      if (!found) noCert++;
+      if (!found) {
+        noCert++;
+        // AND A REFUSAL MUST UNDO WHAT AN EARLIER RUN OF THIS SCRIPT WROTE.
+        //
+        // The comment further down says it plainly — "a script that is not idempotent against its OWN
+        // bad output will launder its own mistakes forever" — and then this script did exactly that.
+        // The four Nimbus 4D rows were given a span by a run that matched them to the SINGLE-SEAT
+        // Nimbus 4's section. This run, with the seats to check against, refuses them. And they kept
+        // the old span, still labelled `easa`, beside an empty easa_tcds: a certified number with no
+        // certificate, laundered by the very refusal that was supposed to remove it.
+        //
+        // A span this script can no longer justify is a span this script must take back.
+        if (at(r, 'span_source') === 'easa') {
+          revoked.push(`${fileName} — held ${at(r, 'span_m')} m as CERTIFIED, and no certificate now stands behind it`);
+          r[head.indexOf('span_m')] = '';
+          r[head.indexOf('span_source')] = '';
+        }
+      }
     }
 
     if (spanM !== null) {
@@ -690,6 +786,11 @@ if (import.meta.main) {
       row[cols.indexOf('span_m')] = String(spanM);
       row[cols.indexOf('span_source')] = 'easa';
     }
+    // The seats, and the class the seats unlock. A row keeps a seat count it already had: only the
+    // certificate writes this column, and only a certificate can overturn it.
+    if (seats !== null) { row[cols.indexOf('seats')] = String(seats); seated++; }
+    const heldSeats = num(row[cols.indexOf('seats')]);
+    row[cols.indexOf('fai_class')] = quote(classFromSpan(num(row[cols.indexOf('span_m')]), heldSeats));
     row[cols.indexOf('easa_tcds')] = quote(tcds);
     row[cols.indexOf('easa_url')] = quote(url);
     out.push(row.join(','));
@@ -724,6 +825,7 @@ if (import.meta.main) {
 gliders given a CERTIFIED span   ${upgraded}
   the TITLE named the aircraft   ${viaTitle}   (area corroborates, 0.35 m² forgiven)
   only the MAKER matched         ${viaMakerN}   ← the family documents, reached by manufacturer
+  SEATS, from the certificate    ${seated}   ← the 20-Metre Two-Seat class needs them, and nothing else had them
   the SECTION HEADING named it   ${viaHeader}   ← the certificate states no wing area; EASA titled the section
   it agreed with what we held    ${agreed}   (Wikipedia was right, and now it is also sourced)
   it CORRECTED what we held      ${corrected}
@@ -737,11 +839,25 @@ refused, and kept as they were:
   no section with our wing area  ${refusals['no-section']}
   VARIABLE SPAN                  ${refusals['variable-span']}   ← the certificate says one span, the aircraft flies another
   sections disagree              ${refusals['conflict']}
+  SINGLE-SEAT, and ours flew two ${refusals['seats']}   ← the area matched the wrong aircraft, and the seats said so
 `);
 
   if (changes.length > 0) {
     console.log('the certificate disagreed with Wikipedia, and the certificate wins:');
     for (const c of changes) console.log(c);
+    console.log('');
+  }
+  if (revoked.length > 0) {
+    console.log(`REVOKED — an earlier run of THIS script wrote these, and this run cannot justify them. A
+refusal that leaves the old value in place launders the mistake it was meant to remove. Run
+\`just classify-gliders\` to let Wikipedia answer for them again:`);
+    for (const c of revoked) console.log(`  ${c}`);
+    console.log('');
+  }
+  if (refusedSeats.length > 0) {
+    console.log(`the certificate's section says SINGLE-SEAT and our own polar carried a passenger. The wing
+area put us on the wrong aircraft — an independent number caught it, which is what it is for:`);
+    for (const c of refusedSeats) console.log(`  ${c}`);
     console.log('');
   }
   if (headDisagreed.length > 0) {

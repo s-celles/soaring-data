@@ -6,7 +6,9 @@
 // nothing at all, and where a regular expression that tried harder would produce a confident lie.
 
 import { test, expect } from 'bun:test';
-import { spanFromName, classFromSpan, titleMatches, titleStrength, match, modelOf } from './classify-gliders';
+import {
+  classFromSpan, match, modelOf, spanFromName, titleMatches, titleStrength,
+} from './classify-gliders';
 
 // ---- reading the span off the name ----
 
@@ -238,4 +240,32 @@ test('WHY a match is weak decides whether Wikidata\'s own search may act on it',
   expect(k8.strength).toBe('weak');
   expect(k8.word).toBe(false);            // the digit 8, and nothing else: refused
   expect(k8.digit).toBe(true);
+});
+
+// ============ what the FAI Sporting Code actually says ============
+
+test('A MAXIMUM IS NOT A TARGET — the Janus B at 18.2 m is NOT 18-Metre class', () => {
+  // SC3 6.5.2: "The only limitation is a maximum span of 18,000 mm." A CEILING. `Math.abs(span - 18)
+  // < 0.3` read it as a target, accepted the Janus B at 18.2 m, and declared it eligible for a class
+  // it exceeds by twenty centimetres. The tolerance may reach DOWNWARDS, for a glider built to the
+  // limit and measured a few centimetres under it. It may never reach above.
+  expect(classFromSpan(18.0)).toBe('18m');
+  expect(classFromSpan(17.8)).toBe('18m');
+  expect(classFromSpan(18.2)).toBe('');      // over the ceiling. Not a class.
+  expect(classFromSpan(18.3)).toBe('');      // the ASW 12
+});
+
+test('the 20-Metre Two-Seat class needs the SEATS, and nothing in this table had them', () => {
+  // SC3 6.5.7: "multi-seat gliders having a crew of two persons". The Duo Discus, the DG-1000 and the
+  // Arcus are all exactly 20 m, and until the certificates were read they were gliders of no class.
+  expect(classFromSpan(20, 2)).toBe('20m');
+  expect(classFromSpan(20, 1)).toBe('');      // the ASW 17 is 20 m and carries one person
+  expect(classFromSpan(20, null)).toBe('');   // and silence is not two seats
+  expect(classFromSpan(17, 2)).toBe('');      // the ASK 21 seats two and is not a 20 m glider
+});
+
+test('open is what is left when nothing else fits — it is not a certificate of merit', () => {
+  expect(classFromSpan(26.4, 1)).toBe('open');
+  expect(classFromSpan(22, 2)).toBe('open');     // the DG-500
+  expect(classFromSpan(15)).toBe('');            // 15 m needs the flaps, and we do not have them
 });
