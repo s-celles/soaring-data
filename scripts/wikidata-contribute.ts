@@ -173,6 +173,9 @@ async function heldWingspan(qid: string): Promise<Held> {
  *
  *  Plain text that is not linked (`AB Sportinė Aviacija`) yields nothing: an unresolvable name is a
  *  string, and P176 does not take strings. It stays empty, and empty is the honest answer. */
+/** Piped links whose displayed name is not their target's — reported, for a human to settle. */
+const piped: { target: string; shown: string }[] = [];
+
 async function makerFromArticle(qid: string): Promise<{ maker: string; label: string } | null> {
   const title = await articleOf(qid);
   if (title === null) return null;
@@ -185,10 +188,42 @@ async function makerFromArticle(qid: string): Promise<{ maker: string; label: st
   const text = Object.values(pages)[0]?.revisions?.[0]?.slots?.main?.['*'];
   if (text === undefined) return null;
 
-  const field = /\|\s*manufacturer\s*=\s*([^\n|]+)/i.exec(text)?.[1];
+  // The field, taken WHOLE — pipes included, because a pipe is the thing we must see.
+  const field = /\|\s*manufacturer\s*=\s*([^\n]+)/i.exec(text)?.[1];
   if (field === undefined) return null;
-  const linked = /\[\[([^\]|]+)/.exec(field)?.[1]?.trim();
-  if (linked === undefined || linked === '') return null;      // unlinked text is not an item
+
+  const link = /\[\[([^\]]+)\]\]/.exec(field)?.[1];
+  if (link === undefined) return null;                         // unlinked text is not an item
+
+  // A PIPED LINK SAYS ONE OF TWO THINGS, and they are not the same thing at all.
+  //
+  //     [[SA Centrair|Centrair]]                 a SHORTENING. Same company, tidier display.
+  //     [[Industria Aeronautică Română|ICA]]     an ACRONYM. Probably the same company.
+  //     [[Beneš-Mráz|Orličan]]                   TWO DIFFERENT NAMES.
+  //
+  // That last one is not a display convenience. Beneš-Mráz was nationalised in 1946 and became
+  // Orličan; Wikipedia links the successor to its ancestor as a kindness to the reader. The VT-16 is
+  // a 1959 glider. Publishing that target into P176 would state that a PRE-WAR company manufactured a
+  // post-war sailplane — false about the history, and permanently machine-readable.
+  //
+  // So: if the DISPLAYED name is contained in the TARGET, the pipe is a shortening and the target is
+  // safe. If it is not, the article is showing a name that is not its target's, and that is a
+  // JUDGEMENT — which goes to a human, not into a batch. It is reported, never silently dropped and
+  // never silently published.
+  const [target, shown] = link.split('|').map(x => x.trim());
+  if (target === undefined || target === '') return null;
+
+  // On WORD boundaries, and that is not pedantry. A plain substring test let
+  // `[[Industria Aeronautică Română|ICA]]` through — because `ica` happens to sit inside
+  // `aeronautica`. The answer was right and the reason was a coincidence, which is precisely the
+  // shape of every mistake this repository has made. A shortening drops WORDS; it does not slice
+  // through the middle of one.
+  const words = (x: string): string[] =>
+    x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? [];
+  const t = words(target), sh = shown === undefined ? [] : words(shown);
+  const shortening = sh.length === 0 || sh.every(w => t.includes(w));
+  if (!shortening) { piped.push({ target, shown }); return null; }
+  const linked = target;
 
   // The linked article's item — the company, by identifier.
   const w = await api(WP, { action: 'query', prop: 'pageprops', titles: linked, redirects: '1' });
@@ -416,6 +451,15 @@ if (makers.length > 0) {
     console.log(`   P176 does not take strings. They stay empty, and empty is the honest answer.)`);
   }
   console.log('');
+}
+
+if (piped.length > 0) {
+  console.log('  A HUMAN MUST SETTLE THESE. The article links to one company and DISPLAYS another:\n');
+  for (const p of piped) console.log(`    [[${p.target}|${p.shown}]]   — is ${p.shown} the same firm as ${p.target}?`);
+  console.log('\n  `[[Beneš-Mráz|Orličan]]` is the reason this check exists: the firm was nationalised in');
+  console.log('  1946 and became Orličan, and the VT-16 is a 1959 glider. Publishing the target would');
+  console.log('  say a PRE-WAR company built a post-war sailplane. Add the answer to aliases.csv, or');
+  console.log('  put P176 on the item by hand — but do not let a script decide it.\n');
 }
 
 console.log(`
