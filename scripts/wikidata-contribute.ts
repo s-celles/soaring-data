@@ -57,6 +57,8 @@ const AREA_TOLERANCE_M2 = 0.8;
 /** Wikidata's units and properties, by their own ids. P2050 = wingspan; Q11573 = metre;
  *  S143 = "imported from Wikimedia project"; Q328 = English Wikipedia. */
 const P_WINGSPAN = 'P2050', Q_METRE = 'Q11573', S_IMPORTED = 'S143', Q_EN_WIKI = 'Q328';
+/** P176 = manufacturer. Twenty of our gliders point at an item that does not say who built it. */
+const P_MAKER = 'P176';
 /** S854 = reference URL; S813 = retrieved (a date). The pair that turns a claim into a checkable one. */
 const S_URL = 'S854', S_RETRIEVED = 'S813';
 /** The same property, as it is named in a CLAIM rather than in a QuickStatements reference line. */
@@ -152,6 +154,63 @@ async function heldWingspan(qid: string): Promise<Held> {
   return { spans, refUrls };
 }
 
+/** Who does this aircraft's own article say built it — as an ITEM, not as a string.
+ *
+ *  This is the reciprocal of the manufacturer column, and the direction matters. We do NOT fill our
+ *  own file from a Wikipedia infobox: our `manufacturer` column has exactly ONE source, Wikidata's
+ *  P176, and it will stay that way. What we do instead is fill P176 — and then our column reads it
+ *  on the next run and heals itself.
+ *
+ *  The gap is IN THE COMMONS. Twenty of our gliders point at an item that does not name its maker:
+ *  the PIK-20, the Mini-Nimbus, the Bocian, the Discus. Every one of them has an article whose
+ *  infobox says so, and says so as a WIKILINK:
+ *
+ *      | manufacturer = [[Schempp-Hirth]]
+ *
+ *  A wikilink is an article, an article is an item, and an item is what P176 wants. So the value we
+ *  offer is not a name we typed — it is the identifier of the company, resolved through the same
+ *  chain the article itself uses.
+ *
+ *  Plain text that is not linked (`AB Sportinė Aviacija`) yields nothing: an unresolvable name is a
+ *  string, and P176 does not take strings. It stays empty, and empty is the honest answer. */
+async function makerFromArticle(qid: string): Promise<{ maker: string; label: string } | null> {
+  const title = await articleOf(qid);
+  if (title === null) return null;
+
+  const p = await api(WP, {
+    action: 'query', prop: 'revisions', rvprop: 'content', rvslots: 'main',
+    titles: title, redirects: '1',
+  });
+  const pages = (p.query as { pages?: Record<string, { revisions?: { slots: { main: { '*': string } } }[] }> })?.pages ?? {};
+  const text = Object.values(pages)[0]?.revisions?.[0]?.slots?.main?.['*'];
+  if (text === undefined) return null;
+
+  const field = /\|\s*manufacturer\s*=\s*([^\n|]+)/i.exec(text)?.[1];
+  if (field === undefined) return null;
+  const linked = /\[\[([^\]|]+)/.exec(field)?.[1]?.trim();
+  if (linked === undefined || linked === '') return null;      // unlinked text is not an item
+
+  // The linked article's item — the company, by identifier.
+  const w = await api(WP, { action: 'query', prop: 'pageprops', titles: linked, redirects: '1' });
+  const wp = (w.query as { pages?: Record<string, { pageprops?: { wikibase_item?: string } }> })?.pages ?? {};
+  const maker = Object.values(wp)[0]?.pageprops?.wikibase_item;
+  if (maker === undefined || maker === qid) return null;       // an aircraft is not its own maker
+
+  // A MANUFACTURER IS NOT A PERSON, and the infobox will happily hand us one. Gliding is full of
+  // firms named after the man who founded them, and an article that writes
+  //     | manufacturer = [[Wolf Hirth]]
+  // links to the AVIATOR, not the company. Writing that into P176 would say a human being
+  // manufactured an aircraft — a statement that is false about the person, false about the firm, and
+  // permanently machine-readable. So the item must not be an instance of human (Q5).
+  const inst = await api(WD, { action: 'wbgetclaims', entity: maker, property: 'P31' });
+  const claims = ((inst.claims as Record<string, unknown[]> | undefined) ?? {}).P31 ?? [];
+  const kinds = claims.map(c =>
+    (c as { mainsnak?: { datavalue?: { value?: { id?: string } } } }).mainsnak?.datavalue?.value?.id);
+  if (kinds.includes('Q5')) return null;
+
+  return { maker, label: linked };
+}
+
 // ---- the run ----
 
 const lines = (await readFile(CSV, 'utf8')).trim().split(/\r?\n/);
@@ -160,9 +219,12 @@ const col = (n: string): number => head.indexOf(n);
 const iName = col('name'), iClass = col('wing_class');
 const iSpan = col('span_m'), iSrc = col('span_source'), iQid = col('wikidata_qid');
 const iTcds = col('easa_tcds'), iUrl = col('easa_url');
+const iMaker = col('manufacturer'), iModel = col('model');
 
 interface Claim { name: string; qid: string; span: number; src: string; tcds: string; url: string }
 const candidates: Claim[] = [];
+/** Items that point at an aircraft whose maker the commons does not name. */
+const makerless = new Map<string, string>();      // glider QID → the model, for the printout
 /** Statements that ALREADY hold our certified number, and are missing the certificate that proves it. */
 const refs: Claim[] = [];
 let refAlready = 0;
@@ -183,14 +245,20 @@ let withheldName = 0, alreadyThere = 0, noItem = 0, drifted = 0;
 for (const line of lines.slice(1)) {
   const r = cells(line);
   if (r[iClass] !== 'glider') continue;
-  const span = num(r[iSpan]);
-  if (span === null) continue;
-
-  // The withheld half — see the header. A span read off a FILE NAME is our reading of a variant,
-  // and the Wikidata item is the aircraft.
   const name = r[iName].replace(/^"|"$/g, '');
+  const model = (r[iModel] ?? '').replace(/^"|"$/g, '').trim();
   const qid = (r[iQid] ?? '').trim();
   const tcds = (r[iTcds] ?? '').trim(), url = (r[iUrl] ?? '').trim();
+
+  // WHO BUILT IT is a separate question from HOW WIDE ITS WING IS, and it is asked of every glider
+  // that has an item — including the ones whose span we will never offer. A row withheld from the
+  // wingspan batch, because its span was read off a file name, still points at an aircraft whose
+  // maker the commons does not name. Collecting this AFTER the span filters (where it first sat)
+  // asked the question only of the gliders that happened to survive a different one.
+  if (qid !== '' && (r[iMaker] ?? '').trim() === '' && !makerless.has(qid)) makerless.set(qid, model);
+
+  const span = num(r[iSpan]);
+  if (span === null) continue;
 
   // The evidence is gathered FIRST, from every row alike. What we may publish and what we know are
   // two different questions, and the second one decides the first.
@@ -206,6 +274,7 @@ for (const line of lines.slice(1)) {
   const src = r[iSrc];
   if (src !== 'wikipedia' && src !== 'easa') { withheldName++; continue; }
   if (qid === '') { noItem++; continue; }
+
   const held = await heldWingspan(qid);
   if (held.spans.length > 0) {
     alreadyThere++;
@@ -282,10 +351,26 @@ const refOf = (o: Claim): string =>
     ? `${S_URL}\t"${o.url}"\t${S_RETRIEVED}\t+${TODAY}T00:00:00Z/11`
     : `${S_IMPORTED}\t${Q_EN_WIKI}`;
 
+// ---- who built it: filling a gap that is IN THE COMMONS ----
+//
+// Our `manufacturer` column has exactly ONE source and will keep exactly one: Wikidata's P176. So
+// when twenty of our gliders point at an item that does not name its maker, the answer is NOT to
+// patch our own file from a Wikipedia infobox — it is to fill P176, and let our column read it on
+// the next run and heal itself. The gap is in the commons; that is where it gets closed.
+const makers: { qid: string; maker: string; model: string; label: string }[] = [];
+let makerUnresolved = 0;
+for (const [qid, model] of makerless) {
+  const m = await makerFromArticle(qid);
+  if (m === null) { makerUnresolved++; continue; }
+  makers.push({ qid, maker: m.maker, model, label: m.label });
+}
+
 // The references go in the SAME file: QuickStatements matches an existing statement on
 // (item, property, value) and attaches the reference to it rather than creating a duplicate.
 const line = (o: Claim): string => `${o.qid}\t${P_WINGSPAN}\t${o.span}U${Q_METRE.slice(1)}\t${refOf(o)}`;
-const all = [...offered.map(line), ...refs.map(line)].join('\n');
+const makerLine = (m: { qid: string; maker: string }): string =>
+  `${m.qid}\t${P_MAKER}\t${m.maker}\t${S_IMPORTED}\t${Q_EN_WIKI}`;
+const all = [...offered.map(line), ...refs.map(line), ...makers.map(makerLine)].join('\n');
 await writeFile(OUT, all + (all ? '\n' : ''));
 
 console.log(`
@@ -321,8 +406,20 @@ if (refs.length > 0) {
   console.log('');
 }
 
+if (makers.length > 0) {
+  console.log(`  and the MAKERS — ${makers.length} items that point at an aircraft and do not say who built it.\n  Our manufacturer column reads P176 and nothing else, so this is where the gap gets closed:\n`);
+  for (const m of makers) {
+    console.log(`  ${m.qid.padEnd(11)} ${m.model.padEnd(24)} ${P_MAKER} → ${m.maker.padEnd(10)} ${m.label}`);
+  }
+  if (makerUnresolved > 0) {
+    console.log(`\n  (${makerUnresolved} more state a maker in plain text, unlinked. A string is not an item, and`);
+    console.log(`   P176 does not take strings. They stay empty, and empty is the honest answer.)`);
+  }
+  console.log('');
+}
+
 console.log(`
-Written to wikidata.qs — ${offered.length + refs.length} line(s): ${offered.length} new value(s), ${refs.length} certificate(s) for values already there.
+Written to wikidata.qs — ${offered.length + refs.length + makers.length} line(s): ${offered.length} new span(s), ${refs.length} certificate(s), ${makers.length} manufacturer(s).
 
 Nothing has been edited. To contribute, READ the batch above (a human who knows gliders will spot
 a wrong one in a way no cross-check can), then paste the file into QuickStatements:
