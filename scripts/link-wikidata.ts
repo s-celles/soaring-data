@@ -37,7 +37,7 @@
 // Run:  just link-wikidata      → rewrites polars.csv, adding/refreshing wikidata_qid
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { titleStrength, match, modelOf } from './classify-gliders';
+import { titleStrength, match, modelOf, classFromSpan } from './classify-gliders';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
 const ALIASES = new URL('../datasets/polars/aliases.csv', import.meta.url).pathname;
@@ -307,6 +307,51 @@ async function declaredAliases(): Promise<Map<string, string>> {
   return out;
 }
 
+// ---- the article we already knew the address of ----
+//
+// classify-gliders reads a span out of Wikipedia by SEARCHING for the glider. When the search misses,
+// the cell stays empty — and it missed for twenty of our gliders, including the Blaník L23, the K 8,
+// the Pégase and both Jantars.
+//
+// But by then we KNOW WHICH ARTICLE IT IS. A human pinned it, by hand, in aliases.csv, with the URL
+// written in the evidence column. The classifier was sent out to search for a thing whose address is
+// sitting in the next file along — and came back empty, and we wrote down `unknown`.
+//
+// So: for a glider that has an item and no span, go to the article THAT ITEM points at, and read it.
+// The guards do not move an inch. The infobox's wing area must still agree with ours (no area, no
+// answer — the rule that stopped `Discus A` becoming a radio-control toy), and the number is still
+// `span_source=wikipedia`, because that is precisely what it is: an encyclopaedia's number, sourced
+// from an encyclopaedia, and no stronger for having been easier to find.
+
+/** The English Wikipedia article this item is attached to — Wikidata's own sitelink. */
+async function articleOf(qid: string): Promise<string | null> {
+  const d = await api({ action: 'wbgetentities', ids: qid, props: 'sitelinks', sitefilter: 'enwiki' }, WD);
+  const ents = (d.entities as Record<string, { sitelinks?: { enwiki?: { title: string } } }>) ?? {};
+  return ents[qid]?.sitelinks?.enwiki?.title ?? null;
+}
+
+/** The span the PINNED article states, corroborated by its wing area. Null when it cannot be. */
+export async function spanFromArticle(qid: string, ourAreaM2: number | null): Promise<number | null> {
+  if (ourAreaM2 === null) return null;          // no area, no answer — the guard does not bend here
+  const title = await articleOf(qid);
+  if (title === null) return null;
+
+  const p = await api({
+    action: 'query', prop: 'revisions', rvprop: 'content', rvslots: 'main',
+    titles: title, redirects: '1',
+  });
+  const pages = (p.query as { pages?: Record<string, { revisions?: { slots: { main: { '*': string } } }[] }> })?.pages ?? {};
+  const text = Object.values(pages)[0]?.revisions?.[0]?.slots?.main?.['*'];
+  if (text === undefined) return null;
+
+  const span = num(/\|\s*span\s*m\s*=\s*([\d.,]+)/i.exec(text)?.[1]);
+  const theirArea = num(/\|\s*wing\s*area\s*sqm\s*=\s*([\d.,]+)/i.exec(text)?.[1]);
+  if (span === null || theirArea === null) return null;
+  if (span < 8 || span > 35) return null;
+  if (Math.abs(theirArea - ourAreaM2) > AREA_TOLERANCE_M2) return null;
+  return span;
+}
+
 // ---- the run ----
 //
 // Guarded like the classifier's: this module exports findQid, and importing one function must not
@@ -337,7 +382,7 @@ if (import.meta.main) {
   const aliases = await declaredAliases();
   let held = 0, found = 0, none = 0, fromWd = 0, fromAlias = 0;
   const rows: { name: string; qid: string }[] = [];
-  const resolved: { row: string[]; qid: string }[] = [];
+  const resolved: { row: string[]; name: string; qid: string }[] = [];
 
   for (const line of lines.slice(1)) {
     const r = cells(line);
@@ -374,11 +419,45 @@ if (import.meta.main) {
     if (qid !== '') rows.push({ name, qid });
     const row = cols.map(c => quote(r[head.indexOf(c)] ?? ''));
     row[qidAt] = quote(qid);
-    resolved.push({ row, qid });
+    resolved.push({ row, name, qid });
   }
 
   // The borrowed column, fetched in two batched rounds once every item is known.
   const maker = await manufacturers([...new Set(resolved.map(x => x.qid).filter(q => q !== ''))]);
+
+  // ---- and the span from the article we already knew the address of ----
+  //
+  // ONE ROW, ONE ITEM, or nothing. `LS-8-15` and `LS-8-18` both point at Q2163993, the LS8 — and the
+  // article states THE LS8's span. Filling both rows from it would give a 15 m glider and an 18 m
+  // glider the same number, and one of them would be wrong while looking exactly as sourced as the
+  // other. Where several of our rows share an item, the item is the AIRCRAFT and the rows are its
+  // CONFIGURATIONS, and no single number in that article is theirs. They stay empty. That is the same
+  // rule wikidata-contribute obeys in the other direction, and aliases.csv says so in plain words.
+  const uses = new Map<string, number>();
+  for (const { qid } of resolved) if (qid !== '') uses.set(qid, (uses.get(qid) ?? 0) + 1);
+
+  const spanAt = cols.indexOf('span_m'), srcAt = cols.indexOf('span_source');
+  const areaAt = cols.indexOf('wing_area_m2'), classAt = cols.indexOf('wing_class');
+  let filled = 0, sharedItem = 0;
+  const gained: string[] = [];
+
+  for (const { row, name, qid } of resolved) {
+    if (qid === '' || row[classAt] !== 'glider') continue;
+    if ((row[spanAt] ?? '').trim() !== '') continue;              // it has one; this only fills gaps
+    if ((uses.get(qid) ?? 0) > 1) { sharedItem++; continue; }     // a configuration, not the aircraft
+    const span = await spanFromArticle(qid, num(row[areaAt]));
+    if (span === null) continue;
+    row[spanAt] = String(span);
+    row[srcAt] = 'wikipedia';
+    // The class is DERIVED from the span, and it is derived HERE — not left for the next classify run
+    // to notice. A file that is only consistent after you happen to run another tool is not a file,
+    // it is a promise.
+    const clsAt = cols.indexOf('fai_class');
+    if (clsAt >= 0) row[clsAt] = quote(classFromSpan(span));
+    filled++;
+    gained.push(`  ${name.padEnd(22)} ${String(span).padStart(6)} m   ${qid}`);
+  }
+
   const out = [cols.join(',')];
   for (const { row, qid } of resolved) {
     const m = maker.get(qid);
@@ -406,12 +485,23 @@ wings: ${fromAlias + held + found + none}
   identifier established    ${found}   (of which ${fromWd} from Wikidata's own search, by alias)
   NO item, left empty       ${none}   ← a wrong pointer is worse than none: it is permanent
 
+the SPAN, read from the article the ITEM points at — not from a search that missed it:
+  gaps filled               ${filled}
+  item shared by variants   ${sharedItem}   ← the item is the AIRCRAFT; the rows are its configurations
+
 manufacturer, BORROWED from Wikidata (P176) — never derived, never cached:
   wings given a maker       ${named}
   items with NO P176        ${itemsWithoutP176}   ← a gap in the commons, and one we could fill
 
   distinct Wikidata items   ${byQid.size}
   items shared by variants  ${shared.length}`);
+
+  if (gained.length > 0) {
+    console.log(`
+a span we already had the address of. classify-gliders went out and SEARCHED for these articles and
+came back empty — while a human had pinned the very same article, by hand, in aliases.csv:`);
+    for (const g of gained) console.log(g);
+  }
 
   for (const [qid, names] of shared) console.log(`    ${qid}  ←  ${names.join(', ')}`);
 
