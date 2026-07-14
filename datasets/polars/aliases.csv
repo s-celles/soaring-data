@@ -1,0 +1,8 @@
+name,wikidata_qid,evidence
+Mosquito,Q1529454,"the Glasflügel 303 Mosquito. Our wing area 9.85 m²; the article's 9.86 m². One square centimetre is not a coincidence — but the names share neither a word nor a number, so no rule will ever reach it."
+LS-8-15,Q2163993,"Rolladen-Schneider LS8. Wikipedia's search offers the SCHLEICHER K 8 first, on their shared digit 8, and it is a glider, so a description check waves it through. The right article is the second hit. A human read both."
+LS-8-18,Q2163993,"as LS-8-15: the item is the AIRCRAFT, and the 18 m tips are a configuration of it. The span stays empty — the article states the LS8's, not the LS8-18's."
+Antares 18S,Q1804903,"Lange Antares. The item is right and the wing area disagrees (10.97 m² against the article's 12.6) because the article describes the 20E. A failure of CONFIGURATION, which no area check can tell from a failure of IDENTITY."
+Antares 18T,Q1804903,"as Antares 18S."
+Phoebus C,Q1019853,"Bölkow Phoebus. Same shape: the item is right, and the C's wing is larger than the one the article measures (14.06 m² against 13.16)."
+VT-116,Q1777845,"Orličan VT-16 Orlík — and the article's Variants section names the VT-116 Orlík II explicitly, with more than 50 built. The item is the aircraft; the article gives no span for the VT-116, so ours stays empty. Checked by a human against the article, 2026-07-14."

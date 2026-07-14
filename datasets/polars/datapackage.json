@@ -237,6 +237,44 @@
           }
         ]
       }
+    },
+    {
+      "name": "aliases",
+      "path": "aliases.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "description": "The Wikidata identifiers a HUMAN decided, for the gliders no rule will ever reach. A declared identifier outranks every search AND every past run. Two things forced this file into existence. ONE: the tail is not a rule problem. `Mosquito` is the Glasflügel 303 — our wing area agrees with the article's to one square centimetre — and the two names share neither a word nor a number, so no pattern will ever connect them. `Antares 18S` IS a Lange Antares, and the article's area disagrees with ours only because the article describes the 20E: a failure of CONFIGURATION, which no check can tell apart from a failure of IDENTITY. TWO: THE SEARCHES ARE NOT DETERMINISTIC. Re-deriving every identifier from scratch — same code, same data, ten minutes later — gained four and LOST three. An identifier that flickers is a fact about the weather presented as a fact about the world.",
+      "schema": {
+        "primaryKey": "name",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "constraints": {
+              "required": true
+            },
+            "description": "The polar file's own name, exactly as polars.csv holds it. The KEY is the file name and not the model, because two rows may share a model and need different items — and because the file name is the one thing that never changes under us."
+          },
+          {
+            "name": "wikidata_qid",
+            "type": "string",
+            "constraints": {
+              "required": true,
+              "pattern": "^Q[0-9]+$"
+            },
+            "description": "The item. Clickable, checkable, and wrong-provable by anybody who disagrees."
+          },
+          {
+            "name": "evidence",
+            "type": "string",
+            "constraints": {
+              "required": true
+            },
+            "description": "WHY. Not a comment — the reason, written so that somebody who was not in the room can audit the decision and overturn it. A row without one is a row nobody can argue with, which is not a virtue."
+          }
+        ]
+      }
     }
   ]
 }

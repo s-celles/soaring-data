@@ -40,6 +40,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { titleStrength, match, modelOf } from './classify-gliders';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
+const ALIASES = new URL('../datasets/polars/aliases.csv', import.meta.url).pathname;
 const WP = 'https://en.wikipedia.org/w/api.php';
 const WD = 'https://www.wikidata.org/w/api.php';
 const UA = 'soaring-data/0.2 (https://github.com/s-celles/soaring-data)';
@@ -99,9 +100,32 @@ const api = async (params: Record<string, string>, base = WP): Promise<Record<st
  *  searching Wikidata directly. That is deliberate: Wikidata's own search matches labels and aliases
  *  with no notion of what a glider IS, while the article gives us an infobox whose WING AREA we can
  *  check against our own. The identifier we write down is one we have corroborated with a number. */
+/** Ask Wikipedia, and if it says NOTHING, ask a shorter question.
+ *
+ *  `Pegase 101A glider` returns ZERO results. `Pegase glider` returns `Centrair Pegase` first, whose
+ *  wing area is 10.5 m² — ours, to the centimetre, and whose variants section lists the C101A by
+ *  name. The article was there the whole time. The QUERY was over-specified: our model carries the
+ *  VARIANT designation (`101A`, `XT`, `Lark`), and no article title carries it, so the search engine
+ *  was being asked for a page that requires a word which exists nowhere.
+ *
+ *  A search that returns nothing has told us nothing. Asking a broader question is not guessing — it
+ *  is asking better, and every guard downstream still has to be satisfied. So the trailing tokens are
+ *  dropped one at a time until the search speaks. `Duo Discus XT` → `Duo Discus`. `SZD-38A Jantar 1`
+ *  → `SZD-38A Jantar`. A single-token name (`Ka8b`, `LS-1C`) has nothing to shorten and stays silent,
+ *  which is the honest answer for it. */
+async function search(name: string): Promise<string[]> {
+  const words = name.split(/\s+/).filter(w => w !== '');
+  for (let n = words.length; n >= 1; n--) {
+    const query = words.slice(0, n).join(' ');
+    const s = await api({ action: 'query', list: 'search', srsearch: `${query} glider`, srlimit: '3' });
+    const hits = ((s.query as { search?: { title: string }[] })?.search ?? []).map(h => h.title);
+    if (hits.length > 0) return hits;
+  }
+  return [];
+}
+
 export async function findQid(name: string, ourAreaM2: number | null): Promise<string | null> {
-  const s = await api({ action: 'query', list: 'search', srsearch: `${name} glider`, srlimit: '3' });
-  const hits = ((s.query as { search?: { title: string }[] })?.search ?? []).map(h => h.title);
+  const hits = await search(name);
 
   for (const title of hits) {
     const strength = titleStrength(name, title);
@@ -240,6 +264,49 @@ async function manufacturers(qids: string[]): Promise<Map<string, string>> {
   return out;
 }
 
+/** THE IDENTIFIERS A HUMAN DECIDED, and which no rule will ever reach.
+ *
+ *  A declared identifier OUTRANKS every search, and it is read before any of them run.
+ *
+ *  Two things forced this file into existence, and both are worth writing down.
+ *
+ *  ONE: the tail is not a rule problem. `Mosquito` is the Glasflügel 303 — our wing area agrees with
+ *  the article's to ONE SQUARE CENTIMETRE — and the two names share neither a word nor a number, so
+ *  no pattern will ever connect them. `Antares 18S` IS a Lange Antares, and the article's wing area
+ *  disagrees with ours because the article describes the 20E: a failure of CONFIGURATION, which no
+ *  area check can tell apart from a failure of IDENTITY. These are not near-misses to be rescued by
+ *  a cleverer heuristic. They are judgements, and a judgement belongs in a file a human signed.
+ *
+ *  TWO, and it is the harder lesson: THE SEARCHES ARE NOT DETERMINISTIC. Re-deriving every identifier
+ *  from scratch — the same code, the same data, ten minutes later — GAINED four and LOST three. The
+ *  LAK-19 and the LS-6 simply stopped being returned. An identifier that flickers is worse than one
+ *  that is absent: it is a fact about the weather, presented as a fact about the world.
+ *
+ *  So `wikidata_qid` IS the pin. Once a human has read it against its label, it is never re-derived —
+ *  the `already held` path exists for exactly that, and blanking the column to "start clean" is the
+ *  one thing that must not be done. This file is the pin for the cases the search cannot reach at all.
+ *
+ *  The `evidence` column is not a comment. It is the reason, and it is what makes the row auditable
+ *  by somebody who was not in the room. */
+async function declaredAliases(): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  let text: string;
+  try { text = await readFile(ALIASES, 'utf8'); } catch { return out; }
+
+  const lines = text.trim().split(/\r?\n/);
+  const head = cells(lines[0]);
+  const iName = head.indexOf('name'), iQid = head.indexOf('wikidata_qid');
+  if (iName < 0 || iQid < 0) return out;
+
+  for (const line of lines.slice(1)) {
+    const r = cells(line);
+    const name = (r[iName] ?? '').replace(/^"|"$/g, '').trim();
+    const qid = (r[iQid] ?? '').trim();
+    if (name !== '' && /^Q\d+$/.test(qid)) out.set(name, qid);
+  }
+  return out;
+}
+
 // ---- the run ----
 //
 // Guarded like the classifier's: this module exports findQid, and importing one function must not
@@ -263,7 +330,8 @@ if (import.meta.main) {
   const qidAt = cols.indexOf('wikidata_qid');
   const mfgAt = cols.indexOf('manufacturer');
 
-  let held = 0, found = 0, none = 0, fromWd = 0;
+  const aliases = await declaredAliases();
+  let held = 0, found = 0, none = 0, fromWd = 0, fromAlias = 0;
   const rows: { name: string; qid: string }[] = [];
   const resolved: { row: string[]; qid: string }[] = [];
 
@@ -277,7 +345,12 @@ if (import.meta.main) {
     // An identifier already established is not established again: re-running must not hammer a
     // public API for answers we already hold. Delete the column to force a fresh lookup.
     let qid = (iQid >= 0 ? r[iQid] : '') ?? '';
-    if (qid !== '') held++;
+    // A DECLARED identifier outranks everything — including whatever a previous run wrote here.
+    // A human read the article and signed for it; a search did not.
+    const fileName = (at(r, 'name') ?? '').replace(/^"|"$/g, '').trim();
+    const byHand = aliases.get(fileName) ?? aliases.get(name);
+    if (byHand !== undefined) { qid = byHand; fromAlias++; }
+    else if (qid !== '') held++;
     else {
       try {
         qid = (await findQid(name, num(at(r, 'wing_area_m2')))) ?? '';
@@ -321,7 +394,8 @@ if (import.meta.main) {
   const shared = [...byQid.entries()].filter(([, ns]) => ns.length > 1);
 
   console.log(`
-wings: ${held + found + none}
+wings: ${fromAlias + held + found + none}
+  DECLARED by a human       ${fromAlias}   (aliases.csv — outranks every search, and every past run)
   identifier already held   ${held}   (kept; the API is not asked twice for the same answer)
   identifier established    ${found}   (of which ${fromWd} from Wikidata's own search, by alias)
   NO item, left empty       ${none}   ← a wrong pointer is worse than none: it is permanent
