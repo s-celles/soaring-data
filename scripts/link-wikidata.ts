@@ -186,6 +186,60 @@ export async function findQidOnWikidata(name: string): Promise<string | null> {
   return null;
 }
 
+/** THE MANUFACTURER, borrowed from Wikidata — not derived, not guessed, and NOT CACHED.
+ *
+ *  This is the first column that flows the other way, and it is the whole point of having done the
+ *  identifier work. `Antares_18S` does not contain the word "Lange", and no amount of cleverness
+ *  applied to a polar file name will ever produce it. The item does: Wikidata's P176 says who MADE
+ *  this aircraft, in a structured field, and we simply read it.
+ *
+ *  It is REFRESHED every run rather than kept, and that is deliberate. A derived value is computed
+ *  once and belongs to us; a BORROWED value belongs to the commons and improves without us. The day
+ *  somebody fills in the P176 of the PIK-20 — one of the fourteen our items still lack — it arrives
+ *  here on the next run, with no scraping and no code change. That is what "we point at Wikidata,
+ *  we do not copy it" means when it stops being a slogan.
+ *
+ *  ---- and why NOT the type certificate, which we already hold ----
+ *
+ *  Every EASA TCDS names a `Type Certificate Holder`, and it is tempting: 55 of our gliders have one,
+ *  it is authoritative, and it is already on disk. It is also a DIFFERENT FACT. Rolladen-Schneider
+ *  went bankrupt and DG Flugzeugbau took over its certificates — so the TCDS for the LS family names
+ *  DG, while the aircraft was MADE by Rolladen-Schneider, which is what Wikidata correctly says. The
+ *  certificate holder is who is answerable for the type TODAY. The manufacturer is who built the
+ *  wing. Filling one column from the other would write a falsehood, and it would write it under the
+ *  seal of a certification authority — the exact failure mode this repository has already been
+ *  bitten by once, with the LS8-18's certified span. */
+async function manufacturers(qids: string[]): Promise<Map<string, string>> {
+  const made = new Map<string, string>();          // glider QID → manufacturer QID
+  for (let i = 0; i < qids.length; i += 50) {
+    const d = await api({ action: 'wbgetentities', props: 'claims', ids: qids.slice(i, i + 50).join('|') }, WD);
+    const ents = (d.entities as Record<string, { claims?: Record<string, unknown[]> }>) ?? {};
+    for (const [q, e] of Object.entries(ents)) {
+      const c = e.claims?.P176?.[0] as { mainsnak?: { datavalue?: { value?: { id?: string } } } } | undefined;
+      const m = c?.mainsnak?.datavalue?.value?.id;
+      if (m !== undefined) made.set(q, m);
+    }
+  }
+
+  // Now the NAMES of those manufacturers — a second, small round.
+  const ids = [...new Set(made.values())];
+  const label = new Map<string, string>();
+  for (let i = 0; i < ids.length; i += 50) {
+    const d = await api({ action: 'wbgetentities', props: 'labels', languages: 'en', ids: ids.slice(i, i + 50).join('|') }, WD);
+    const ents = (d.entities as Record<string, { labels?: { en?: { value: string } } }>) ?? {};
+    for (const [q, e] of Object.entries(ents)) {
+      if (e.labels?.en?.value !== undefined) label.set(q, e.labels.en.value);
+    }
+  }
+
+  const out = new Map<string, string>();
+  for (const [glider, maker] of made) {
+    const name = label.get(maker);
+    if (name !== undefined) out.set(glider, name);
+  }
+  return out;
+}
+
 // ---- the run ----
 //
 // Guarded like the classifier's: this module exports findQid, and importing one function must not
@@ -203,12 +257,15 @@ if (import.meta.main) {
   // different headers for the same data, and the schema could only ever match one of them. A dataset
   // must not change shape according to which tool touched it last.
   const iQid = head.indexOf('wikidata_qid');
-  const cols = iQid >= 0 ? head : [...head, 'wikidata_qid'];
+  const cols = iQid >= 0 ? [...head] : [...head, 'wikidata_qid'];
+  // `manufacturer` sits beside the model it belongs to, where a reader will look for it.
+  if (!cols.includes('manufacturer')) cols.splice(cols.indexOf('model') + 1, 0, 'manufacturer');
   const qidAt = cols.indexOf('wikidata_qid');
+  const mfgAt = cols.indexOf('manufacturer');
 
   let held = 0, found = 0, none = 0, fromWd = 0;
   const rows: { name: string; qid: string }[] = [];
-  const out = [cols.join(',')];
+  const resolved: { row: string[]; qid: string }[] = [];
 
   for (const line of lines.slice(1)) {
     const r = cells(line);
@@ -240,8 +297,18 @@ if (import.meta.main) {
     if (qid !== '') rows.push({ name, qid });
     const row = cols.map(c => quote(r[head.indexOf(c)] ?? ''));
     row[qidAt] = quote(qid);
+    resolved.push({ row, qid });
+  }
+
+  // The borrowed column, fetched in two batched rounds once every item is known.
+  const maker = await manufacturers([...new Set(resolved.map(x => x.qid).filter(q => q !== ''))]);
+  const out = [cols.join(',')];
+  for (const { row, qid } of resolved) {
+    row[mfgAt] = quote(maker.get(qid) ?? '');
     out.push(row.join(','));
   }
+  const named = resolved.filter(x => maker.has(x.qid)).length;
+  const itemsWithoutP176 = [...new Set(resolved.map(x => x.qid))].filter(q => q !== '' && !maker.has(q)).length;
 
   await writeFile(CSV, out.join('\n') + '\n');
 
@@ -258,6 +325,10 @@ wings: ${held + found + none}
   identifier already held   ${held}   (kept; the API is not asked twice for the same answer)
   identifier established    ${found}   (of which ${fromWd} from Wikidata's own search, by alias)
   NO item, left empty       ${none}   ← a wrong pointer is worse than none: it is permanent
+
+manufacturer, BORROWED from Wikidata (P176) — never derived, never cached:
+  wings given a maker       ${named}
+  items with NO P176        ${itemsWithoutP176}   ← a gap in the commons, and one we could fill
 
   distinct Wikidata items   ${byQid.size}
   items shared by variants  ${shared.length}`);
