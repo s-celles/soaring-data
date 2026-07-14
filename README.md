@@ -88,11 +88,11 @@ must not be pooled:
 
 | source | what it is |
 |---|---|
-| `easa` | the Dimensions field of the aircraft's EASA Type Certificate Data Sheet. The certification authority's own document, linked in `easa_url` |
+| `easa` | the aircraft's EASA Type Certificate Data Sheet — the certification authority's own document, linked in `easa_url`. Read from its Dimensions field where it states a wing area to identify the aircraft by, and from the SECTION HEADING EASA wrote above the span where it does not (`SECTION I: GLASFLÜGEL 604`) |
 | `name` | read off the polar's own file name (`Ventus B (15m)`) — and only when the name says `m`, in lowercase |
 | `wikipedia` | the English Wikipedia aircraft infobox, cross-checked against our own wing area |
 
-The EASA pass corrected **nothing**: it agreed with Wikipedia 43 times out of 43. What it changed is
+The EASA pass corrected **nothing**: it agreed with Wikipedia every single time. What it changed is
 not the number but what stands behind it — a claim anyone can check in one click, against a signed
 document, instead of a claim you have to take on trust.
 

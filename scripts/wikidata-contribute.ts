@@ -130,7 +130,37 @@ interface Held {
  *  This used to answer a yes/no — "does it have one?" — and that was the right question for adding a
  *  VALUE. It is the wrong question for adding a REFERENCE. Sourcing a statement somebody else made,
  *  when the certificate agrees with them to the centimetre, is not overwriting their work; it is
- *  finishing it. But it may only be done when the value we would source IS the value that is there. */
+ *  finishing it. But it may only be done when the value we would source IS the value that is there.
+ *
+ *  (The definition is below `describe` and `isFamily`, which the candidate filter asks first.) */
+
+/** An item's own description of itself, in English. */
+const described = new Map<string, string>();
+async function describe(qid: string): Promise<string> {
+  const cached = described.get(qid);
+  if (cached !== undefined) return cached;
+  const d = await api(WD, { action: 'wbgetentities', ids: qid, props: 'descriptions', languages: 'en' });
+  const e = (d.entities as Record<string, { descriptions?: { en?: { value?: string } } }>)[qid];
+  const s = e?.descriptions?.en?.value ?? '';
+  described.set(qid, s);
+  return s;
+}
+
+/** Does this item stand for a FAMILY of aircraft rather than one aircraft?
+ *
+ *  A family has no wingspan. `Bölkow Phoebus` covers the A, the B and the C — 15 m, 15 m and 17 m —
+ *  and any single number written there is a claim about one of them, dressed as a claim about all.
+ *
+ *  Wikidata says so itself, in the description, and the words it uses are few. This is a coarse test
+ *  and it is deliberately coarse: the cost of a false positive is one statement we do not make, and
+ *  the cost of a false negative is a wrong span under a certification authority's seal. */
+export function familyWords(description: string): boolean {
+  return /\b(famil(?:y|ies)|series|range of|line of)\b/i.test(description);
+}
+async function isFamily(qid: string): Promise<boolean> {
+  return familyWords(await describe(qid));
+}
+
 async function heldWingspan(qid: string): Promise<Held> {
   const d = await api(WD, { action: 'wbgetclaims', entity: qid, property: P_WINGSPAN });
   const claims = ((d.claims as Record<string, unknown[]> | undefined) ?? {})[P_WINGSPAN] ?? [];
@@ -349,6 +379,14 @@ async function makerFromArticle(qid: string): Promise<{ maker: string; label: st
 }
 
 // ---- the run ----
+//
+// GUARDED, and it should have been from the first line. Without this, importing anything from this
+// file RAN it: `bun test` — the command whose entire job is to be safe to run — was hitting the
+// Wikidata API a hundred times and REWRITING wikidata.qs, the file a human is about to sign. A test
+// suite with a side effect on the artefact under review is not a test suite.
+if (!import.meta.main) {
+  // Imported for its functions (the tests). Nothing below runs.
+} else {
 
 const lines = (await readFile(CSV, 'utf8')).trim().split(/\r?\n/);
 const head = cells(lines[0]);
@@ -378,6 +416,7 @@ let refAlready = 0;
  *  must not withhold it from the evidence. */
 const knownSpans = new Map<string, Map<number, string[]>>();
 let withheldName = 0, alreadyThere = 0, noItem = 0, drifted = 0;
+const familyItem: string[] = [];
 
 for (const line of lines.slice(1)) {
   const r = cells(line);
@@ -411,6 +450,26 @@ for (const line of lines.slice(1)) {
   const src = r[iSrc];
   if (src !== 'wikipedia' && src !== 'easa') { withheldName++; continue; }
   if (qid === '') { noItem++; continue; }
+
+  // ---- A FAMILY IS NOT AN AIRCRAFT, AND IT HAS NO WINGSPAN ----
+  //
+  // Q1019853 is `Bölkow Phoebus`, and Wikidata's own description of it reads:
+  //
+  //        1964 competition sailplane FAMILY
+  //
+  // Our row is the Phoebus C, whose certificate — EASA.A.635, read from its section heading — states
+  // 17 m. The A and the B, in the same document, state 15. So the batch was about to write SEVENTEEN
+  // METRES, with a certification authority's URL behind it, onto an item that stands for three
+  // aircraft of two different spans. Nobody reading that statement afterwards could tell it was
+  // about only one of them.
+  //
+  // This is the variant-versus-aircraft trap, which this file already withholds name-sourced spans to
+  // avoid — arriving from the other side. There the VARIANT was too specific for the item; here the
+  // ITEM is too general for the aircraft. Same error, opposite direction, and the guard I had built
+  // only watched one door.
+  //
+  // Wikidata says which items those are, in plain words, in the description field. Ask it.
+  if (await isFamily(qid)) { familyItem.push(`${name} → ${qid} (${await describe(qid)})`); continue; }
 
   const held = await heldWingspan(qid);
   if (held.spans.length > 0) {
@@ -508,12 +567,21 @@ const line = (o: Claim): string => `${o.qid}\t${P_WINGSPAN}\t${o.span}U${Q_METRE
 const makerLine = (m: { qid: string; maker: string }): string =>
   `${m.qid}\t${P_MAKER}\t${m.maker}\t${S_IMPORTED}\t${Q_EN_WIKI}`;
 const all = [...offered.map(line), ...refs.map(line), ...makers.map(makerLine)].join('\n');
+if (familyItem.length > 0) {
+  console.log(`WITHHELD — the item is a FAMILY, and a family has no wingspan. It has several, and any
+one number written there is a claim about one aircraft dressed as a claim about all of them.
+Wikidata says so itself, in its own description, and we are taking it at its word:`);
+  for (const f of familyItem) console.log(`  ${f}`);
+  console.log('');
+}
+
 await writeFile(OUT, all + (all ? '\n' : ''));
 
 console.log(`
 gliders with a span:              ${candidates.length + withheldName + alreadyThere + noItem + drifted}
   withheld (span from the NAME)   ${withheldName}   ← our reading of a variant; the item is the aircraft
   already carry a wingspan        ${alreadyThere}   ← we fill gaps, we do not overwrite people
+  the item is a FAMILY            ${familyItem.length}   ← a family has no wingspan: it has several
      of those, we can CERTIFY     ${refs.length}   ← same number, and we hold the type certificate
      already cite the certificate ${refAlready}
   no Wikidata item                ${noItem}   ← link-wikidata found none it could corroborate
@@ -582,3 +650,5 @@ a wrong one in a way no cross-check can), then paste the file into QuickStatemen
 
 It runs under YOUR account and YOUR name. That is not a limitation of this script — it is the
 point of it. A statement about the world is a claim, and a claim needs someone to answer for it.`);
+
+}

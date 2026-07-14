@@ -15,13 +15,30 @@
 // LS8-t, LS8-e; `EASA.A.241` covers the Glasflügel sailplanes. So the model is inside the PDF, not
 // in its title, and matching by title would find the family and then have to guess within it.
 //
-// It does not have to. Every section of a TCDS states BOTH the span AND the WING AREA:
+// It does not have to. MOST sections of a TCDS state BOTH the span AND the WING AREA:
 //
 //        4.  Dimensions:   Span        17,0 m
 //                          Wing area   17,95 m²
 //
 // and we independently hold the wing area, from the polar file. So the area CORROBORATES the match,
 // against a number we did not get from the document.
+//
+// ---- and this paragraph used to say EVERY section, and used to name A.241 as the example ----
+//
+// EASA.A.241 — the Glasflügel document — states `Wing Span 18 m` and NEVER STATES A WING AREA. Nor
+// does EASA.A.250 (Grob: the Astir, the Twin II, the Speed Astir). Nor EASA.A.635 (Phoenix/Phoebus).
+// Not once, in any of them. The very certificate this file held up as proof of its method is one the
+// method cannot read.
+//
+// It went unchallenged because nothing ever reached those documents: their TITLES name the firm and
+// not the aircraft — `Glasfluegel Sailplanes` shares no word with `604` — so the title matcher never
+// offered them, the script said `no certificate`, and the sentence in this header was never put to
+// the test. A false claim in a comment and a false claim in the output, each covering for the other.
+//
+// The manufacturer column opened the door (makerCandidate) and the section HEADINGS get through it:
+// EASA cut those documents into sections and wrote the model's name at the top of each one —
+// `SECTION I: GLASFLÜGEL 604`. A name the authority printed above the span is not a coincidence of
+// numbers; it is the authority saying which aircraft this is. See readHeadedSpans.
 //
 // It does not MAKE the match, and the first version of this script claimed it did. That claim was
 // false and it produced garbage. Reusing classify's titleMatches — which knows only about shared
@@ -141,11 +158,83 @@ export function tcdsCandidate(ourName: string, title: string): boolean {
   return ours.digits.some(d => theirs.digits.includes(d));
 }
 
-/** Is this document a SAILPLANE's type certificate at all? The certification basis says so — CS-22
- *  and its ancestor JAR-22 are the sailplane codes — and it is the cheapest possible way to keep the
- *  Airbus fleet out of a question about wings that do not have engines. */
+/** Words that name a KIND OF FIRM, not a firm. `Grob Aircraft` and `Applebay Sailplanes` and
+ *  `Rolladen Schneider Flugzeugbau` share nothing but their trade, and a maker match that fired on
+ *  `sailplanes` would hand every glider in Europe the whole sailplane shelf. */
+const TRADE = new Set([
+  'gmbh', 'co', 'kg', 'ag', 'sa', 'uab', 'ltd', 'inc', 'gesellschaft', 'company',
+  'aircraft', 'aviation', 'aircrafts', 'industries', 'corporation', 'corp', 'works',
+  'flugzeugbau', 'segelflugzeugbau', 'flugzeugtechnik', 'flugzeuge',
+  'sailplanes', 'sailplane', 'gliders', 'aviacija', 'aviacja', 'aeronautica',
+]);
+
+/** Could this certificate be about an aircraft built by THIS MAKER?
+ *
+ *  This is the door the `manufacturer` column opened, and it had to be opened. EASA does not put the
+ *  model in the title of a family document: `EASA.A.241` is called `Glasfluegel Sailplanes` and the
+ *  604, the Standard Libelle, the Club Libelle and the Hornet are all INSIDE it. Our 604 shares not
+ *  one word with that title, so tcdsCandidate never offered it, and the script reported `no
+ *  certificate` — a claim about the world that was only ever a claim about a regular expression.
+ *  Ten of these documents cover a third of the fleet.
+ *
+ *  The maker's own name is the only thing that reaches them, and we now hold it — borrowed from
+ *  Wikidata's P176, on an item a human pinned. */
+export function makerCandidate(maker: string, title: string): boolean {
+  if (maker.trim() === '') return false;
+  // Wikidata spells the firm `Glasflügel`. EASA spells it `Glasfluegel`. Stripping the diaeresis gives
+  // `glasflugel` and `glasfluegel` — two strings that never meet, no prefix rule between them, and a
+  // door that stayed shut on the 604, the Libelle, the Hornet and the Mosquito while I congratulated
+  // myself on having opened it. Fold the German transliteration and they are one word again.
+  const fold = (s: string) => tokens(s).words.map(w => w.replace(/ue/g, 'u').replace(/oe/g, 'o'));
+  const ours = fold(maker).filter(w => !TRADE.has(w) && w.length >= 3);
+  if (ours.length === 0) return false;
+  const theirs = fold(title);
+  return ours.some(w => theirs.some(t => t === w || t.startsWith(w) || w.startsWith(t)));
+}
+
+/** Is this glider's designation actually WRITTEN in this document?
+ *
+ *  The price of the maker door: inside `Schempp Hirth Ventus sailplanes` the title has told us
+ *  nothing about WHICH aircraft, and identification would fall to the wing area alone — in a pool of
+ *  every sailplane one firm ever certified. Two Schempp-Hirths sharing a wing area to within a
+ *  tolerance is not an identity, it is a coincidence, and this whole file exists because that
+ *  distinction was once missed.
+ *
+ *  So the document must NAME the aircraft: every number in the designation, and one of its words.
+ *  `H-201 Std Libelle` needs a `201` and a `libelle`; `604` has no words at all and needs its `604`.
+ *  And the area must then agree TO THE CENTIMETRE — see spanForArea. Two independent numbers, both
+ *  exact, both from a source that did not know about the other. */
+export function namedIn(ourName: string, text: string): boolean {
+  const ours = tokens(ourName), theirs = tokens(text);
+  if (ours.words.length === 0 && ours.digits.length === 0) return false;
+  const words = new Set(theirs.words), digits = new Set(theirs.digits);
+  const wordOk = ours.words.length === 0 || ours.words.some(w => words.has(w));
+  const digitOk = ours.digits.every(d => digits.has(d));   // EVERY number, not any
+  return wordOk && digitOk;
+}
+
+/** Is this document a SAILPLANE's type certificate at all? The certification basis says so, and it is
+ *  the cheapest possible way to keep the Airbus fleet out of a question about wings that have no
+ *  engines.
+ *
+ *  It knew only the MODERN codes — CS-22 and its ancestor JAR-22 — and so it threw out two documents
+ *  EASA itself titles `Sailplanes`:
+ *
+ *      EASA.A.099   Scheibe sailplanes          certified against LFSM
+ *      EASA.A.635   Phoenix / Phoebus Sailplanes   certified against BVS
+ *
+ *  LFSM (Lufttüchtigkeitsforderungen für Segelflugzeuge und Motorsegler) and BVS (Bauvorschriften für
+ *  Segelflugzeuge) are the GERMAN sailplane codes, and they are what a glider certified before JAR-22
+ *  existed was built to. The gate was not asking "is this a sailplane" — it was asking "is this a
+ *  sailplane certified after 1980", and answering `no certificate exists` for the ones that are not.
+ *
+ *  Which is backwards: the old wooden and early-glass gliders are exactly the ones Wikipedia
+ *  documents worst, and therefore exactly the ones a certificate is worth most for. The Phoebus C has
+ *  had a type certificate all along. */
 export function isSailplane(text: string): boolean {
-  return /\bCS[\s-]?22\b|\bJAR[\s-]?22\b|\bOSTIV\b/i.test(text);
+  return /\bCS[\s-]?22\b|\bJAR[\s-]?22\b|\bOSTIV\b|\bLFSM\b/i.test(text)
+    || /Bauvorschriften\s+f(?:ü|ue)r\s+Segelflugzeuge/i.test(text)
+    || /Lufttüchtigkeitsforderungen\s+f(?:ü|ue)r\s+Segelflugzeuge/i.test(text);
 }
 
 // ---- the catalogue ----
@@ -265,6 +354,142 @@ export function readSections(text: string): Section[] {
   return out;
 }
 
+// ---- when the certificate states NO wing area at all ----
+//
+// The header of this file says EASA.A.241, the Glasflügel document, is the example of a family
+// certificate the wing area lets you navigate. THAT WAS FALSE, and it went unchecked for as long as
+// the area path never reached the document. A.241 states `Wing Span 18 m` and NEVER STATES A WING
+// AREA. Neither does EASA.A.250 (Grob: the Astir, the Twin II, the Speed Astir), nor EASA.A.635
+// (Phoenix/Phoebus). Not once, in any of them.
+//
+// So for a third of the pre-1980 fleet the corroboration this script is built on does not exist.
+//
+// But these documents identify their aircraft ANOTHER way, and it is a better way: they are cut into
+// sections, and EASA wrote the model's name at the top of each one.
+//
+//        SECTION I:   GLASFLÜGEL 604
+//        SECTION K:   GROB G 103 "TWIN II"
+//        SECTION E:   STANDARD LIBELLE
+//
+// A name EASA itself printed above the span is not a coincidence of numbers — it is the authority
+// SAYING which aircraft this is. It is stronger evidence than the area check, not weaker. What made
+// name-matching dangerous everywhere else in this script was matching against a TITLE, in a pool of
+// every certificate in Europe. Inside a document, against a heading, in a pool of one firm's
+// sailplanes, it is simply reading.
+//
+// It stays the LAST resort all the same, used only where no wing area exists to be asked, because a
+// number is checkable and a name is a judgement.
+
+export interface Headed { header: string; spanM: number; variableSpan: boolean }
+
+/** Every (section heading, span) this document states.
+ *
+ *  Three kinds of line say `SECTION`, and only one of them is a heading:
+ *    - the TABLE OF CONTENTS       `SECTION I: GLASFLÜGEL 604 .......... 42`     — dotted leaders
+ *    - the RUNNING PAGE HEADER     `Issue 04, 21 December 2011  SECTION K: GROB G 103`  — TRUNCATED
+ *    - the heading itself          `SECTION K:   GROB G 103 "TWIN II"`
+ *
+ *  The running header is the trap, and it is a quiet one: it drops the distinguishing part of the
+ *  name. `GROB G 103` alone matches our Twin II — and matches the Twin II ACRO, and the Twin III,
+ *  every one of them, because what tells them apart is exactly what the truncation threw away. */
+export function readHeadedSpans(text: string): Headed[] {
+  const heads: { at: number; title: string }[] = [];
+  for (const m of text.matchAll(/^[ \t]*SECTION\s+([A-Z]{1,2})\s*:[ \t]*(.+)$/gm)) {
+    const line = m[0];
+    if (/\.{3,}/.test(line)) continue;                       // the table of contents
+    if (/\bIssue\b|\d{4}\s*$/.test(line.slice(0, line.indexOf('SECTION')))) continue;  // the running header
+    const title = m[2].replace(/\bMODEL\s+\d+\b/i, ' ').replace(/["“”]/g, ' ').trim();
+    if (title !== '') heads.push({ at: m.index, title });
+  }
+  if (heads.length === 0) return [];
+
+  const out: Headed[] = [];
+  const spans = new RegExp(String.raw`(?:Wing\s+)?Span\s*:?\s+${N}\s*m\b`, 'gi');
+  for (const m of text.matchAll(spans)) {
+    const spanM = num(m[1]);
+    if (spanM === null || spanM < 5 || spanM > 40) continue;
+
+    // The heading this span sits under: the last one printed before it. The table of contents comes
+    // before every body heading, so it is superseded automatically.
+    let head: { at: number; title: string } | null = null;
+    for (const h of heads) { if (h.at < m.index) head = h; else break; }
+    if (head === null) continue;                             // a span before the first heading: not a section's
+
+    // The trap, unchanged: prose offering a span the Dimensions field does not state.
+    const prose = text.slice(head.at, m.index);
+    const spoken = [...prose.matchAll(new RegExp(String.raw`${N}\s*m\s*(?:span|Spannweite)`, 'gi'))]
+      .map(x => num(x[1]))
+      .filter((x): x is number => x !== null && x >= 5 && x <= 40);
+    out.push({ header: head.title, spanM, variableSpan: spoken.some(s => Math.abs(s - spanM) > 0.05) });
+  }
+  return out;
+}
+
+/** Tokens for comparing a DESIGNATION with a DESIGNATION — not a designation with a document.
+ *
+ *  Three things the document-wide tokeniser gets away with and this one cannot:
+ *
+ *  1. `Glasfluegel` and `GLASFLÜGEL` are the same word. Stripping the diaeresis gives `glasflugel`
+ *     and `glasfluegel`, which are not equal, so the folded German spelling is folded back.
+ *  2. `Std` and `STANDARD` are the same word, and no prefix rule reaches it: `standard` does not
+ *     begin with `std`.
+ *  3. A single letter is sometimes the whole difference between two aircraft and sometimes noise,
+ *     and WHICH depends on whether it is glued to a number:
+ *
+ *         H-206 Hornet    the `H` is part of the designation `H-206`; the number carries it
+ *         Phoebus C       the `C` IS the aircraft — the A and B are 15 m and the C is 17 m
+ *
+ *     So a letter standing in front of a number goes (the number keeps the identity), and a letter
+ *     standing alone stays. Drop them all and the Phoebus C becomes the Phoebus A. Keep them all and
+ *     the Hornet, whose EASA section is titled simply `HORNET`, is never found.
+ *
+ *  And no prefix matching at all. `ii` is a prefix of `iii`, and the Twin II is not the Twin III. */
+const designation = (s: string): { words: Set<string>; digits: Set<string> } => {
+  const flat = s
+    .replace(/\b([A-Za-z])[-\s]?(?=\d)/g, '')                  // the letter glued to a number
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/ue/g, 'u').replace(/oe/g, 'o')                   // glasfluegel = glasflügel
+    .replace(/\bstd\b/g, 'standard');
+  const parts = flat.match(/[a-z]+|\d+/g) ?? [];
+  return {
+    words: new Set(parts.filter(p => /[a-z]/.test(p))),
+    digits: new Set(parts.filter(p => /\d/.test(p))),
+  };
+};
+
+/** Does this section heading name OUR aircraft?
+ *
+ *  Every word of our designation must be in it, and the numbers must not CONTRADICT. A heading with
+ *  no number at all does not contradict ours — `HORNET` is the H-206 — but a heading with a
+ *  DIFFERENT number does: `STANDARD LIBELLE 203` is not the 201.
+ *
+ *  And a designation that is nothing but a number — the Glasflügel `604` — has no words to be
+ *  identified by, so for it the numbers must match EXACTLY. Without that clause it would match
+ *  `KESTREL`, which has no words of ours to miss and no digits to contradict, and take home 17 m. */
+export function headerNames(ourName: string, header: string): boolean {
+  const ours = designation(ourName), theirs = designation(header);
+  if (ours.words.size === 0) {
+    return ours.digits.size > 0 && ours.digits.size === theirs.digits.size
+      && [...ours.digits].every(d => theirs.digits.has(d));
+  }
+  if (![...ours.words].every(w => theirs.words.has(w))) return false;
+  if (ours.digits.size === 0 || theirs.digits.size === 0) return true;
+  return ours.digits.size === theirs.digits.size && [...ours.digits].every(d => theirs.digits.has(d));
+}
+
+/** The span the section EASA titled with OUR aircraft's name states. Several sections may name it —
+ *  a running-header artefact, or a genuine sub-variant — and then they must AGREE. */
+export function spanForHeader(
+  headed: Headed[], ourName: string,
+): { spanM: number; header: string } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
+  const hits = headed.filter(h => headerNames(ourName, h.header));
+  if (hits.length === 0) return { refused: 'no-section' };
+  if (hits.some(h => h.variableSpan)) return { refused: 'variable-span' };
+  const spans = new Set(hits.map(h => h.spanM));
+  if (spans.size > 1) return { refused: 'conflict' };
+  return { spanM: hits[0].spanM, header: hits[0].header };
+}
+
 /** The span this certificate states for the glider whose wing area is ours — or null, with a reason.
  *
  *  Identification is by AREA, not by name: the area is in the document and it is also in our polar,
@@ -272,7 +497,7 @@ export function readSections(text: string): Section[] {
  *  span; if they do not, the document is describing more than one aircraft that looks like ours and
  *  we are not the ones to choose. */
 export function spanForArea(
-  sections: Section[], ourAreaM2: number,
+  sections: Section[], ourAreaM2: number, exactOnly = false,
 ): { spanM: number } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
   // An EXACT area match outranks a merely close one, and the difference is not pedantry.
   //
@@ -285,10 +510,20 @@ export function spanForArea(
   //
   // So: if any section agrees to the centimetre, only those sections are consulted. The wide
   // tolerance is the fallback for when nothing does — it forgives a rounding, not a difference.
+  //
+  // And when the TITLE never named the aircraft — the maker path, `Glasfluegel Sailplanes` — the
+  // forgiving window is not offered AT ALL. There, the area is not corroborating a match somebody
+  // else made; it IS the match, inside a pool of every sailplane one firm ever built, and a
+  // tolerance is exactly how you pick the wrong one. That lesson is a day old: our Apis 2 sat
+  // 0.16 m² from the Pipistrel Apis-Bee, comfortably inside the Wikipedia matcher's window, and it
+  // is a DIFFERENT AIRCRAFT. A tolerance that accepts a near-miss will accept the wrong aircraft on
+  // the day the right one exists.
   const exact = sections.filter(s => Math.abs(s.areaM2 - ourAreaM2) <= AREA_EXACT_M2);
   const hits = exact.length > 0
     ? exact
-    : sections.filter(s => Math.abs(s.areaM2 - ourAreaM2) <= AREA_TOLERANCE_M2);
+    : exactOnly
+      ? []
+      : sections.filter(s => Math.abs(s.areaM2 - ourAreaM2) <= AREA_TOLERANCE_M2);
   if (hits.length === 0) return { refused: 'no-section' };
 
   // THE TRAP. An aircraft certified at 15 m that flies at 18 m: its certificate says 15, and the
@@ -324,8 +559,12 @@ if (import.meta.main) {
   for (const c of ['easa_tcds', 'easa_url']) if (!cols.includes(c)) cols.push(c);
   const out = [cols.join(',')];
 
-  let upgraded = 0, agreed = 0, corrected = 0, noArea = 0, noCert = 0, notASailplane = 0;
+  let upgraded = 0, agreed = 0, corrected = 0, noArea = 0, noCert = 0, notASailplane = 0, notNamed = 0;
+  let viaTitle = 0, viaMakerN = 0;
   const refusals: Record<string, number> = { 'no-section': 0, 'variable-span': 0, conflict: 0 };
+  const certNoArea = new Set<string>();
+  const headDisagreed: string[] = [];
+  let viaHeader = 0;
   const changes: string[] = [];
   const refusedVariable: string[] = [];
 
@@ -341,21 +580,76 @@ if (import.meta.main) {
 
     if (at(r, 'wing_class') !== 'glider') {
       // A paraglider has no type certificate. Not a failure — a category error, and silent.
-    } else if (ourArea === null) {
-      // Without OUR area there is nothing to identify the glider WITH, and identifying it by name
-      // inside a family document is exactly the guess this script exists to avoid.
-      noArea++;
     } else {
-      const candidates = index.filter(t => tcdsCandidate(name, t.title));
+      // A row with NO WING AREA used to stop here, and the reason was sound while the area was the
+      // only way to identify a glider inside a family document. It is not any more: a section EASA
+      // titled `SPEED ASTIR II` names the aircraft without our help. So the row goes on — it simply
+      // cannot use the area path, and the heading path is all it has.
+      if (ourArea === null) noArea++;
+      // TWO PASSES, and the second is stricter than the first.
+      //
+      //   1. the TITLE names the aircraft   — `Schleicher ASW 27`. The area then CORROBORATES a
+      //      match the title already made, and may forgive a rounding (0.35 m²).
+      //   2. only the MAKER matches          — `Glasfluegel Sailplanes`. The title has said nothing
+      //      about which aircraft, so the document must NAME it (namedIn) and the area must agree
+      //      TO THE CENTIMETRE. Nothing is forgiven, because there is nothing corroborating.
+      //
+      // Pass 2 runs only where pass 1 found nothing, so every span already certified stays exactly
+      // as it was: this can add, it cannot rewrite.
+      const maker = (at(r, 'manufacturer') ?? '').replace(/^"|"$/g, '').trim();
+      const byTitle = index.filter(t => tcdsCandidate(name, t.title));
+      const byMaker = index.filter(t => makerCandidate(maker, t.title) && !byTitle.includes(t));
       let found = false;
       // What the glider's own name says about its span, if anything. It is the last word here.
       const named = spanFromName(fileName);
-      for (const c of candidates) {
+      for (const c of [...byTitle, ...byMaker]) {
+        const viaMaker = !byTitle.includes(c);
         const text = await tcdsText(c);
         if (text === null) continue;
         // Not a glider's certificate: not an answer to this question, whatever numbers it holds.
         if (!isSailplane(text)) { notASailplane++; continue; }
-        const verdict = spanForArea(readSections(text), ourArea);
+        // The maker path's first gate: does this document mention our aircraft at all?
+        if (viaMaker && !namedIn(name, text)) { notNamed++; continue; }
+
+        const sections = readSections(text);
+
+        // ---- the document that states NO WING AREA: read the heading instead ----
+        //
+        // EASA.A.250 (Grob), EASA.A.241 (Glasflügel) and EASA.A.635 (Phoenix/Phoebus) state a span
+        // and NEVER STATE A WING AREA. Not once. The corroboration this whole script rests on does
+        // not exist in them — and the header of this very file cites A.241 as the example of a
+        // document the area lets you navigate, which was simply false and went unchecked for as long
+        // as nothing reached it.
+        //
+        // They identify their aircraft another way, and a better one: EASA cut them into sections and
+        // wrote the model's name at the top of each. `SECTION I: GLASFLÜGEL 604`. That is not a
+        // coincidence of numbers — it is the authority saying which aircraft this is.
+        //
+        // The result must still agree with what we already hold. Two sources that arrived by
+        // different roads and land on the same number is the strongest thing this repository can
+        // build; two that disagree is a question for a human, not a value for a cell.
+        if (sections.length === 0 && !/wing\s*area/i.test(text)) {
+          const h = spanForHeader(readHeadedSpans(text), name);
+          if ('refused' in h) { refusals[h.refused]++; continue; }
+          if (hadSpan !== null && Math.abs(hadSpan - h.spanM) > 0.05) {
+            headDisagreed.push(`${name} — ${c.id} § ${h.header} says ${h.spanM} m, we hold ${hadSpan} m`);
+            continue;
+          }
+          if (named !== null && Math.abs(named - h.spanM) > 0.05) {
+            refusals['variable-span']++;
+            refusedVariable.push(`${name} — ${c.id} says ${h.spanM} m, the name says ${named} m`);
+            continue;
+          }
+          spanM = h.spanM; tcds = c.id; url = c.pdf; found = true; viaHeader++;
+          break;
+        }
+
+        // The certificate exists, it names the glider, and it can still not answer: it has a wing
+        // area SOMEWHERE but none in a Dimensions block we can read. That is not `no certificate`.
+        if (sections.length === 0) { certNoArea.add(`${name} — ${c.id}`); continue; }
+        if (ourArea === null) continue;   // the area path, and we have no area to bring to it
+
+        const verdict = spanForArea(sections, ourArea, viaMaker);
         if ('refused' in verdict) {
           refusals[verdict.refused]++;
           if (verdict.refused === 'variable-span') refusedVariable.push(`${name} — ${c.id}`);
@@ -377,6 +671,7 @@ if (import.meta.main) {
           continue;
         }
         spanM = verdict.spanM; tcds = c.id; url = c.pdf; found = true;
+        if (viaMaker) viaMakerN++; else viaTitle++;
         break;
       }
       if (!found) noCert++;
@@ -427,10 +722,15 @@ if (import.meta.main) {
 
   console.log(`
 gliders given a CERTIFIED span   ${upgraded}
+  the TITLE named the aircraft   ${viaTitle}   (area corroborates, 0.35 m² forgiven)
+  only the MAKER matched         ${viaMakerN}   ← the family documents, reached by manufacturer
+  the SECTION HEADING named it   ${viaHeader}   ← the certificate states no wing area; EASA titled the section
   it agreed with what we held    ${agreed}   (Wikipedia was right, and now it is also sourced)
   it CORRECTED what we held      ${corrected}
   no certificate matched         ${noCert}
-  no wing area, cannot identify  ${noArea}
+  maker's doc, aircraft unnamed  ${notNamed}   ← it is his firm's, it is not his aircraft
+  no wing area in OUR polar      ${noArea}
+  the CERTIFICATE states no area ${certNoArea.size}   ← it exists, it names the glider, it cannot answer
   candidate was not a sailplane  ${notASailplane}   ← an airliner is not an answer about a wing
 
 refused, and kept as they were:
@@ -442,6 +742,18 @@ refused, and kept as they were:
   if (changes.length > 0) {
     console.log('the certificate disagreed with Wikipedia, and the certificate wins:');
     for (const c of changes) console.log(c);
+    console.log('');
+  }
+  if (headDisagreed.length > 0) {
+    console.log(`THE SECTION HEADING AND WHAT WE HOLD DISAGREE. Two sources, two roads, two numbers — and
+nothing here is entitled to pick. Left exactly as they were, for a human:`);
+    for (const c of headDisagreed) console.log(`  ${c}`);
+    console.log('');
+  }
+  if (certNoArea.size > 0) {
+    console.log(`the certificate exists and NAMES the glider — and states no wing area, so there is nothing
+to prove WHICH aircraft its Dimensions block describes. Span not taken, and this is not "no certificate":`);
+    for (const c of [...certNoArea]) console.log(`  ${c}`);
     console.log('');
   }
   if (refusedVariable.length > 0) {
