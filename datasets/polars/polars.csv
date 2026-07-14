@@ -7,7 +7,7 @@ name,model,manufacturer,manufacturer_qid,wing_class,mass_dry_gross_kg,max_water_
 Antares_18S,Antares 18S,Lange Aviation,Q879444,glider,350.0,250.0,100.0,-0.54,120.0,-0.63,150.0,-1.07,10.97,31.91,,,,,,,Q1804903,,
 Antares_18T,Antares 18T,Lange Aviation,Q879444,glider,395.0,205.0,100.0,-0.54,120.0,-0.69,150.0,-1.11,10.97,36.01,,,,,,,Q1804903,,
 Antares_20E,Antares 20E,Lange Aviation,Q879444,glider,530.0,130.0,100.0,-0.52,120.0,-0.61,150.0,-0.91,12.6,42.06,,,,20,wikipedia,,Q1804903,,
-Apis2 15m,Apis2,,,glider,310.0,0.0,80.0,-0.6,100.0,-0.75,140.0,-1.45,12.4,25.0,,,,15,name,,,,
+Apis2 15m,Apis2,,,glider,310.0,0.0,80.0,-0.6,100.0,-0.75,140.0,-1.45,12.4,25.0,,,,15,name,,Q7990406,,
 Apis_13m,Apis,,,glider,200.0,45.0,100.0,-0.74,120.0,-1.01,150.0,-1.66,10.36,19.31,,,,13,name,,,,
 ARCUS M,ARCUS M,Schempp-Hirth,Q185996,glider,680.0,185.0,105.0,-0.595,153.0,-1.1,197.0,-2.0,15.6,43.59,,,,20,easa,,Q2233207,EASA.A.532,https://www.easa.europa.eu/en/downloads/7092/en
 ASG29-15,ASG29-15,Alexander Schleicher GmbH & Co,Q565371,glider,362.0,165.0,108.8,-0.635,156.4,-1.182,211.13,-2.54,9.2,39.35,,,,,,,Q623251,,

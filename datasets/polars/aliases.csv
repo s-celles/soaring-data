@@ -26,3 +26,4 @@ Nimbus 3,Q17145988,"Schempp-Hirth Nimbus-3. https://en.wikipedia.org/wiki/Schemp
 SF27,Q1438762,"Scheibe SF-27. https://en.wikipedia.org/wiki/Scheibe_SF-27 — NOT the Scheibe SF 32, which is what the search returns and which our own digit rule correctly refused (27 ∉ {32})."
 SZD-38A Jantar 1,Q7395316,"SZD-38 Jantar 1. https://en.wikipedia.org/wiki/SZD-38_Jantar_1"
 SZD-42A Jantar 2,Q2044896,"SZD-42 Jantar 2. https://en.wikipedia.org/wiki/SZD-42_Jantar_2"
+Apis2 15m,Q7990406,"Wezel Apis 2. https://en.wikipedia.org/wiki/Wezel_Apis_2 — supplied by the maintainer, 2026-07-14, and it corrected me. Our wing area is 12.4 m²; the Wezel's is 12.4 m², to the centimetre. I was about to write Q7197430 (Pipistrel Apis-Bee, 12.24 m²) — a 0.16 m² gap, comfortably inside our 0.8 m² tolerance, and A DIFFERENT AIRCRAFT. A tolerance that accepts a near-miss will accept the wrong aircraft on the day the right one exists."
