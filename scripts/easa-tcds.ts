@@ -77,7 +77,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { spanFromName, modelOf, classFromSpan } from './classify-gliders';
+import { spanFromName, modelOf } from './classify-gliders';
 
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
@@ -312,6 +312,8 @@ export interface Section {
   variableSpan: boolean;
   /** How many people the certificate says it carries — or null when it does not say. */
   seats: number | null;
+  /** True when the certificate publishes a speed per FLAP POSITION: the wing has camber flaps. */
+  camberFlaps: boolean;
 }
 
 /** THE SEATS, AND WHY THEY ARE HERE AND NOT GUESSED.
@@ -334,6 +336,38 @@ export interface Section {
  *  one. */
 export function passengerInName(fileName: string): boolean {
   return /\bPAS\b|\bPIL\b|\b\d+\s*persons?\b/i.test(fileName);
+}
+
+/** DOES THIS WING HAVE CAMBER-CHANGING FLAPS?
+ *
+ *  It is the one fact that separates FAI Standard class from 15-Metre — SC3 6.5.4, "Lift increasing
+ *  devices are prohibited, EVEN IF UNUSABLE" — and nothing in this repository recorded it for more
+ *  than nine gliders out of a hundred and forty-two.
+ *
+ *  ---- and the word `flap` is useless ----
+ *
+ *  The ASW 28 is a Standard-class glider and its certificate calls its AIRBRAKES `Schempp-Hirth
+ *  brake-flaps`. The Duo Discus has a `trailing edge flap` connected to the airbrake. The Glasflügel
+ *  Mosquito says `flaps combined with the air brake` — and IT has camber flaps. Three sentences, the
+ *  same word, three different things. A detector built on `\bflaps?\b` reports what the typesetter
+ *  chose, not what the wing does.
+ *
+ *  ---- what the certificate actually PROVES ----
+ *
+ *  A flapped glider's Air Speeds section publishes a manoeuvring speed FOR EACH FLAP POSITION:
+ *
+ *        Manoeuvring Speed  - with flaps at   1, 2      VA = 180 km/h
+ *                             bei Wölbklappenstellung
+ *
+ *  You do not publish a speed per setting unless there are settings. Across every certificate we
+ *  hold, `Wölbklappe` and `with flaps at` separate the two populations without a single exception:
+ *  zero for the Discus, the ASW 28, the ASK 21 and the Duo Discus; eleven, thirty-seven, twenty-four
+ *  and nine for the ASW 27, the Ventus, the Nimbus and the Arcus.
+ *
+ *  So this is not a keyword search for the word `flap`. It is a search for the ONE PLACE the
+ *  certificate is obliged to be unambiguous, because a pilot has to fly by it. */
+export function camberFlapsIn(body: string): boolean {
+  return /w[oö]lbklappe|camber[\s-]?changing|camberchanging|with\s+flaps?\s+at|flap\s+position/i.test(body);
 }
 
 export function seatsIn(prose: string): number | null {
@@ -390,13 +424,24 @@ export function readSections(text: string): Section[] {
     // section demonstrably ended. Now the code does what the comment always claimed.
     const from = Math.max(prevEnd, m.index - 6000);
     const prose = text.slice(from, m.index);
-    prevEnd = m.index + m[0].length;
+    const end = m.index + m[0].length;
+    prevEnd = end;
+
+    // AND FORWARDS, for the flaps — because the evidence is on the other side of the block.
+    //
+    // The seats are in the Description, which comes BEFORE the Dimensions. The flap positions are in
+    // the Air Speeds table, which comes AFTER it. One section, two windows, and neither may cross
+    // into the next aircraft: the boundary going forwards is the next `Description`, because that is
+    // where the next aircraft's section demonstrably begins.
+    const ahead = text.slice(end, end + 12_000);
+    const nextDesc = ahead.search(/\bDescription\b|\bBeschreibung\b/i);
+    const after = nextDesc < 0 ? ahead : ahead.slice(0, nextDesc);
     const spoken = [...prose.matchAll(new RegExp(String.raw`${N}\s*m\s*(?:span|Spannweite)`, 'gi'))]
       .map(x => num(x[1]))
       .filter((x): x is number => x !== null && x >= 5 && x <= 40);
 
     const variableSpan = spoken.some(s => Math.abs(s - spanM) > 0.05);
-    out.push({ spanM, areaM2, variableSpan, seats: seatsIn(prose) });
+    out.push({ spanM, areaM2, variableSpan, seats: seatsIn(prose), camberFlaps: camberFlapsIn(prose + after) });
   }
   return out;
 }
@@ -427,7 +472,7 @@ export function readSections(text: string): Section[] {
 // It stays the LAST resort all the same, used only where no wing area exists to be asked, because a
 // number is checkable and a name is a judgement.
 
-export interface Headed { header: string; spanM: number; variableSpan: boolean; seats: number | null }
+export interface Headed { header: string; spanM: number; variableSpan: boolean; seats: number | null; camberFlaps: boolean }
 
 /** Every (section heading, span) this document states.
  *
@@ -467,8 +512,12 @@ export function readHeadedSpans(text: string): Headed[] {
     const spoken = [...prose.matchAll(new RegExp(String.raw`${N}\s*m\s*(?:span|Spannweite)`, 'gi'))]
       .map(x => num(x[1]))
       .filter((x): x is number => x !== null && x >= 5 && x <= 40);
+    // Forwards for the flaps, backwards for the seats, and neither crosses into the next aircraft.
+    const ahead = text.slice(m.index + m[0].length, m.index + m[0].length + 12_000);
+    const nextDesc = ahead.search(/\bDescription\b|\bBeschreibung\b/i);
+    const after = nextDesc < 0 ? ahead : ahead.slice(0, nextDesc);
     out.push({
-      header: head.title, spanM, seats: seatsIn(prose),
+      header: head.title, spanM, seats: seatsIn(prose), camberFlaps: camberFlapsIn(prose + after),
       variableSpan: spoken.some(s => Math.abs(s - spanM) > 0.05),
     });
   }
@@ -531,14 +580,18 @@ export function headerNames(ourName: string, header: string): boolean {
  *  a running-header artefact, or a genuine sub-variant — and then they must AGREE. */
 export function spanForHeader(
   headed: Headed[], ourName: string,
-): { spanM: number; header: string; seats: number | null } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
+): { spanM: number; header: string; seats: number | null; camberFlaps: boolean } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
   const hits = headed.filter(h => headerNames(ourName, h.header));
   if (hits.length === 0) return { refused: 'no-section' };
   if (hits.some(h => h.variableSpan)) return { refused: 'variable-span' };
   const spans = new Set(hits.map(h => h.spanM));
   if (spans.size > 1) return { refused: 'conflict' };
   const seats = new Set(hits.map(h => h.seats).filter((x): x is number => x !== null));
-  return { spanM: hits[0].spanM, header: hits[0].header, seats: seats.size === 1 ? [...seats][0] : null };
+  return {
+    spanM: hits[0].spanM, header: hits[0].header,
+    seats: seats.size === 1 ? [...seats][0] : null,
+    camberFlaps: hits.some(h => h.camberFlaps),
+  };
 }
 
 /** The span this certificate states for the glider whose wing area is ours — or null, with a reason.
@@ -549,7 +602,7 @@ export function spanForHeader(
  *  we are not the ones to choose. */
 export function spanForArea(
   sections: Section[], ourAreaM2: number, exactOnly = false,
-): { spanM: number; seats: number | null } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
+): { spanM: number; seats: number | null; camberFlaps: boolean } | { refused: 'no-section' | 'variable-span' | 'conflict' } {
   // An EXACT area match outranks a merely close one, and the difference is not pedantry.
   //
   // The Nimbus 4's certificate holds `26.4 m @ 17.80 m²` and `26.5 m @ 17.96 m²`. Our polar says
@@ -586,7 +639,11 @@ export function spanForArea(
   // The seats must agree too, and where they do not the document is describing more than one
   // aircraft. Silence is not disagreement: a section that says nothing about seats says nothing.
   const seats = new Set(hits.map(s => s.seats).filter((x): x is number => x !== null));
-  return { spanM: hits[0].spanM, seats: seats.size === 1 ? [...seats][0] : null };
+  return {
+    spanM: hits[0].spanM,
+    seats: seats.size === 1 ? [...seats][0] : null,
+    camberFlaps: hits.some(s => s.camberFlaps),
+  };
 }
 
 // ---- the run ----
@@ -613,15 +670,25 @@ if (import.meta.main) {
   // A column that already exists KEEPS ITS PLACE (see link-wikidata: appending afresh made the file's
   // header depend on the order the scripts ran in). A NEW column is born where it belongs — `seats` is
   // an aircraft fact and sits with them, not tacked on after the certificate's URL.
-  if (!cols.includes('seats')) {
-    const before = cols.indexOf('easa_tcds');
-    cols.splice(before < 0 ? cols.length : before, 0, 'seats');
+  for (const c of ['seats', 'seats_source', 'camber_flaps', 'camber_flaps_source']) {
+    if (!cols.includes(c)) {
+      const before = cols.indexOf('easa_tcds');
+      cols.splice(before < 0 ? cols.length : before, 0, c);
+    }
   }
+  // fai_class is GONE, and it is gone from here rather than merely stopped being written: a column
+  // nobody fills is a column somebody will read. The FAI's classes are ENTRY CONDITIONS, not
+  // attributes — see the README — so the derivation belongs to whoever is entering a competition,
+  // and the facts it needs (span, seats, camber flaps) belong here. soaring-core::faiClass does the
+  // deriving now, from these three columns, where a caller can see the rule and disagree with it.
+  const dropped = cols.indexOf('fai_class');
+  if (dropped >= 0) cols.splice(dropped, 1);
   for (const c of ['easa_tcds', 'easa_url']) if (!cols.includes(c)) cols.push(c);
   const out = [cols.join(',')];
 
   let upgraded = 0, agreed = 0, corrected = 0, noArea = 0, noCert = 0, notASailplane = 0, notNamed = 0;
-  let viaTitle = 0, viaMakerN = 0, seated = 0;
+  let viaTitle = 0, viaMakerN = 0, seated = 0, flapped = 0;
+  const flapConflict: string[] = [];
   const refusals: Record<string, number> = { 'no-section': 0, 'variable-span': 0, conflict: 0, seats: 0 };
   const refusedSeats: string[] = [];
   const revoked: string[] = [];
@@ -640,6 +707,7 @@ if (import.meta.main) {
     const ourArea = num(at(r, 'wing_area_m2'));
     const hadSpan = num(at(r, 'span_m'));
     let spanM: number | null = null, seats: number | null = null, tcds = '', url = '';
+    let camber: boolean | null = null;
 
     if (at(r, 'wing_class') !== 'glider') {
       // A paraglider has no type certificate. Not a failure — a category error, and silent.
@@ -703,7 +771,7 @@ if (import.meta.main) {
             refusedVariable.push(`${name} — ${c.id} says ${h.spanM} m, the name says ${named} m`);
             continue;
           }
-          spanM = h.spanM; seats = h.seats; tcds = c.id; url = c.pdf; found = true; viaHeader++;
+          spanM = h.spanM; seats = h.seats; camber = h.camberFlaps; tcds = c.id; url = c.pdf; found = true; viaHeader++;
           break;
         }
 
@@ -749,7 +817,7 @@ if (import.meta.main) {
           refusedVariable.push(`${name} — ${c.id} says ${verdict.spanM} m, the name says ${named} m`);
           continue;
         }
-        spanM = verdict.spanM; seats = verdict.seats; tcds = c.id; url = c.pdf; found = true;
+        spanM = verdict.spanM; seats = verdict.seats; camber = verdict.camberFlaps; tcds = c.id; url = c.pdf; found = true;
         if (viaMaker) viaMakerN++; else viaTitle++;
         break;
       }
@@ -788,9 +856,25 @@ if (import.meta.main) {
     }
     // The seats, and the class the seats unlock. A row keeps a seat count it already had: only the
     // certificate writes this column, and only a certificate can overturn it.
-    if (seats !== null) { row[cols.indexOf('seats')] = String(seats); seated++; }
-    const heldSeats = num(row[cols.indexOf('seats')]);
-    row[cols.indexOf('fai_class')] = quote(classFromSpan(num(row[cols.indexOf('span_m')]), heldSeats));
+    if (seats !== null) {
+      row[cols.indexOf('seats')] = String(seats);
+      row[cols.indexOf('seats_source')] = 'easa';
+      seated++;
+    }
+    if (camber !== null) {
+      // THE POLAR MAY NOT CONTRADICT THE CERTIFICATE. A polar file carrying a table of flap settings
+      // is a MEASUREMENT of a flapped wing — somebody flew it at each setting and wrote the speeds
+      // down. If the certificate says that wing has no camber flaps, one of the two is about a
+      // different aircraft, and neither of them is ours to overrule.
+      const polarHasFlaps = (num(at(r, 'flaps_count')) ?? 0) >= 2;
+      if (polarHasFlaps && !camber) {
+        flapConflict.push(`${fileName} — ${tcds} publishes no speed per flap position, and our polar has ${at(r, 'flaps_count')} flap settings`);
+      } else {
+        row[cols.indexOf('camber_flaps')] = camber ? 'true' : 'false';
+        row[cols.indexOf('camber_flaps_source')] = 'easa';
+        flapped++;
+      }
+    }
     row[cols.indexOf('easa_tcds')] = quote(tcds);
     row[cols.indexOf('easa_url')] = quote(url);
     out.push(row.join(','));
@@ -826,6 +910,7 @@ gliders given a CERTIFIED span   ${upgraded}
   the TITLE named the aircraft   ${viaTitle}   (area corroborates, 0.35 m² forgiven)
   only the MAKER matched         ${viaMakerN}   ← the family documents, reached by manufacturer
   SEATS, from the certificate    ${seated}   ← the 20-Metre Two-Seat class needs them, and nothing else had them
+  CAMBER FLAPS, certified        ${flapped}   ← a speed published per flap position: there are flap positions
   the SECTION HEADING named it   ${viaHeader}   ← the certificate states no wing area; EASA titled the section
   it agreed with what we held    ${agreed}   (Wikipedia was right, and now it is also sourced)
   it CORRECTED what we held      ${corrected}
@@ -845,6 +930,12 @@ refused, and kept as they were:
   if (changes.length > 0) {
     console.log('the certificate disagreed with Wikipedia, and the certificate wins:');
     for (const c of changes) console.log(c);
+    console.log('');
+  }
+  if (flapConflict.length > 0) {
+    console.log(`OUR POLAR AND THE CERTIFICATE DISAGREE ABOUT THE WING. A polar with a table of flap settings is
+a measurement of a flapped wing — somebody flew it at each setting. Left empty, for a human:`);
+    for (const c of flapConflict) console.log(`  ${c}`);
     console.log('');
   }
   if (revoked.length > 0) {

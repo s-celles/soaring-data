@@ -7,7 +7,7 @@
 
 import { test, expect } from 'bun:test';
 import {
-  classFromSpan, match, modelOf, spanFromName, titleMatches, titleStrength,
+  match, modelOf, spanFromName, titleMatches, titleStrength,
 } from './classify-gliders';
 
 // ---- reading the span off the name ----
@@ -53,11 +53,6 @@ test('an uppercase M is a MOTOR, not metres', () => {
   expect(spanFromName('Ventus CM (17.6m)')).toBe(17.6);  // the lowercase unit still reads
 });
 
-test('the class that follows is refused too — no glider is named Open from a model number', () => {
-  expect(classFromSpan(spanFromName('ASK-21'))).toBe('');
-  expect(classFromSpan(spanFromName('ASK-23'))).toBe('');
-});
-
 test('a parenthesised span is a span — the read that once failed silently', () => {
   // This is the regression. `Ventus B (15m)` used to read as nothing; the script fell through to
   // Wikipedia, whose Ventus article describes the CM, and 17.6 m went into the file beside a name
@@ -78,30 +73,6 @@ test('a model number is not a span', () => {
 });
 
 // ---- naming the class, and refusing to ----
-
-test('the three spans that settle the class on their own', () => {
-  expect(classFromSpan(18)).toBe('18m');
-  expect(classFromSpan(13.5)).toBe('13.5m');
-  expect(classFromSpan(26.58)).toBe('open');   // an ASW 22: beyond 20 m, seats cannot change the answer
-});
-
-test('15 metres is LEFT EMPTY, because the class turns on flaps we do not have', () => {
-  // A 15 m wing is Standard class without flaps and 15-Metre class with them. These files record the
-  // flaps of ten wings out of 155. Writing "Standard" beside a flapped Ventus would tell a pilot
-  // something false, from a machine that had no way of knowing it.
-  expect(classFromSpan(15)).toBe('');
-});
-
-test('20 metres is LEFT EMPTY, because the class turns on seats we do not have', () => {
-  // 20-Metre Multi-seat if it seats two, Open if it seats one. Nothing in a polar records seats.
-  expect(classFromSpan(20)).toBe('');
-});
-
-test('an unknown span names no class at all', () => {
-  expect(classFromSpan(null)).toBe('');
-});
-
-// ---- is this article even about this glider? ----
 
 test('an article about ANOTHER aircraft is refused — the two we nearly published', () => {
   // Wikipedia's search answered `LS-8-18` with the Glaser-Dirks DG-600 and `SF27` with the Scheibe
@@ -242,30 +213,3 @@ test('WHY a match is weak decides whether Wikidata\'s own search may act on it',
   expect(k8.digit).toBe(true);
 });
 
-// ============ what the FAI Sporting Code actually says ============
-
-test('A MAXIMUM IS NOT A TARGET — the Janus B at 18.2 m is NOT 18-Metre class', () => {
-  // SC3 6.5.2: "The only limitation is a maximum span of 18,000 mm." A CEILING. `Math.abs(span - 18)
-  // < 0.3` read it as a target, accepted the Janus B at 18.2 m, and declared it eligible for a class
-  // it exceeds by twenty centimetres. The tolerance may reach DOWNWARDS, for a glider built to the
-  // limit and measured a few centimetres under it. It may never reach above.
-  expect(classFromSpan(18.0)).toBe('18m');
-  expect(classFromSpan(17.8)).toBe('18m');
-  expect(classFromSpan(18.2)).toBe('');      // over the ceiling. Not a class.
-  expect(classFromSpan(18.3)).toBe('');      // the ASW 12
-});
-
-test('the 20-Metre Two-Seat class needs the SEATS, and nothing in this table had them', () => {
-  // SC3 6.5.7: "multi-seat gliders having a crew of two persons". The Duo Discus, the DG-1000 and the
-  // Arcus are all exactly 20 m, and until the certificates were read they were gliders of no class.
-  expect(classFromSpan(20, 2)).toBe('20m');
-  expect(classFromSpan(20, 1)).toBe('');      // the ASW 17 is 20 m and carries one person
-  expect(classFromSpan(20, null)).toBe('');   // and silence is not two seats
-  expect(classFromSpan(17, 2)).toBe('');      // the ASK 21 seats two and is not a 20 m glider
-});
-
-test('open is what is left when nothing else fits — it is not a certificate of merit', () => {
-  expect(classFromSpan(26.4, 1)).toBe('open');
-  expect(classFromSpan(22, 2)).toBe('open');     // the DG-500
-  expect(classFromSpan(15)).toBe('');            // 15 m needs the flaps, and we do not have them
-});

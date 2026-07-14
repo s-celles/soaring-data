@@ -41,7 +41,11 @@ const TYPE_OK: Record<string, (v: string) => boolean> = {
   string: () => true,
   integer: v => v === '' || /^-?\d+$/.test(v),
   number: v => v === '' || Number.isFinite(Number(v)),
-  boolean: v => v === 'true' || v === 'false',
+  // EMPTY IS A VALUE HERE, and it is the one this repository is built around. `camber_flaps` is
+  // blank for the gliders whose wing no certificate and no polar has told us about, and a blank a
+  // human can see is worth more than a `false` nobody will re-check. Every other type in this table
+  // already allows it; boolean was the odd one out, and it was the odd one out by accident.
+  boolean: v => v === '' || v === 'true' || v === 'false',
   date: v => v === '' || /^\d{4}-\d{2}-\d{2}$/.test(v),
 };
 
@@ -67,6 +71,33 @@ const TYPE_OK: Record<string, (v: string) => boolean> = {
 // Every one of these was invisible to the schema, invisible to the tests, and invisible in the
 // terminal output. They are checked here so that the next one is not.
 function checkPolarInvariants(rows: Record<string, string>[]): void {
+  // ---- the two airframe facts, and the promises they carry ----
+  //
+  // A VALUE AND ITS SOURCE STAND OR FALL TOGETHER. A seat count with no source is a number nobody
+  // can go and check; a source with no number is a claim to have looked and found nothing, recorded
+  // in the wrong column. Both are how a guess ends up looking like a reading.
+  for (const r of rows) {
+    for (const [v, src] of [['seats', 'seats_source'], ['camber_flaps', 'camber_flaps_source']]) {
+      if ((r[v] !== '') !== (r[src] !== '')) {
+        note(`${r.name}: ${v}='${r[v]}' and ${src}='${r[src]}' — a value and its source stand or fall together`);
+      }
+    }
+    // `easa` means A CERTIFICATE SAID SO, and the certificate must be named in the same row. This is
+    // the invariant that catches the laundering: a refusal that leaves the old value behind ends up
+    // with `easa` beside an empty easa_tcds — a certified fact with no certificate.
+    for (const src of ['seats_source', 'camber_flaps_source']) {
+      if (r[src] === 'easa' && (r.easa_tcds ?? '') === '') {
+        note(`${r.name}: ${src}=easa and NO easa_tcds — a certified fact with no certificate behind it`);
+      }
+    }
+    // A POLAR WITH FLAP SETTINGS IS A FLAPPED WING. Somebody flew it at each setting and wrote the
+    // speeds down; that is a measurement, and it may not sit beside `camber_flaps=false`.
+    const settings = Number(r.flaps_count ?? '');
+    if (Number.isFinite(settings) && settings >= 2 && r.camber_flaps === 'false') {
+      note(`${r.name}: the polar records ${settings} flap settings and camber_flaps says false`);
+    }
+  }
+
   const spanInName = (n: string): number | null => {
     const m = /(?:^|[-\s_(])(\d{2}(?:[.,]\d)?)\s*m\b/.exec(n);
     if (m === null) return null;

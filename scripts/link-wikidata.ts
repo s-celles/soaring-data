@@ -37,7 +37,7 @@
 // Run:  just link-wikidata      → rewrites polars.csv, adding/refreshing wikidata_qid
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { titleStrength, match, modelOf, classFromSpan } from './classify-gliders';
+import { titleStrength, match, modelOf } from './classify-gliders';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
 const ALIASES = new URL('../datasets/polars/aliases.csv', import.meta.url).pathname;
@@ -449,11 +449,6 @@ if (import.meta.main) {
     if (span === null) continue;
     row[spanAt] = String(span);
     row[srcAt] = 'wikipedia';
-    // The class is DERIVED from the span, and it is derived HERE — not left for the next classify run
-    // to notice. A file that is only consistent after you happen to run another tool is not a file,
-    // it is a promise.
-    const clsAt = cols.indexOf('fai_class');
-    if (clsAt >= 0) row[clsAt] = quote(classFromSpan(span));
     filled++;
     gained.push(`  ${name.padEnd(22)} ${String(span).padStart(6)} m   ${qid}`);
   }

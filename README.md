@@ -92,35 +92,53 @@ must not be pooled:
 | `name` | read off the polar's own file name (`Ventus B (15m)`) — and only when the name says `m`, in lowercase |
 | `wikipedia` | the English Wikipedia aircraft infobox, cross-checked against our own wing area |
 
-### and `fai_class` is a GROUPING, not a certified attribute
+### there is no `fai_class` column, and there never should have been
 
-There is **no authority anywhere that publishes "the class of the ASW 20"**, because there is no such
-fact. The FAI Sporting Code (SC3, chapter 6.5) defines a class as an **entry condition for a
-competition**, not a property of an aircraft:
+It existed, and it was **a judgement wearing a fact's clothes**. There is no authority anywhere that
+publishes *"the class of the ASW 20"*, because **there is no such fact**. The FAI Sporting Code
+(SC3, chapter 6.5) defines a class as an **entry condition for a competition**:
 
 > 6.5.1 Open Class — *"No special rules."*
 > 6.5.2 18 metre Class — *"The only limitation is a maximum span of 18,000 mm."*
 > 6.5.4 Standard Class — span ≤ 15,000 mm, and *"Lift increasing devices are prohibited, even if unusable."*
-> 6.5.6 Club Class — *"The only limitation on entry … is that it is within the agreed range of handicap factors"* — **for that competition**.
+> 6.5.6 Club Class — *"…within the agreed range of handicap factors"* — **for that competition**.
 > 6.5.7 20 metre Multi-seat — *"multi-seat gliders having a crew of two persons."*
 
-The classes are **nested**: an ASW 24 (15 m, no flaps) may be entered in Standard, in 15-Metre, in
-18-Metre and in Open. Club Class is not a fact about the glider at all — it depends on the handicap
-range the organisers agreed. So this column holds the class a glider was **built for**, and it is
-offered as that.
+The classes are **nested** — an ASW 24 may be entered in Standard, in 15-Metre, in 18-Metre and in
+Open — and Club Class is not a property of the glider at all. While the column existed it labelled
+the **Janus B** (18.2 m) as `18m`: a class it *exceeds by twenty centimetres*, because a tolerance
+had turned a ceiling into a target.
 
-Two things follow, and both were bugs:
+So this package ships **the facts a class is derived from**, and leaves the deriving to whoever is
+entering a competition:
 
-- **A maximum is not a target.** The Janus B (18.2 m) was labelled `18m` — a class it *exceeds by
-  twenty centimetres*. The tolerance reaches downwards from the ceiling, never above it.
-- **The 20-Metre Two-Seat class needs the seats**, and nothing in this table recorded them. The
-  certificates do (`seats`), so the Duo Discus, the DG-1000 and the Arcus stop being gliders of no
-  class at all.
+| column | what it is |
+|---|---|
+| `seats` | from the certificate's Description (*"Single-seater sailplane"*, *"Doppelsitziges Segelflugzeug"*), or from our own file name — `Duo Discus (PAS)` was flown with a passenger in it |
+| `camber_flaps` | does the wing have **camber-changing flaps**? The one fact separating Standard from 15-Metre |
 
-`15m` and `standard` are almost never given, and that is deliberate: telling them apart needs the
-**flaps**, and a certificate that never mentions flaps has not told us there are none. The Glasflügel
-document names no flaps at all — and the 604, the Kestrel and the Mosquito have them. **Silence is not
-absence, and Standard class is defined by an absence.**
+### the word `flap` is not evidence
+
+The ASW 28 is a **Standard-class** glider whose certificate calls its airbrakes
+*"Schempp-Hirth **brake-flaps**"*. The Duo Discus has a *"trailing edge **flap**"* connected to the
+airbrake. The Glasflügel Mosquito says *"**flaps** combined with the air brake"* — **and it has camber
+flaps**. Three sentences, one word, three different things.
+
+What a certificate **cannot** be vague about is the **Air Speeds** table, because a pilot flies by it:
+
+```
+Manoeuvring Speed   - with flaps at   1, 2      VA = 180 km/h
+                      bei Wölbklappenstellung
+```
+
+**You do not publish a speed per setting unless there are settings.** Across every certificate held,
+`Wölbklappe` and *"with flaps at"* separate the two populations without a single exception — zero for
+the Discus, the ASW 28, the ASK 21 and the Duo Discus; eleven, thirty-seven, twenty-four and nine for
+the ASW 27, the Ventus, the Nimbus and the Arcus.
+
+And nine polar files carried a **table of flap settings** all along — `0:2;90:1;110:0;150:-1` — which
+is a *measurement* of a flapped wing: somebody flew it at each setting and wrote the speeds down.
+Unread, while the class column sat empty for want of exactly that.
 
 The EASA pass corrected **nothing**: it agreed with Wikipedia every single time. What it changed is
 not the number but what stands behind it — a claim anyone can check in one click, against a signed

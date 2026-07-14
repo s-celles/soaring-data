@@ -209,21 +209,6 @@
             "description": "WHERE span_m came from, because the three sources do not have the same evidentiary value and must not be pooled. `easa`: the Dimensions field of the aircraft's EASA Type Certificate Data Sheet — the certification authority's own document, identified by matching the TCDS's stated wing area against ours. The strongest source, and NOT the safest: a TCDS states the span AS CERTIFIED, and a glider with removable tips flies a span its certificate does not name, so variable-span aircraft are refused rather than recorded (see easa_tcds). `name`: read off the polar's own file name (`Ventus B (15m)`), and only when the name says `m` in lowercase — a bare number is a MODEL number, and an uppercase M is a motor. `wikipedia`: the aircraft infobox of the matching English Wikipedia article, cross-checked against wing_area_m2. Empty when span_m is empty."
           },
           {
-            "name": "fai_class",
-            "type": "string",
-            "title": "FAI competition class, WHERE THE SPAN ALONE SETTLES IT",
-            "description": "A GROUPING, not a certified attribute — and the FAI Sporting Code is the reason the distinction matters. SC3 chapter 6.5 defines a class as an ENTRY CONDITION for a competition, not a property of an aircraft: 6.5.2 'The only limitation [of the 18 metre Class] is a maximum span of 18,000 mm'; 6.5.1 Open Class 'No special rules'; 6.5.6 Club Class 'The only limitation on entry ... is that it is within the agreed range of handicap factors FOR THE COMPETITION'. The classes are NESTED — an ASW 24 may be entered in Standard, 15-Metre, 18-Metre and Open — and Club Class is not a fact about the glider at all. THERE IS NO AUTHORITY THAT PUBLISHES 'the class of the ASW 20', because there is no such fact. What this column holds is the class a glider was BUILT for and would normally be entered in. A maximum is not a target: the tolerance reaches downwards from the ceiling and never above it, which is why the Janus B (18.2 m) is NOT 18-Metre class, though it was labelled so until the Code was read. 20m is given where the certificate states two seats and the span is 20 m. Everything else is EMPTY ON PURPOSE: telling Standard from 15-Metre needs the FLAPS, and a certificate that never mentions flaps has not told us there are none — the Glasfluegel document names none at all, and the 604, the Kestrel and the Mosquito have them. SILENCE IS NOT ABSENCE, and Standard class is defined by an absence.",
-            "constraints": {
-              "enum": [
-                "13.5m",
-                "18m",
-                "20m",
-                "open",
-                ""
-              ]
-            }
-          },
-          {
             "name": "wikidata_qid",
             "type": "string",
             "constraints": {
@@ -235,6 +220,35 @@
             "name": "seats",
             "type": "integer",
             "description": "How many people the aircraft carries, as stated by its EASA type certificate — 'Single-seater sailplane' / 'Doppelsitziges Segelflugzeug', read from the section the aircraft was identified in. Not from our own file names: 'Duo Discus (PAS)' and 'Duo Discus (PIL)' are one glider flown with and without a passenger, which is a fact about the polar and not about the aircraft. It exists because the FAI's 20-Metre Two-Seat class (SC3 6.5.7, 'multi-seat gliders having a crew of two persons') could not be tested without it. It also CORROBORATES: our 'Nimbus 4D' rows carry the wing area of the single-seat Nimbus 4 (17.80 m², against the 4D's 17.96), so the area put a two-seat glider on a one-seat aircraft's section and took home its span. The seats caught it. EMPTY where the certificate does not say, or where there is no certificate."
+          },
+          {
+            "name": "seats_source",
+            "type": "string",
+            "constraints": {
+              "enum": [
+                "easa",
+                "name",
+                ""
+              ]
+            },
+            "description": "Where the seat count came from. `easa` = the type certificate's Description ('Single-seater sailplane' / 'Doppelsitziges Segelflugzeug'), read from the section the aircraft was identified in. `name` = our own polar file name: `Duo Discus (PAS)` and `IS-28B2 Lark with 2 person` were flown with a passenger in them, which is a fact about the polar and enough to know the aircraft seats two. A certificate always outranks a name."
+          },
+          {
+            "name": "camber_flaps",
+            "type": "boolean",
+            "description": "Does the wing have CAMBER-CHANGING FLAPS? The one fact that separates FAI Standard class from 15-Metre (SC3 6.5.4: 'Lift increasing devices are prohibited, EVEN IF UNUSABLE'), and until now it was recorded for nine gliders out of 142. THE WORD `flap` IS USELESS AS EVIDENCE: the ASW 28 is a Standard-class glider whose certificate calls its AIRBRAKES 'Schempp-Hirth brake-flaps'; the Duo Discus has a 'trailing edge flap' connected to the airbrake; the Glasfluegel Mosquito says 'flaps combined with the air brake' and DOES have camber flaps. Three sentences, one word, three different things. What the certificate cannot be vague about is the AIR SPEEDS table, which publishes a manoeuvring speed FOR EACH FLAP POSITION — you do not publish a speed per setting unless there are settings. Across every certificate held, `Woelbklappe` and 'with flaps at' separate the two populations without one exception."
+          },
+          {
+            "name": "camber_flaps_source",
+            "type": "string",
+            "constraints": {
+              "enum": [
+                "easa",
+                "polar",
+                ""
+              ]
+            },
+            "description": "`easa` = the type certificate publishes a manoeuvring speed per flap position. `polar` = our own polar file carries a table of flap settings (`0:2;90:1;110:0;150:-1`), which is a MEASUREMENT of a flapped wing: somebody flew it at each setting and wrote the speeds down. Where the two disagree nothing is written and the run says so — a polar with flap settings and a certificate that publishes none are about different aircraft, and neither is ours to overrule."
           },
           {
             "name": "easa_tcds",

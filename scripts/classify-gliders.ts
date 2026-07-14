@@ -25,20 +25,29 @@
 //     matched the wrong glider, and the answer is thrown away rather than written down.
 // A source we cannot check is a source we should not use.
 //
-// ---- the honest hole, which is the point ----
+// ---- and there is no fai_class column any more, on purpose ----
 //
-// THE FAI CLASS CANNOT BE DERIVED FROM SPAN ALONE. A 15 m glider is Standard class if its wing has
-// no flaps and 15-Metre class if it has — and the polar files record the flaps of ten wings out of
-// 155. A 20 m machine is 20-Metre Multi-seat only if it seats two, which nothing here records.
+// There was one, and it was a JUDGEMENT WEARING A FACT'S CLOTHES. The FAI Sporting Code (SC3 6.5)
+// defines a class as an ENTRY CONDITION for a competition, not a property of an aircraft: 6.5.2 "the
+// only limitation [of the 18 metre Class] is a maximum span of 18,000 mm"; 6.5.1 Open Class "no
+// special rules"; 6.5.6 Club Class "within the agreed range of handicap factors FOR THE
+// COMPETITION". The classes are nested, and no authority anywhere publishes "the class of the
+// ASW 20", because there is no such fact.
 //
-// So `fai_class` is filled ONLY where the span settles it, and left EMPTY otherwise. Filling it by
-// guessing would be the one thing this repository exists not to do: an empty cell a human can see
-// is worth more than a plausible cell nobody will re-check, and a pilot who reads "Standard" beside
-// a flapped 15-metre has been told something false by a machine that had no way of knowing.
+// So this package ships the FACTS a class is derived FROM — span, seats, camber flaps — and anyone
+// who wants a class derives it, where the rule is visible and can be argued with.
+//
+// The two new ones are read here from what we already had and had never looked at:
+//   · SEATS, from the file name — `Duo Discus (PAS)` was flown with a passenger in it.
+//   · CAMBER FLAPS, from the polar's own table of flap settings — `0:2;90:1;110:0` is a MEASUREMENT
+//     of a flapped wing. Nine rows carried one, unread, while the class column sat empty for want of
+//     exactly that.
+// Both are outranked by the type certificate, which easa-tcds writes afterwards.
 //
 // Run:  just classify-gliders
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { passengerInName } from './easa-tcds';
 
 const CSV = new URL('../datasets/polars/polars.csv', import.meta.url).pathname;
 const WP = 'https://en.wikipedia.org/w/api.php';
@@ -93,67 +102,6 @@ export function spanFromName(name: string): number | null {
   if (!m) return null;
   const v = Number(m[1].replace(',', '.'));
   return v >= 12 && v <= 30 ? v : null;
-}
-
-/** The FAI class, and ONLY where the span ALONE settles it. Three cases do; the rest do not, and
- *  the rest are left empty.
- *
- *  18 m  → the 18-Metre class, and nothing else.
- *  13.5 m→ the 13.5-Metre class, likewise.
- *  ≥ 20.5 m → Open. (20-Metre Multi-seat is exactly 20 m, so anything comfortably beyond it is
- *            Open whether it seats one or two — the seat count, which we do not have, cannot
- *            change the answer here.)
- *
- *  15 m is DELIBERATELY EMPTY: Standard without flaps, 15-Metre with them, and these files record
- *  the flaps of ten wings out of 155.
- *  20 m is DELIBERATELY EMPTY: 20-Metre Multi-seat if it seats two, Open if it seats one, and
- *  nothing here records the seats.
- *
- *  A machine that cannot see the wing must not name its class. */
-/** THE SPORTING CODE SAYS A CLASS IS A CEILING, AND THIS FUNCTION READ IT AS A TARGET.
- *
- *  FAI Sporting Code Section 3, chapter 6.5, in its own words:
- *
- *      6.5.1  Open Class        "No special rules."
- *      6.5.2  18 metre Class    "The only limitation is a maximum span of 18,000 mm."
- *      6.5.3  15 metre Class    "The only limitation is a maximum span of 15,000 mm."
- *      6.5.4  Standard Class    span ≤ 15,000 mm, and "Lift increasing devices are prohibited,
- *                                even if unusable."
- *      6.5.6  Club Class        "The only limitation on entry ... is that it is within the agreed
- *                                range of handicap factors FOR THE COMPETITION."
- *      6.5.7  20 metre Multi-seat  "multi-seat gliders having a crew of two persons."
- *
- *  Three things follow, and the first two are corrections.
- *
- *  1. A MAXIMUM IS NOT A TARGET. `Math.abs(span - 18) < 0.3` accepted the Janus B at 18.2 m and
- *     labelled it 18-Metre class — a glider that EXCEEDS the class ceiling by twenty centimetres and
- *     cannot be entered in it. The tolerance may reach DOWNWARDS, for a glider built to the limit and
- *     measured a few centimetres under it. It may never reach above.
- *
- *  2. THE 20-METRE TWO-SEAT CLASS NEEDS THE SEATS, and until the type certificates were read nothing
- *     in this table said how many people a glider carries. Now they do — see seatsIn in easa-tcds —
- *     and the Duo Discus, the DG-1000 and the Arcus, all exactly 20 m and all with two seats, stop
- *     being gliders of no class at all.
- *
- *  3. AND A CLASS IS NOT A PROPERTY OF AN AIRCRAFT. It is an ENTRY CONDITION for a competition, and
- *     the classes are NESTED: an ASW 24 (15 m, no flaps) may be entered in Standard, in 15-Metre, in
- *     18-Metre and in Open. Club Class is not even a property of the glider — it depends on the
- *     handicap range the ORGANISERS agreed for that contest. There is no authority anywhere that
- *     publishes "the class of the ASW 20", because there is no such fact.
- *
- *     So what this column holds is a GROUPING — the class a glider was built for and would normally
- *     be entered in — and it is offered as that, not as a certified attribute. Where the data cannot
- *     establish one it stays EMPTY, which is why 15-Metre and Standard are almost never given: telling
- *     them apart needs the FLAPS, and a certificate that does not mention flaps has not told us there
- *     are none. The Glasflügel document names no flaps at all, and the 604, the Kestrel and the
- *     Mosquito have them. SILENCE IS NOT ABSENCE, and Standard class is defined by an absence. */
-export function classFromSpan(span: number | null, seats: number | null = null): string {
-  if (span == null) return '';
-  if (span >= 13.3 && span <= 13.5) return '13.5m';       // ≤ 13,500 mm
-  if (seats !== null && seats >= 2 && span >= 19.7 && span <= 20.0) return '20m';
-  if (span >= 17.7 && span <= 18.0) return '18m';          // ≤ 18,000 mm — a CEILING
-  if (span >= 20.5) return 'open';                         // nothing else fits it
-  return '';                            // 15 m needs the flaps; anything else, we have not established
 }
 
 /** The AIRCRAFT, stripped of everything that describes how it is being FLOWN rather than what it is.
@@ -339,9 +287,18 @@ if (import.meta.main) {
   // `model` belongs beside the name it is derived from, not at the far end of the row: a reader who
   // sees `name` must see, in the next cell, what we actually asked the world about.
   if (!cols.includes('model')) cols.splice(cols.indexOf('name') + 1, 0, 'model');
-  for (const c of ['span_m', 'span_source', 'fai_class']) if (!cols.includes(c)) cols.push(c);
+  for (const c of ['span_m', 'span_source']) if (!cols.includes(c)) cols.push(c);
+  // The airframe facts sit together, and BEFORE the certificate that vouches for them — a column's
+  // place should not depend on which script happened to create it first (see link-wikidata).
+  for (const c of ['seats', 'seats_source', 'camber_flaps', 'camber_flaps_source']) {
+    if (cols.includes(c)) continue;
+    const before = cols.indexOf('easa_tcds');
+    cols.splice(before < 0 ? cols.length : before, 0, c);
+  }
+  const dropped = cols.indexOf('fai_class');
+  if (dropped >= 0) cols.splice(dropped, 1);
 
-  let fromName = 0, fromWp = 0, cached = 0, unknown = 0, classed = 0;
+  let fromName = 0, fromWp = 0, cached = 0, unknown = 0;
   const out = [cols.join(',')];
 
   for (const line of lines.slice(1)) {
@@ -400,14 +357,33 @@ if (import.meta.main) {
         }
       }
     }
-    const cls = isGlider ? classFromSpan(span) : '';
-    if (cls) classed++;
 
     const row = cols.map(c => quote(r[head.indexOf(c)] ?? ''));
     row[cols.indexOf('model')] = quote(model);
     row[cols.indexOf('span_m')] = span == null ? '' : String(span);
     row[cols.indexOf('span_source')] = source;
-    row[cols.indexOf('fai_class')] = cls;
+
+    // ---- the two facts the certificates cannot always reach ----
+    //
+    // SEATS, from OUR OWN FILE NAME. `Duo Discus (PAS)` and `IS-28B2 Lark with 2 person` were flown
+    // with a passenger in them — that is a fact about the polar, and it is enough to know the
+    // aircraft has two seats. It NEVER overrules a certificate: `easa` outranks `name`, here as with
+    // the span.
+    //
+    // CAMBER FLAPS, from OUR OWN POLAR. A polar carrying a table of flap settings — `0:2;90:1;110:0`
+    // — is a MEASUREMENT of a flapped wing: somebody flew it at each setting and wrote the speeds
+    // down. That is the strongest evidence in this repository, and it was sitting in nine rows,
+    // unread, while the class column stayed empty for want of exactly it.
+    const sAt = cols.indexOf('seats'), sSrc = cols.indexOf('seats_source');
+    if (sAt >= 0 && (r[sSrc] ?? '') !== 'easa' && passengerInName(name)) {
+      row[sAt] = '2';
+      row[sSrc] = 'name';
+    }
+    const fAt = cols.indexOf('camber_flaps'), fSrc = cols.indexOf('camber_flaps_source');
+    if (fAt >= 0 && (r[fSrc] ?? '') !== 'easa' && (num(r[head.indexOf('flaps_count')]) ?? 0) >= 2) {
+      row[fAt] = 'true';
+      row[fSrc] = 'polar';
+    }
     out.push(row.join(','));
   }
 
@@ -421,12 +397,11 @@ if (import.meta.main) {
     span from Wikipedia        ${fromWp}   (cross-checked against our own wing area)
     span UNKNOWN, left empty   ${unknown}
 
-    fai_class established      ${classed}
-    fai_class LEFT EMPTY       ${gliders - classed}
 
-  The empty class column is the honest half of this result, not a gap for a regular expression to
-  fill. A 15 m wing is Standard class without flaps and 15-Metre class with them, and these files
-  record the flaps of ten wings out of a hundred and fifty-five. A machine that cannot see the wing
-  must not name its class.`);
+
+  The two facts a competition class is derived FROM are here, and the class itself is not. Nine
+  polar files carry a table of flap settings — a MEASUREMENT of a flapped wing, sitting unread — and
+  the file names say which polars were flown with a passenger. Both are outranked by the type
+  certificate, which easa-tcds writes next.`);
 
 }

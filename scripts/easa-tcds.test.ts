@@ -5,7 +5,7 @@
 
 import { test, expect } from 'bun:test';
 import {
-  headerNames, isSailplane, makerCandidate, passengerInName, readHeadedSpans, readSections, seatsIn, spanForArea, spanForHeader, tcdsCandidate,
+  camberFlapsIn, headerNames, isSailplane, makerCandidate, passengerInName, readHeadedSpans, readSections, seatsIn, spanForArea, spanForHeader, tcdsCandidate,
 } from './easa-tcds';
 
 // ---- which certificates could possibly be this glider's ----
@@ -107,22 +107,22 @@ test('THE TRAP: prose that offers a span the Dimensions field does not state', (
 
 test('the wing area picks our aircraft out of a family document', () => {
   const sections = [
-    { spanM: 15, areaM2: 10.5, variableSpan: false },
-    { spanM: 18, areaM2: 11.45, variableSpan: false },
+    { spanM: 15, areaM2: 10.5, variableSpan: false, seats: null, camberFlaps: false },
+    { spanM: 18, areaM2: 11.45, variableSpan: false, seats: null, camberFlaps: false },
   ];
-  expect(spanForArea(sections, 11.45)).toEqual({ spanM: 18 });
-  expect(spanForArea(sections, 10.5)).toEqual({ spanM: 15 });
+  expect(spanForArea(sections, 11.45)).toEqual({ spanM: 18, seats: null, camberFlaps: false });
+  expect(spanForArea(sections, 10.5)).toEqual({ spanM: 15, seats: null, camberFlaps: false });
 });
 
 test('an area the document never states is not our aircraft', () => {
-  expect(spanForArea([{ spanM: 15, areaM2: 10.5, variableSpan: false }], 16.4))
+  expect(spanForArea([{ spanM: 15, areaM2: 10.5, variableSpan: false, seats: null, camberFlaps: false }], 16.4))
     .toEqual({ refused: 'no-section' });
 });
 
 test('two sections with our area and different spans: not ours to choose', () => {
   const sections = [
-    { spanM: 15, areaM2: 10.5, variableSpan: false },
-    { spanM: 18, areaM2: 10.5, variableSpan: false },
+    { spanM: 15, areaM2: 10.5, variableSpan: false, seats: null, camberFlaps: false },
+    { spanM: 18, areaM2: 10.5, variableSpan: false, seats: null, camberFlaps: false },
   ];
   expect(spanForArea(sections, 10.5)).toEqual({ refused: 'conflict' });
 });
@@ -204,7 +204,7 @@ test('the TABLE OF CONTENTS and the RUNNING PAGE HEADER are not headings', () =>
 
 test('`Astir CS` must not walk off with the TWIN ASTIR', () => {
   // Match on ANY shared word and `astir` hands it the Twin Astir, at 17.5 m. Every word must land.
-  expect(spanForHeader(readHeadedSpans(A250), 'Astir CS')).toEqual({ spanM: 15, header: 'ASTIR CS', seats: null });
+  expect(spanForHeader(readHeadedSpans(A250), 'Astir CS')).toEqual({ spanM: 15, header: 'ASTIR CS', seats: null, camberFlaps: false });
 });
 
 test('THE PHOEBUS C IS 17 m AND THE PHOEBUS A AND B ARE 15 — the single letter IS the aircraft', () => {
@@ -216,7 +216,7 @@ SECTION F: PHOEBUS B1
 SECTION G: PHOEBUS C
                Span: 17 m
 `;
-  expect(spanForHeader(readHeadedSpans(a635), 'Phoebus C')).toEqual({ spanM: 17, header: 'PHOEBUS C', seats: null });
+  expect(spanForHeader(readHeadedSpans(a635), 'Phoebus C')).toEqual({ spanM: 17, header: 'PHOEBUS C', seats: null, camberFlaps: false });
 });
 
 test('and yet the `H` of `H-206 Hornet` is NOISE, because EASA titles that section simply `HORNET`', () => {
@@ -251,8 +251,8 @@ test('when only the AREA identifies, it must be the SAME NUMBER — a near-miss 
   // the match, inside a pool of every sailplane one firm ever built. The forgiving window is not
   // offered there. Our Apis 2 sat 0.16 m² from the Pipistrel Apis-Bee — inside every tolerance we
   // own, and a different aircraft.
-  const s = [{ spanM: 18, areaM2: 11.2, variableSpan: false, seats: null }];
-  expect(spanForArea(s, 11.0, false)).toEqual({ spanM: 18, seats: null });          // title path: 0.2 m² forgiven
+  const s = [{ spanM: 18, areaM2: 11.2, variableSpan: false, seats: null, camberFlaps: false }];
+  expect(spanForArea(s, 11.0, false)).toEqual({ spanM: 18, seats: null, camberFlaps: false });          // title path: 0.2 m² forgiven
   expect(spanForArea(s, 11.0, true)).toEqual({ refused: 'no-section' });  // maker path: it is not the same number
 });
 
@@ -287,4 +287,26 @@ test('a polar flown with a PASSENGER may not be matched to a SINGLE-SEAT section
   expect(passengerInName('ASH-25 (PIL)')).toBe(true);
   expect(passengerInName('IS-28B2 Lark with 2 person')).toBe(true);
   expect(passengerInName('Discus 2c 18m')).toBe(false);
+});
+
+// ============ the camber flaps, and why the word `flap` is useless ============
+
+test('THE WORD `flap` IS NOT EVIDENCE — three sentences, one word, three different things', () => {
+  // The ASW 28 is a STANDARD-CLASS glider and its certificate calls its airbrakes `Schempp-Hirth
+  // brake-flaps`. The Duo Discus has a `trailing edge flap` connected to the airbrake. The Glasflügel
+  // Mosquito says `flaps combined with the air brake` — and IT has camber flaps. A detector built on
+  // /\bflaps?\b/ reports what the typesetter chose, not what the wing does.
+  expect(camberFlapsIn('Schempp-Hirth brake-flaps on upper wing surface')).toBe(false);
+  expect(camberFlapsIn('airbrakes on upper wing surface (connected to trailing edge flap)')).toBe(false);
+});
+
+test('what the certificate CANNOT be vague about is the speed it publishes per flap position', () => {
+  // You do not publish a manoeuvring speed for each setting unless there are settings. Across every
+  // certificate held, this separates the two populations without a single exception: zero for the
+  // Discus, the ASW 28, the ASK 21 and the Duo Discus; and non-zero for the ASW 27, the Ventus, the
+  // Nimbus and the Arcus.
+  expect(camberFlapsIn('Manoeuvring Speed - with flaps at 1, 2   VA = 180 km/h')).toBe(true);
+  expect(camberFlapsIn('bei Wölbklappenstellung  L, +1')).toBe(true);
+  expect(camberFlapsIn('camber changing flaps and trailing edge airbrakes')).toBe(true);
+  expect(camberFlapsIn('T-tail, retractable main wheel, water ballast tanks')).toBe(false);
 });

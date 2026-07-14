@@ -1,155 +1,155 @@
-name,model,manufacturer,manufacturer_qid,wing_class,mass_dry_gross_kg,max_water_ballast_l,speed1_kmh,sink1_ms,speed2_kmh,sink2_ms,speed3_kmh,sink3_ms,wing_area_m2,wing_loading_kg_m2,flaps_mass_kg,flaps_count,flaps,span_m,span_source,fai_class,wikidata_qid,seats,easa_tcds,easa_url
-1-26E,1-26E,Schweizer Aircraft Corporation,Q1414290,glider,315.0,0.0,82.3,-1.04,117.73,-1.88,156.86,-3.8,14.87,21.18,,,,12.2,wikipedia,,Q7433248,,,
-1-34,1-34,Schweizer Aircraft Corporation,Q1414290,glider,354.0,0.0,89.82,-0.8,143.71,-2.1,179.64,-3.8,14.03,25.23,,,,15,wikipedia,,Q7433251,,,
-1-35A,1-35A,Schweizer Aircraft Corporation,Q1414290,glider,381.0,179.0,98.68,-0.74,151.82,-1.8,202.87,-3.9,9.64,39.52,,,,15,wikipedia,,Q7433252,,,
-1-36 Sprite,1-36 Sprite,Schweizer Aircraft Corporation,Q1414290,glider,322.0,0.0,75.98,-0.68,132.96,-2.0,170.95,-4.1,13.1,24.58,,,,14.072,wikipedia,,Q16984408,,,
-604,604,Glasflügel,Q1468885,glider,570.0,100.0,112.97,-0.72,150.64,-1.42,207.13,-4.1,16.26,35.06,,,,22,easa,open,Q1529457,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-Antares_18S,Antares 18S,Lange Aviation,Q879444,glider,350.0,250.0,100.0,-0.54,120.0,-0.63,150.0,-1.07,10.97,31.91,,,,,,,Q1804903,,,
-Antares_18T,Antares 18T,Lange Aviation,Q879444,glider,395.0,205.0,100.0,-0.54,120.0,-0.69,150.0,-1.11,10.97,36.01,,,,,,,Q1804903,,,
-Antares_20E,Antares 20E,Lange Aviation,Q879444,glider,530.0,130.0,100.0,-0.52,120.0,-0.61,150.0,-0.91,12.6,42.06,,,,20,wikipedia,,Q1804903,,,
-Apis2 15m,Apis2,,,glider,310.0,0.0,80.0,-0.6,100.0,-0.75,140.0,-1.45,12.4,25.0,,,,15,name,,Q7990406,,,
-Apis_13m,Apis,,,glider,200.0,45.0,100.0,-0.74,120.0,-1.01,150.0,-1.66,10.36,19.31,,,,13,name,,,,,
-ARCUS M,ARCUS M,Schempp-Hirth,Q185996,glider,680.0,185.0,105.0,-0.595,153.0,-1.1,197.0,-2.0,15.6,43.59,,,,20,easa,20m,Q2233207,2,EASA.A.532,https://www.easa.europa.eu/en/downloads/7092/en
-ASG29-15,ASG29-15,Alexander Schleicher GmbH & Co,Q565371,glider,362.0,165.0,108.8,-0.635,156.4,-1.182,211.13,-2.54,9.2,39.35,,,,15,easa,,Q623251,1,EASA.A.220,https://www.easa.europa.eu/en/downloads/7236/en
-ASG29-18,ASG29-18,Alexander Schleicher GmbH & Co,Q565371,glider,355.0,225.0,85.0,-0.47,90.0,-0.48,185.0,-2.0,,,,,,,,,Q623251,,,
-ASG29E-18,ASG29E-18,,,glider,400.0,200.0,90.0,-0.499,95.5,-0.51,196.4,-2.12,,,,,,,,,,,,
-ASH-25 (PAS),ASH-25,Alexander Schleicher GmbH & Co,Q565371,glider,693.0,120.0,105.67,-0.56,163.25,-1.34,211.26,-2.5,16.31,42.49,,,,25.6,wikipedia,open,Q967435,,,
-ASH-25 (PIL),ASH-25,Alexander Schleicher GmbH & Co,Q565371,glider,602.0,120.0,98.5,-0.52,152.18,-1.25,196.93,-2.3,16.31,36.91,,,,25.6,wikipedia,open,Q967435,,,
-ASH-25M 1,ASH-25M 1,Alexander Schleicher GmbH & Co,Q565371,glider,660.0,121.0,121.3,-0.73,159.35,-1.31,206.22,-2.4,16.31,40.47,,,,25.6,wikipedia,open,Q967435,,,
-ASH-25M 2,ASH-25M 2,Alexander Schleicher GmbH & Co,Q565371,glider,750.0,121.0,130.01,-0.78,169.96,-1.4,219.94,-2.6,16.31,45.98,,,,25.6,wikipedia,open,Q967435,,,
-ASH-26E,ASH-26E,Alexander Schleicher GmbH & Co,Q565371,glider,435.0,90.0,90.0,-0.51,96.0,-0.53,185.0,-2.0,,,,,,,,,Q607719,,,
-ASK-13,ASK-13,Alexander Schleicher GmbH & Co,Q565371,glider,380.0,0.0,70.0,-0.747,110.0,-1.453,136.0,-2.537,17.5,21.71,,,,16,wikipedia,,Q2238753,,,
-ASK-21,ASK-21,Alexander Schleicher GmbH & Co,Q565371,glider,450.0,0.0,100.0,-0.82,120.0,-1.1,150.0,-1.9,17.95,25.07,,,,17,easa,,Q613581,2,EASA.A.221,https://www.easa.europa.eu/en/downloads/7234/en
-ASK-23,ASK-23,Alexander Schleicher GmbH & Co,Q565371,glider,330.0,0.0,100.0,-0.85,120.0,-1.19,150.0,-2.02,12.9,25.58,,,,15,wikipedia,,Q1469380,,,
-Astir CS,Astir CS,Grob Aircraft,Q561036,glider,330.0,90.0,75.0,-0.7,93.0,-0.74,185.0,-3.1,12.4,26.61,,,,15,easa,,Q260836,1,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
-ASW-12,ASW-12,Alexander Schleicher GmbH & Co,Q565371,glider,948.0,189.0,95.0,-0.57,148.0,-1.48,183.09,-2.6,13.0,72.92,,,,18.3,wikipedia,,Q1626226,,,
-ASW-15,ASW-15,Alexander Schleicher GmbH & Co,Q565371,glider,349.0,91.0,97.56,-0.77,156.12,-1.9,195.15,-3.4,11.0,31.73,,,,15,wikipedia,,Q366103,,,
-ASW-17,ASW-17,Alexander Schleicher GmbH & Co,Q565371,glider,522.0,151.0,114.5,-0.7,169.05,-1.68,206.5,-2.9,14.84,35.18,,,,20,wikipedia,,Q2238705,,,
-ASW-19,ASW-19,Alexander Schleicher GmbH & Co,Q565371,glider,363.0,125.0,97.47,-0.74,155.96,-1.64,194.96,-3.1,11.0,33.0,,,,15,wikipedia,,Q489183,,,
-ASW-20,ASW-20,Alexander Schleicher GmbH & Co,Q565371,glider,377.0,159.0,116.2,-0.77,174.3,-1.89,213.04,-3.3,10.5,35.9,,,,15,wikipedia,,Q622931,,,
-ASW-22BLE,ASW-22BLE,Alexander Schleicher GmbH & Co,Q565371,glider,465.0,285.0,100.0,-0.47,120.0,-0.63,150.0,-1.04,16.7,27.84,,,,26.58,wikipedia,open,Q2238720,,,
-ASW-24,ASW-24,Alexander Schleicher GmbH & Co,Q565371,glider,350.0,159.0,108.82,-0.73,142.25,-1.21,167.41,-1.8,10.0,35.0,,,,15,wikipedia,,Q2238726,,,
-ASW-27 Wnglts,ASW-27,Alexander Schleicher GmbH & Co,Q565371,glider,357.0,165.0,108.8,-0.64,156.4,-1.18,211.13,-2.5,9.0,39.67,357.0,6,0:5;75:4;83:S1;105:S2;127:2;171:1,15,easa,,Q680871,1,EASA.A.220,https://www.easa.europa.eu/en/downloads/7236/en
-ASW28-18,ASW28-18,Alexander Schleicher GmbH & Co,Q565371,glider,345.0,190.0,65.0,-0.47,107.0,-0.67,165.0,-2.0,,,,,,,,,Q445098,,,
-Blanik L13,Blanik L13,LET Aircraft Industries,Q302544,glider,472.0,0.0,85.0,-0.84,143.0,-3.32,200.0,-9.61,19.1,24.71,,,,16.2,easa,,Q1418798,,EASA.A.024,https://www.easa.europa.eu/en/downloads/7477/en
-Blanik L23,Blanik L23,LET Aircraft Industries,Q302544,glider,510.0,0.0,95.0,-0.94,148.0,-2.6,200.0,-6.37,19.1,26.7,,,,16.2,wikipedia,,Q868793,,,
-Carat,Carat,AMS Flight,Q4652729,glider,470.0,0.0,100.0,-0.83,120.0,-1.04,150.0,-1.69,10.58,44.42,,,,15,easa,,Q4652726,,EASA.A.296,https://www.easa.europa.eu/en/downloads/137896/en
-Cirrus_18m,Cirrus,Schempp-Hirth,Q185996,glider,330.0,100.0,100.0,-0.74,120.0,-1.06,150.0,-1.88,12.6,26.19,,,,18,name,18m,Q2233215,,,
-Std Cirrus,Std Cirrus,Schempp-Hirth,Q185996,glider,337.0,80.0,93.23,-0.74,149.17,-1.71,205.1,-4.2,10.04,33.57,,,,15,easa,,Q938444,1,EASA.A.278,https://www.easa.europa.eu/en/downloads/7206/en
-Delta USHPA-2,Delta USHPA-2,,,hang_glider,100.0,0.0,30.0,-1.1,44.3,-1.52,58.0,-3.6,,,,,,,,,,,,
-Delta USHPA-3,Delta USHPA-3,,,hang_glider,100.0,0.0,37.0,-0.95,48.1,-1.15,73.0,-3.6,,,,,,,,,,,,
-Delta USHPA-4,Delta USHPA-4,,,hang_glider,100.0,0.0,37.0,-0.89,48.3,-1.02,76.5,-3.3,,,,,,,,,,,,
-"Hi performance Hang glider competition 2018 ( T2C, Laminal, Combat ...)","Hi performance Hang glider competition 2018 ( T2C, Laminal, Combat ...)",,,hang_glider,100.0,0.0,35.5,-0.85,47.5,-0.97,80.0,-2.54,12.6,7.94,,,,,,,,,,
-DG-100,DG-100,DG Flugzeugbau,Q449793,glider,300.0,100.0,100.0,-0.73,120.0,-1.0,150.0,-1.7,11.0,27.27,,,,15,easa,,Q442463,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-200,DG-200,DG Flugzeugbau,Q449793,glider,300.0,120.0,100.0,-0.68,120.0,-0.86,150.0,-1.3,10.0,30.0,,,,15,easa,,Q776714,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-300,DG-300,DG Flugzeugbau,Q449793,glider,340.0,65.0,95.0,-0.65,140.0,-1.29,160.0,-1.84,10.27,33.11,,,,15,easa,,Q1153381,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-400 (15m),DG-400,DG Flugzeugbau,Q449793,glider,440.0,90.0,115.0,-0.76,160.53,-1.22,210.22,-2.3,10.0,44.0,,,,15,easa,,Q1153378,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-400 (17m),DG-400,DG Flugzeugbau,Q449793,glider,444.0,90.0,118.28,-0.68,163.77,-1.15,198.35,-1.8,10.57,42.01,,,,17,name,,Q1153378,,,
-DG-500 PAS,DG-500,DG Flugzeugbau,Q449793,glider,660.0,160.0,115.5,-0.72,152.16,-1.28,190.22,-2.3,18.29,36.09,,,,22,easa,open,Q1153385,2,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
-DG-500 PIL,DG-500,DG Flugzeugbau,Q449793,glider,570.0,160.0,107.5,-0.66,141.33,-1.19,176.66,-2.1,18.29,31.16,,,,22,easa,open,Q1153385,2,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
-DG-500M PAS,DG-500M,DG Flugzeugbau,Q449793,glider,750.0,100.0,121.6,-0.75,162.12,-1.37,202.66,-2.5,18.29,41.01,,,,22,easa,open,Q1153385,2,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
-DG-500M PIL,DG-500M,DG Flugzeugbau,Q449793,glider,659.0,100.0,115.4,-0.71,152.01,-1.28,190.02,-2.3,18.29,36.03,,,,22,easa,open,Q1153385,2,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
-DG-600_15m,DG-600,DG Flugzeugbau,Q449793,glider,327.0,180.0,100.0,-0.6,120.0,-0.76,150.0,-1.19,10.95,29.86,,,,15,easa,,Q990451,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-800 15m,DG-800,DG Flugzeugbau,Q449793,glider,468.0,120.0,133.9,-0.88,178.87,-1.53,223.59,-2.5,10.68,43.82,,,,15,easa,,Q1153389,1,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
-DG-800 18m Wnglts,DG-800,DG Flugzeugbau,Q449793,glider,472.0,120.0,106.0,-0.62,171.75,-1.47,214.83,-2.4,11.81,39.97,,,,18,name,18m,Q1153389,,,
-DG1000-20M (PAS),DG1000-20M,DG Flugzeugbau,Q449793,glider,613.0,160.0,106.0,-0.62,153.0,-1.397,200.0,-3.181,17.51,35.01,,,,20,easa,,Q489299,,EASA.A.072,https://www.easa.europa.eu/en/downloads/7380/en
-DG1000-20M (PIL),DG1000-20M,DG Flugzeugbau,Q449793,glider,490.0,160.0,100.0,-0.59,120.0,-0.86,150.0,-1.65,17.51,27.98,,,,20,easa,,Q489299,,EASA.A.072,https://www.easa.europa.eu/en/downloads/7380/en
-Dimona,Dimona,Diamond Aircraft Industries,Q699710,glider,670.0,100.0,100.0,-1.29,120.0,-1.61,150.0,-2.45,15.3,43.79,,,,16.33,easa,,Q1208684,,EASA.A.066,https://www.easa.europa.eu/en/downloads/7392/en
-Discus 2a,Discus 2a,Schempp-Hirth,Q185996,glider,330.0,195.0,110.0,-0.728,155.0,-1.26,200.0,-2.26,10.16,32.48,,,,15,easa,,Q7888128,1,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
-Discus_2c_18m,Discus 2c,Schempp-Hirth,Q185996,glider,377.0,188.0,100.0,-0.57,120.0,-0.76,150.0,-1.33,11.36,33.19,,,,18,name,18m,Q7888128,,,
-Discus A,Discus A,Schempp-Hirth,Q185996,glider,350.0,182.0,103.77,-0.72,155.65,-1.55,190.24,-3.1,10.58,33.08,,,,15,easa,,Q1416538,1,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
-Discus B from Cumulus Soaring  GN II,Discus B,Schempp-Hirth,Q185996,glider,325.0,184.0,100.0,-0.661,150.0,-1.439,200.0,-3.11,10.58,30.72,,,,15,easa,,Q1416538,1,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
-Duo Discus (PAS),Duo Discus,Schempp-Hirth,Q185996,glider,628.0,201.0,106.5,-0.79,168.11,-1.54,201.31,-2.9,16.4,38.29,,,,20,easa,20m,Q1341050,2,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-Duo Discus (PIL),Duo Discus,Schempp-Hirth,Q185996,glider,537.0,201.0,94.06,-0.72,155.49,-1.43,188.21,-2.7,16.4,32.74,,,,20,easa,20m,Q1341050,2,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-Duo Discus XT (PAS),Duo Discus XT,Schempp-Hirth,Q185996,glider,700.0,50.0,110.0,-0.664,155.0,-1.206,200.0,-2.287,16.4,42.68,,,,20,easa,20m,Q1341050,2,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-Duo Discus XT (PIL),Duo Discus XT,Schempp-Hirth,Q185996,glider,580.0,170.0,100.0,-0.605,150.0,-1.271,200.0,-2.668,16.4,35.37,,,,20,easa,20m,Q1341050,2,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-DuoDiscus T (PAS),DuoDiscus T,Schempp-Hirth,Q185996,glider,615.0,80.0,103.0,-0.64,152.0,-1.25,200.0,-2.51,16.4,37.5,,,,20,easa,20m,Q1341050,2,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
-EB_28,EB 28,Binder Motorenbau,Q140548689,glider,670.0,180.0,100.0,-0.46,120.0,-0.61,150.0,-0.96,16.8,39.88,,,,28,easa,open,Q863610,,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
-EB_28_Edition,EB 28 Edition,Binder Motorenbau,Q140548689,glider,670.0,180.0,100.0,-0.47,120.0,-0.63,150.0,-0.97,16.5,40.61,,,,28.3,easa,open,Q863610,,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
-Genesis II,Genesis II,UAB Sportine aviacija,Q3547120,glider,374.0,151.0,94.0,-0.61,141.05,-1.18,172.4,-2.0,11.24,33.27,,,,15,wikipedia,,Q2312580,,,
-Glasfluegel_304,Glasfluegel 304,Glasflügel,Q1468885,glider,305.0,145.0,100.0,-0.78,120.0,-0.97,150.0,-1.43,9.9,30.81,,,,15,easa,,Q1529455,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-Grob G-103 Twin II (PAS),Grob G-103 Twin II,Grob Aircraft,Q561036,glider,580.0,0.0,99.0,-0.8,175.01,-1.95,225.02,-3.8,17.52,33.11,,,,17.5,easa,,Q2482008,2,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
-Grob G-103 Twin II (PIL),Grob G-103 Twin II,Grob Aircraft,Q561036,glider,494.0,0.0,90.75,-0.74,161.42,-1.8,207.54,-3.5,17.52,28.2,,,,17.5,easa,,Q2482008,2,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
-H-201 Std Libelle,H-201 Std Libelle,Glasflügel,Q1468885,glider,304.0,50.0,97.0,-0.79,152.43,-1.91,190.54,-3.3,9.8,31.02,,,,15,easa,,Q5566714,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-H-205_Club_Libelle,H-205 Club Libelle,Glasflügel,Q1468885,glider,295.0,0.0,100.0,-0.85,120.0,-1.21,150.0,-2.01,9.8,30.1,,,,15,easa,,Q5566712,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-H-206_Hornet,H-206 Hornet,Glasflügel,Q1468885,glider,345.0,60.0,90.0,-0.64,150.0,-1.59,190.0,-2.91,9.8,35.2,,,,15,easa,,Q1529453,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-H-301 Libelle,H-301 Libelle,Glasflügel,Q1468885,glider,300.0,50.0,94.0,-0.68,147.71,-2.03,184.64,-4.1,9.8,30.61,,,,15,easa,,Q1529467,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-ICP_Savannah,ICP Savannah,,,microlight,472.5,0.0,100.0,-2.5,130.0,-3.3,160.0,-4.8,12.87,36.71,,,,,,,Q5969706,,,
-IS-28B2 Lark with 1 person,IS-28B2 Lark,Industria Aeronautică Română,Q292773,glider,520.0,0.0,80.0,-0.67,94.0,-0.768,180.0,-3.55,18.24,28.51,,,,17,easa,,Q12060660,,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
-IS-28B2 Lark with 2 person,IS-28B2 Lark,Industria Aeronautică Română,Q292773,glider,590.0,0.0,85.0,-0.67,100.0,-0.817,180.0,-3.1,18.24,32.35,,,,17,easa,,Q12060660,,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
-IS-29D2 Lark,IS-29D2 Lark,Industria Aeronautică Română,Q292773,glider,360.0,0.0,100.0,-0.82,135.67,-1.55,184.12,-3.3,10.4,34.62,,,,15,easa,,Q5969351,,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
-Janus B (18.2m PAS),Janus B,Schempp-Hirth,Q185996,glider,603.0,170.0,115.5,-0.76,171.79,-1.98,209.96,-4.0,17.4,34.66,,,,18.2,name,,Q2233237,,,
-Janus B (18.2m PIL),Janus B,Schempp-Hirth,Q185996,glider,508.0,170.0,105.7,-0.7,157.65,-1.82,192.68,-3.6,17.4,29.2,,,,18.2,name,,Q2233237,,,
-Ka-6CR,Ka-6CR,Alexander Schleicher GmbH & Co,Q565371,glider,310.0,0.0,87.35,-0.81,141.92,-2.03,174.68,-3.5,12.4,25.0,,,,15,wikipedia,,Q279906,,,
-Ka8b,Ka8b,Alexander Schleicher GmbH & Co,Q565371,glider,290.0,0.0,74.1,-0.76,101.9,-1.27,166.7,-4.64,14.15,20.49,,,,15,wikipedia,,Q1666190,,,
-L-33 SOLO,L-33 SOLO,LET Aircraft Industries,Q302544,glider,330.0,0.0,87.2,-0.8,135.64,-1.73,174.4,-3.4,11.0,30.0,,,,14.12,easa,,Q869111,,EASA.A.045,https://www.easa.europa.eu/en/downloads/7434/en
-LAK-19_15m,LAK-19,,,glider,285.0,195.0,100.0,-0.64,120.0,-0.85,150.0,-1.41,9.06,31.46,,,,15,name,,Q2312585,,,
-LAK-19_18m,LAK-19,,,glider,295.0,185.0,100.0,-0.6,120.0,-0.82,150.0,-1.34,9.8,30.1,,,,18,name,18m,Q2312585,,,
-Lak17A-15,Lak17A-15,UAB Sportine aviacija,Q3547120,glider,285.0,180.0,95.0,-0.574,148.0,-1.31,200.0,-2.885,9.06,31.46,325.0,4,0:2;90:1;110:0;150:-1,,,,Q2312589,,,
-Lak17A-18,Lak17A-18,UAB Sportine aviacija,Q3547120,glider,298.0,180.0,115.0,-0.68,158.0,-1.379,200.0,-2.975,9.8,30.41,330.0,4,0:2;90:1;110:0;150:-1,,,,Q2312589,,,
-LS-10s_15m,LS-10s,DG Flugzeugbau,Q449793,glider,370.0,170.0,100.0,-0.64,120.0,-0.8,150.0,-1.26,10.27,36.03,,,,15,easa,,Q2163977,,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
-LS-10s_18m,LS-10s,DG Flugzeugbau,Q449793,glider,380.0,220.0,100.0,-0.58,120.0,-0.75,150.0,-1.21,11.45,33.19,,,,18,easa,18m,Q2163977,1,EASA.A.157,https://www.easa.europa.eu/en/downloads/7284/en
-LS-1C,LS-1C,Rolladen Schneider Flugzeugbau,Q462234,glider,350.0,91.0,115.87,-1.02,154.49,-1.84,193.12,-3.3,9.74,35.93,,,,15,easa,,Q2163975,,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
-LS-3,LS-3,Rolladen Schneider Flugzeugbau,Q462234,glider,383.0,121.0,93.0,-0.64,127.0,-0.93,148.2,-1.28,10.5,36.48,,,,15,easa,,Q338907,,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
-LS-3_17m,LS-3,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,0.0,100.0,-0.61,120.0,-0.84,150.0,-1.53,11.22,28.97,,,,17,name,,Q338907,,,
-LS-4a,LS-4a,AMS Flight,Q4652729,glider,361.0,121.0,114.9,-0.8,172.3,-2.33,210.59,-4.5,10.35,34.88,,,,15,easa,,Q544661,,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
-LS-6-15,LS-6-15,Rolladen Schneider Flugzeugbau,Q462234,glider,327.0,160.0,90.0,-0.6,100.0,-0.658,183.0,-1.965,,,327.0,4,0:10;100:5;117:0;151:-5,,,,Q2163984,,,
-LS-6-18W,LS-6-18W,Rolladen Schneider Flugzeugbau,Q462234,glider,330.0,140.0,90.0,-0.51,100.0,-0.57,183.0,-2.0,,,,,,,,,Q2163984,,,
-LS-8-15,LS-8-15,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,185.0,70.0,-0.51,115.0,-0.85,173.0,-2.0,,,,,,,,,Q2163993,,,
-LS-8-18,LS-8-18,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,185.0,80.0,-0.51,94.0,-0.56,173.0,-2.0,,,,,,,,,Q2163993,,,
-LS7wl,LS7,Rolladen Schneider Flugzeugbau,Q462234,glider,350.0,150.0,103.77,-0.73,155.65,-1.47,180.0,-2.66,9.8,35.71,,,,15,easa,,Q2163986,,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
-Mini Nimbus,Mini Nimbus,Schempp-Hirth,Q185996,glider,345.0,155.0,100.0,-0.69,120.0,-0.92,150.0,-1.45,9.86,34.99,,,,15,wikipedia,,Q17150591,,,
-Mosquito,Mosquito,Glasflügel,Q1468885,glider,450.0,0.0,100.0,-0.68,120.0,-0.92,150.0,-1.45,9.85,45.69,,,,15,easa,,Q1529454,,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
-Nimbus 2,Nimbus 2,Schempp-Hirth,Q185996,glider,493.0,159.0,119.83,-0.75,179.75,-2.14,219.69,-3.8,14.41,34.21,,,,20.3,wikipedia,,Q3475325,,,
-Nimbus 3,Nimbus 3,Schempp-Hirth,Q185996,glider,527.0,159.0,116.18,-0.67,174.28,-1.81,232.37,-3.8,16.7,31.56,,,,,,,Q17145988,,,
-Nimbus 3D (PAS),Nimbus 3D,Schempp-Hirth,Q185996,glider,712.0,168.0,93.64,-0.46,175.42,-1.48,218.69,-2.5,16.7,42.63,,,,22.9,wikipedia,open,Q17145988,,,
-Nimbus 3D (PIL),Nimbus 3D,Schempp-Hirth,Q185996,glider,621.0,168.0,87.47,-0.43,163.86,-1.38,204.27,-2.3,16.7,37.19,,,,22.9,wikipedia,open,Q17145988,,,
-Nimbus 3DM (PAS),Nimbus 3DM,Schempp-Hirth,Q185996,glider,820.0,168.0,114.97,-0.57,157.42,-0.98,222.24,-2.3,16.7,49.1,,,,22.9,wikipedia,open,Q17145988,,,
-Nimbus 3T,Nimbus 3T,Schempp-Hirth,Q185996,glider,577.0,310.0,141.7,-0.99,182.35,-1.89,243.13,-4.0,16.7,34.55,,,,22.9,wikipedia,open,Q17145988,,,
-Nimbus 4,Nimbus 4,Schempp-Hirth,Q185996,glider,597.0,303.0,85.1,-0.41,127.98,-0.75,162.74,-1.4,17.8,33.54,597.0,5,0:2;78:1;95:0;135:-1;165:-2,26.4,easa,open,Q3475327,1,EASA.A.063,https://www.easa.europa.eu/en/downloads/7399/en
-Nimbus 4D PAS,Nimbus 4D,Schempp-Hirth,Q185996,glider,743.0,303.0,107.5,-0.5,142.74,-0.83,181.51,-1.6,17.8,41.74,,,,26.5,wikipedia,open,Q3475327,,,
-Nimbus 4D PIL,Nimbus 4D,Schempp-Hirth,Q185996,glider,652.0,303.0,99.0,-0.46,133.73,-0.78,170.07,-1.5,17.8,36.63,,,,26.5,wikipedia,open,Q3475327,,,
-Nimbus 4DM (PAS),Nimbus 4DM,Schempp-Hirth,Q185996,glider,820.0,168.0,100.01,-0.48,150.01,-0.87,190.76,-1.6,17.8,46.07,,,,26.5,wikipedia,open,Q3475327,,,
-Nimbus 4DM (PIL),Nimbus 4DM,Schempp-Hirth,Q185996,glider,729.0,168.0,94.31,-0.46,141.47,-0.82,179.9,-1.5,17.8,40.96,,,,26.5,wikipedia,open,Q3475327,,,
-Para Competition based on Ozone Enzo,Para Competition based on Ozone Enzo,,,paraglider,100.0,0.0,40.0,-1.0,28.0,-1.1,60.0,-2.5,23.7,4.22,,,,,,,,,,
-Para EN A-DHV1,Para EN A-DHV1,,,paraglider,100.0,0.0,29.0,-1.1,34.0,-1.3,44.0,-2.3,28.0,3.57,,,,,,,,,,
-Para EN B-DHV12,Para EN B-DHV12,,,paraglider,100.0,0.0,29.5,-1.1,37.0,-1.2,50.0,-2.3,28.0,3.57,,,,,,,,,,
-Para EN-C @ 95kg,Para EN-C @ 95kg,,,paraglider,95.0,0.0,29.0,-0.9,38.0,-1.01,56.0,-2.06,25.7,3.7,,,,,,,,,,
-Para EN D-DHV23,Para EN D-DHV23,,,paraglider,100.0,0.0,33.0,-1.1,41.0,-1.2,58.0,-2.3,24.5,4.08,,,,,,,,,,
-Ozone Delta 2 ML @ 95kg,Ozone Delta 2 ML @ 95kg,,,paraglider,95.0,0.0,29.0,-0.9,38.0,-1.01,56.0,-2.06,25.7,3.7,,,,,,,,,,
-Para Ozone Enzo,Para Ozone Enzo,,,paraglider,100.0,0.0,40.0,-1.0,28.0,-1.1,60.0,-2.5,23.7,4.22,,,,,,,,,,
-Pegase 101A,Pegase 101A,SA Centrair,Q7388885,glider,344.0,120.0,85.0,-0.62,105.0,-0.75,175.0,-2.54,10.5,32.76,,,,15,wikipedia,,Q2944382,,,
-Phoebus_C,Phoebus C,Bölkow,Q173778,glider,310.0,150.0,100.0,-0.7,120.0,-0.98,150.0,-1.58,14.06,22.05,,,,17,easa,,Q1019853,,EASA.A.635,https://www.easa.europa.eu/en/downloads/21392/en
-PIK-20B,PIK-20B,Eiri-Avion,Q140548690,glider,354.0,144.0,102.5,-0.69,157.76,-1.59,216.91,-3.6,10.0,35.4,,,,15,wikipedia,,Q1310570,,,
-PIK-20D,PIK-20D,Eiri-Avion,Q140548690,glider,348.0,144.0,100.0,-0.69,156.54,-1.78,215.24,-4.2,10.0,34.8,,,,15,wikipedia,,Q1310570,,,
-PIK-20E,PIK-20E,Eiri-Avion,Q140548690,glider,437.0,80.0,109.61,-0.83,166.68,-2.0,241.15,-4.7,10.0,43.7,,,,15,wikipedia,,Q1310570,,,
-PIK-30M,PIK-30M,,,glider,460.0,0.0,123.6,-0.78,152.04,-1.12,200.22,-2.2,10.63,43.27,,,,,,,,,,
-PW-5 Smyk,PW-5 Smyk,PZL-Świdnik,Q2582531,glider,300.0,0.0,99.5,-0.95,158.48,-2.85,198.1,-5.1,10.16,29.53,,,,13.44,easa,13.5m,Q1436638,,EASA.A.087,https://www.easa.europa.eu/en/downloads/7352/en
-Russia AC-4,Russia AC-4,Aviastroitel,Q2874275,glider,250.0,0.0,99.3,-0.92,140.01,-1.8,170.01,-2.9,7.7,32.47,,,,12.6,wikipedia,,Q2874276,,,
-SF27,SF27,Scheibe Flugzeugbau,Q315350,glider,300.0,0.0,100.0,-0.81,120.0,-1.27,150.0,-2.5,13.0,23.08,,,,15,wikipedia,,Q1438762,,,
-Silent 2 electro,Silent 2 electro,Alisport,Q2837170,glider,276.0,0.0,80.0,-0.65,90.0,-0.65,150.0,-1.55,8.9,31.01,276.0,5,0:L;75:+1;90:0;110:-1;150:S,13.3,wikipedia,13.5m,Q4727237,,,
-Speed Astir,Speed Astir,Grob Aircraft,Q561036,glider,351.0,90.0,90.0,-0.63,105.0,-0.72,157.0,-2.0,,,,,,15,easa,,Q1547165,1,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
-Stemme S-10 PAS,Stemme S-10,Stemme AG,Q878020,glider,850.0,0.0,133.47,-0.83,167.75,-1.41,205.03,-2.3,18.7,45.45,,,,23,easa,open,Q1456624,,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
-Stemme S-10 PIL,Stemme S-10,Stemme AG,Q878020,glider,759.0,0.0,125.8,-0.82,158.51,-1.33,193.74,-2.2,18.7,40.59,,,,23,easa,open,Q1456624,,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
-SZD-30 Pirat,SZD-30 Pirat,PZL,Q965259,glider,340.0,0.0,75.0,-0.7,83.0,-0.739,150.0,-2.46,13.8,24.64,,,,15,wikipedia,,Q1273276,,,
-SZD-36 Cobra,SZD-36 Cobra,Szybowcowy Zakład Doświadczalny,Q3460326,glider,350.0,30.0,70.8,-0.6,94.5,-0.69,148.1,-1.83,11.6,30.17,,,,15,wikipedia,,Q461005,,,
-SZD-38A Jantar 1,SZD-38A Jantar 1,Szybowcowy Zakład Doświadczalny,Q3460326,glider,372.0,90.0,90.0,-0.53,130.0,-1.07,170.0,-2.0,13.38,27.8,372.0,5,0:2;70:1;90:0;110:-1;160:-2,19,wikipedia,,Q7395316,,,
-SZD-42A Jantar 2,SZD-42A Jantar 2,Szybowcowy Zakład Doświadczalny,Q3460326,glider,482.0,191.0,109.5,-0.66,157.14,-1.47,196.42,-2.7,14.27,33.78,,,,20.5,wikipedia,open,Q2044896,,,
-SZD-48-2 Jantar Std 2,SZD-48-2 Jantar Std 2,Szybowcowy Zakład Doświadczalny,Q3460326,glider,375.0,150.0,100.0,-0.73,120.0,-0.95,150.0,-1.6,10.66,35.18,,,,15,easa,,Q7395319,,EASA.A.041,https://www.easa.europa.eu/en/downloads/7442/en
-SZD-48-3 Jantar 3,SZD-48-3 Jantar 3,Szybowcowy Zakład Doświadczalny,Q3460326,glider,326.0,150.0,95.0,-0.66,180.0,-2.24,220.0,-3.85,10.66,30.58,,,,15,easa,,Q7395319,,EASA.A.041,https://www.easa.europa.eu/en/downloads/7442/en
-SZD-50_Puchacz,SZD-50 Puchacz,PZL,Q965259,glider,435.0,0.0,100.0,-1.0,120.0,-1.42,150.0,-2.35,18.16,23.95,,,,16.67,easa,,Q9375,,EASA.A.312,https://www.easa.europa.eu/en/downloads/7192/en
-SZD-51-1 Junior,SZD-51-1 Junior,PZL,Q965259,glider,333.0,0.0,70.0,-0.58,130.0,-1.6,180.0,-3.6,12.51,26.62,,,,15,easa,,Q1304171,,EASA.A.309,https://www.easa.europa.eu/en/downloads/21331/en
-SZD-55-1 Promyk,SZD-55-1 Promyk,PZL,Q965259,glider,350.0,200.0,100.0,-0.66,120.0,-0.86,150.0,-1.4,9.6,36.46,,,,15,wikipedia,,Q2044911,,,
-SZD-55-2 Diana 2,SZD-55-2 Diana 2,PZL,Q965259,glider,270.0,250.0,100.4700979,-0.557321508,146.3286293,-1.146988324,185.6359405,-2.146055459,8.66,31.18,350.0,7,0:28;75:21;80:14;87.5:8;109:3;156:0;188.5:-2,15,wikipedia,,Q2044911,,,
-SZD-9bis 1E Bocian,SZD-9bis 1E Bocian,Szybowcowy Zakład Doświadczalny,Q3460326,glider,540.0,0.0,70.0,-0.83,90.0,-1.0,140.0,-2.53,20.0,27.0,,,,18.1,wikipedia,,Q188414,,,
-Taurus,Taurus,Pipistrel,Q1547378,glider,472.0,0.0,100.0,-0.71,120.0,-0.83,150.0,-1.35,12.26,38.5,,,,14.97,wikipedia,,Q541588,,,
-Ventus 2C (18m),Ventus 2C,Schempp-Hirth,Q185996,glider,385.0,180.0,80.0,-0.5,120.0,-0.73,180.0,-2.0,11.03,34.9,,,,18,easa,18m,Q7887991,1,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
-Ventus 2CT (18m),Ventus 2CT,Schempp-Hirth,Q185996,glider,470.0,130.0,100.0,-0.56,150.0,-1.13,200.0,-2.28,11.03,42.61,,,,18,easa,18m,Q7887991,1,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
-Ventus 2Cx (18m),Ventus 2Cx,Schempp-Hirth,Q185996,glider,385.0,215.0,80.0,-0.5,120.0,-0.73,180.0,-2.0,11.03,34.9,385.0,7,0:0;65:21;90:0;100:-1;125:-2;170:S;182:S1,18,easa,18m,Q7887991,1,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
-Ventus 2CxT (18m),Ventus 2CxT,Schempp-Hirth,Q185996,glider,470.0,130.0,100.0,-0.56,150.0,-1.13,200.0,-2.28,11.03,42.61,,,,18,easa,18m,Q7887991,1,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
-Ventus A-B (16.6m),Ventus A-B,Schempp-Hirth,Q185996,glider,358.0,151.0,100.17,-0.64,159.69,-1.47,239.54,-4.3,9.96,35.94,,,,16.6,name,,Q2713118,,,
-Ventus B (15m),Ventus B,Schempp-Hirth,Q185996,glider,341.0,151.0,97.69,-0.68,156.3,-1.46,234.45,-3.9,9.51,35.86,,,,15,easa,,Q2713118,1,EASA.A.274,https://www.easa.europa.eu/en/downloads/7210/en
-Ventus CM (17.6m),Ventus CM,Schempp-Hirth,Q185996,glider,430.0,0.0,100.17,-0.6,159.7,-1.32,210.54,-2.5,10.14,42.41,,,,17.6,name,,Q2713118,,,
-VSO-10,VSO-10,ORLIČAN,Q53393699,glider,347.0,0.0,90.0,-0.78,130.0,-1.41,160.0,-2.44,12.0,28.92,,,,15,wikipedia,,Q2647579,,,
-VT-116,VT-116,Beneš-Mráz,Q817135,glider,335.0,0.0,80.0,-0.7,100.0,-1.05,120.0,-1.65,12.8,26.17,,,,16,wikipedia,,Q1777845,,,
-Zuni II,Zuni II,Applebay Sailplanes,Q2858741,glider,358.0,182.0,110.0,-0.88,167.0,-2.21,203.72,-3.6,10.13,35.34,,,,15,wikipedia,,Q572208,,,
+name,model,manufacturer,manufacturer_qid,wing_class,mass_dry_gross_kg,max_water_ballast_l,speed1_kmh,sink1_ms,speed2_kmh,sink2_ms,speed3_kmh,sink3_ms,wing_area_m2,wing_loading_kg_m2,flaps_mass_kg,flaps_count,flaps,span_m,span_source,wikidata_qid,seats,seats_source,camber_flaps,camber_flaps_source,easa_tcds,easa_url
+1-26E,1-26E,Schweizer Aircraft Corporation,Q1414290,glider,315.0,0.0,82.3,-1.04,117.73,-1.88,156.86,-3.8,14.87,21.18,,,,12.2,wikipedia,Q7433248,,,,,,
+1-34,1-34,Schweizer Aircraft Corporation,Q1414290,glider,354.0,0.0,89.82,-0.8,143.71,-2.1,179.64,-3.8,14.03,25.23,,,,15,wikipedia,Q7433251,,,,,,
+1-35A,1-35A,Schweizer Aircraft Corporation,Q1414290,glider,381.0,179.0,98.68,-0.74,151.82,-1.8,202.87,-3.9,9.64,39.52,,,,15,wikipedia,Q7433252,,,,,,
+1-36 Sprite,1-36 Sprite,Schweizer Aircraft Corporation,Q1414290,glider,322.0,0.0,75.98,-0.68,132.96,-2.0,170.95,-4.1,13.1,24.58,,,,14.072,wikipedia,Q16984408,,,,,,
+604,604,Glasflügel,Q1468885,glider,570.0,100.0,112.97,-0.72,150.64,-1.42,207.13,-4.1,16.26,35.06,,,,22,easa,Q1529457,1,easa,true,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+Antares_18S,Antares 18S,Lange Aviation,Q879444,glider,350.0,250.0,100.0,-0.54,120.0,-0.63,150.0,-1.07,10.97,31.91,,,,,,Q1804903,,,,,,
+Antares_18T,Antares 18T,Lange Aviation,Q879444,glider,395.0,205.0,100.0,-0.54,120.0,-0.69,150.0,-1.11,10.97,36.01,,,,,,Q1804903,,,,,,
+Antares_20E,Antares 20E,Lange Aviation,Q879444,glider,530.0,130.0,100.0,-0.52,120.0,-0.61,150.0,-0.91,12.6,42.06,,,,20,wikipedia,Q1804903,,,,,,
+Apis2 15m,Apis2,,,glider,310.0,0.0,80.0,-0.6,100.0,-0.75,140.0,-1.45,12.4,25.0,,,,15,name,Q7990406,,,,,,
+Apis_13m,Apis,,,glider,200.0,45.0,100.0,-0.74,120.0,-1.01,150.0,-1.66,10.36,19.31,,,,13,name,,,,,,,
+ARCUS M,ARCUS M,Schempp-Hirth,Q185996,glider,680.0,185.0,105.0,-0.595,153.0,-1.1,197.0,-2.0,15.6,43.59,,,,20,easa,Q2233207,2,easa,true,easa,EASA.A.532,https://www.easa.europa.eu/en/downloads/7092/en
+ASG29-15,ASG29-15,Alexander Schleicher GmbH & Co,Q565371,glider,362.0,165.0,108.8,-0.635,156.4,-1.182,211.13,-2.54,9.2,39.35,,,,15,easa,Q623251,1,easa,true,easa,EASA.A.220,https://www.easa.europa.eu/en/downloads/7236/en
+ASG29-18,ASG29-18,Alexander Schleicher GmbH & Co,Q565371,glider,355.0,225.0,85.0,-0.47,90.0,-0.48,185.0,-2.0,,,,,,,,Q623251,,,,,,
+ASG29E-18,ASG29E-18,,,glider,400.0,200.0,90.0,-0.499,95.5,-0.51,196.4,-2.12,,,,,,,,,,,,,,
+ASH-25 (PAS),ASH-25,Alexander Schleicher GmbH & Co,Q565371,glider,693.0,120.0,105.67,-0.56,163.25,-1.34,211.26,-2.5,16.31,42.49,,,,25.6,wikipedia,Q967435,2,name,,,,
+ASH-25 (PIL),ASH-25,Alexander Schleicher GmbH & Co,Q565371,glider,602.0,120.0,98.5,-0.52,152.18,-1.25,196.93,-2.3,16.31,36.91,,,,25.6,wikipedia,Q967435,2,name,,,,
+ASH-25M 1,ASH-25M 1,Alexander Schleicher GmbH & Co,Q565371,glider,660.0,121.0,121.3,-0.73,159.35,-1.31,206.22,-2.4,16.31,40.47,,,,25.6,wikipedia,Q967435,,,,,,
+ASH-25M 2,ASH-25M 2,Alexander Schleicher GmbH & Co,Q565371,glider,750.0,121.0,130.01,-0.78,169.96,-1.4,219.94,-2.6,16.31,45.98,,,,25.6,wikipedia,Q967435,,,,,,
+ASH-26E,ASH-26E,Alexander Schleicher GmbH & Co,Q565371,glider,435.0,90.0,90.0,-0.51,96.0,-0.53,185.0,-2.0,,,,,,,,Q607719,,,,,,
+ASK-13,ASK-13,Alexander Schleicher GmbH & Co,Q565371,glider,380.0,0.0,70.0,-0.747,110.0,-1.453,136.0,-2.537,17.5,21.71,,,,16,wikipedia,Q2238753,,,,,,
+ASK-21,ASK-21,Alexander Schleicher GmbH & Co,Q565371,glider,450.0,0.0,100.0,-0.82,120.0,-1.1,150.0,-1.9,17.95,25.07,,,,17,easa,Q613581,2,easa,false,easa,EASA.A.221,https://www.easa.europa.eu/en/downloads/7234/en
+ASK-23,ASK-23,Alexander Schleicher GmbH & Co,Q565371,glider,330.0,0.0,100.0,-0.85,120.0,-1.19,150.0,-2.02,12.9,25.58,,,,15,wikipedia,Q1469380,,,,,,
+Astir CS,Astir CS,Grob Aircraft,Q561036,glider,330.0,90.0,75.0,-0.7,93.0,-0.74,185.0,-3.1,12.4,26.61,,,,15,easa,Q260836,1,easa,false,easa,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
+ASW-12,ASW-12,Alexander Schleicher GmbH & Co,Q565371,glider,948.0,189.0,95.0,-0.57,148.0,-1.48,183.09,-2.6,13.0,72.92,,,,18.3,wikipedia,Q1626226,,,,,,
+ASW-15,ASW-15,Alexander Schleicher GmbH & Co,Q565371,glider,349.0,91.0,97.56,-0.77,156.12,-1.9,195.15,-3.4,11.0,31.73,,,,15,wikipedia,Q366103,,,,,,
+ASW-17,ASW-17,Alexander Schleicher GmbH & Co,Q565371,glider,522.0,151.0,114.5,-0.7,169.05,-1.68,206.5,-2.9,14.84,35.18,,,,20,wikipedia,Q2238705,,,,,,
+ASW-19,ASW-19,Alexander Schleicher GmbH & Co,Q565371,glider,363.0,125.0,97.47,-0.74,155.96,-1.64,194.96,-3.1,11.0,33.0,,,,15,wikipedia,Q489183,,,,,,
+ASW-20,ASW-20,Alexander Schleicher GmbH & Co,Q565371,glider,377.0,159.0,116.2,-0.77,174.3,-1.89,213.04,-3.3,10.5,35.9,,,,15,wikipedia,Q622931,,,,,,
+ASW-22BLE,ASW-22BLE,Alexander Schleicher GmbH & Co,Q565371,glider,465.0,285.0,100.0,-0.47,120.0,-0.63,150.0,-1.04,16.7,27.84,,,,26.58,wikipedia,Q2238720,,,,,,
+ASW-24,ASW-24,Alexander Schleicher GmbH & Co,Q565371,glider,350.0,159.0,108.82,-0.73,142.25,-1.21,167.41,-1.8,10.0,35.0,,,,15,wikipedia,Q2238726,,,,,,
+ASW-27 Wnglts,ASW-27,Alexander Schleicher GmbH & Co,Q565371,glider,357.0,165.0,108.8,-0.64,156.4,-1.18,211.13,-2.5,9.0,39.67,357.0,6,0:5;75:4;83:S1;105:S2;127:2;171:1,15,easa,Q680871,1,easa,true,easa,EASA.A.220,https://www.easa.europa.eu/en/downloads/7236/en
+ASW28-18,ASW28-18,Alexander Schleicher GmbH & Co,Q565371,glider,345.0,190.0,65.0,-0.47,107.0,-0.67,165.0,-2.0,,,,,,,,Q445098,,,,,,
+Blanik L13,Blanik L13,LET Aircraft Industries,Q302544,glider,472.0,0.0,85.0,-0.84,143.0,-3.32,200.0,-9.61,19.1,24.71,,,,16.2,easa,Q1418798,,,false,easa,EASA.A.024,https://www.easa.europa.eu/en/downloads/7477/en
+Blanik L23,Blanik L23,LET Aircraft Industries,Q302544,glider,510.0,0.0,95.0,-0.94,148.0,-2.6,200.0,-6.37,19.1,26.7,,,,16.2,wikipedia,Q868793,,,,,,
+Carat,Carat,AMS Flight,Q4652729,glider,470.0,0.0,100.0,-0.83,120.0,-1.04,150.0,-1.69,10.58,44.42,,,,15,easa,Q4652726,1,easa,false,easa,EASA.A.296,https://www.easa.europa.eu/en/downloads/137896/en
+Cirrus_18m,Cirrus,Schempp-Hirth,Q185996,glider,330.0,100.0,100.0,-0.74,120.0,-1.06,150.0,-1.88,12.6,26.19,,,,18,name,Q2233215,,,,,,
+Std Cirrus,Std Cirrus,Schempp-Hirth,Q185996,glider,337.0,80.0,93.23,-0.74,149.17,-1.71,205.1,-4.2,10.04,33.57,,,,15,easa,Q938444,1,easa,false,easa,EASA.A.278,https://www.easa.europa.eu/en/downloads/7206/en
+Delta USHPA-2,Delta USHPA-2,,,hang_glider,100.0,0.0,30.0,-1.1,44.3,-1.52,58.0,-3.6,,,,,,,,,,,,,,
+Delta USHPA-3,Delta USHPA-3,,,hang_glider,100.0,0.0,37.0,-0.95,48.1,-1.15,73.0,-3.6,,,,,,,,,,,,,,
+Delta USHPA-4,Delta USHPA-4,,,hang_glider,100.0,0.0,37.0,-0.89,48.3,-1.02,76.5,-3.3,,,,,,,,,,,,,,
+"Hi performance Hang glider competition 2018 ( T2C, Laminal, Combat ...)","Hi performance Hang glider competition 2018 ( T2C, Laminal, Combat ...)",,,hang_glider,100.0,0.0,35.5,-0.85,47.5,-0.97,80.0,-2.54,12.6,7.94,,,,,,,,,,,,
+DG-100,DG-100,DG Flugzeugbau,Q449793,glider,300.0,100.0,100.0,-0.73,120.0,-1.0,150.0,-1.7,11.0,27.27,,,,15,easa,Q442463,1,easa,false,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-200,DG-200,DG Flugzeugbau,Q449793,glider,300.0,120.0,100.0,-0.68,120.0,-0.86,150.0,-1.3,10.0,30.0,,,,15,easa,Q776714,1,easa,true,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-300,DG-300,DG Flugzeugbau,Q449793,glider,340.0,65.0,95.0,-0.65,140.0,-1.29,160.0,-1.84,10.27,33.11,,,,15,easa,Q1153381,1,easa,false,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-400 (15m),DG-400,DG Flugzeugbau,Q449793,glider,440.0,90.0,115.0,-0.76,160.53,-1.22,210.22,-2.3,10.0,44.0,,,,15,easa,Q1153378,1,easa,true,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-400 (17m),DG-400,DG Flugzeugbau,Q449793,glider,444.0,90.0,118.28,-0.68,163.77,-1.15,198.35,-1.8,10.57,42.01,,,,17,name,Q1153378,,,,,,
+DG-500 PAS,DG-500,DG Flugzeugbau,Q449793,glider,660.0,160.0,115.5,-0.72,152.16,-1.28,190.22,-2.3,18.29,36.09,,,,22,easa,Q1153385,2,easa,true,easa,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
+DG-500 PIL,DG-500,DG Flugzeugbau,Q449793,glider,570.0,160.0,107.5,-0.66,141.33,-1.19,176.66,-2.1,18.29,31.16,,,,22,easa,Q1153385,2,easa,true,easa,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
+DG-500M PAS,DG-500M,DG Flugzeugbau,Q449793,glider,750.0,100.0,121.6,-0.75,162.12,-1.37,202.66,-2.5,18.29,41.01,,,,22,easa,Q1153385,2,easa,true,easa,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
+DG-500M PIL,DG-500M,DG Flugzeugbau,Q449793,glider,659.0,100.0,115.4,-0.71,152.01,-1.28,190.02,-2.3,18.29,36.03,,,,22,easa,Q1153385,2,easa,true,easa,EASA.A.233,https://www.easa.europa.eu/en/downloads/7224/en
+DG-600_15m,DG-600,DG Flugzeugbau,Q449793,glider,327.0,180.0,100.0,-0.6,120.0,-0.76,150.0,-1.19,10.95,29.86,,,,15,easa,Q990451,1,easa,true,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-800 15m,DG-800,DG Flugzeugbau,Q449793,glider,468.0,120.0,133.9,-0.88,178.87,-1.53,223.59,-2.5,10.68,43.82,,,,15,easa,Q1153389,1,easa,true,easa,EASA.A.239,https://www.easa.europa.eu/en/downloads/7220/en
+DG-800 18m Wnglts,DG-800,DG Flugzeugbau,Q449793,glider,472.0,120.0,106.0,-0.62,171.75,-1.47,214.83,-2.4,11.81,39.97,,,,18,name,Q1153389,,,,,,
+DG1000-20M (PAS),DG1000-20M,DG Flugzeugbau,Q449793,glider,613.0,160.0,106.0,-0.62,153.0,-1.397,200.0,-3.181,17.51,35.01,,,,20,easa,Q489299,2,easa,false,easa,EASA.A.072,https://www.easa.europa.eu/en/downloads/7380/en
+DG1000-20M (PIL),DG1000-20M,DG Flugzeugbau,Q449793,glider,490.0,160.0,100.0,-0.59,120.0,-0.86,150.0,-1.65,17.51,27.98,,,,20,easa,Q489299,2,easa,false,easa,EASA.A.072,https://www.easa.europa.eu/en/downloads/7380/en
+Dimona,Dimona,Diamond Aircraft Industries,Q699710,glider,670.0,100.0,100.0,-1.29,120.0,-1.61,150.0,-2.45,15.3,43.79,,,,16.33,easa,Q1208684,2,easa,false,easa,EASA.A.066,https://www.easa.europa.eu/en/downloads/7392/en
+Discus 2a,Discus 2a,Schempp-Hirth,Q185996,glider,330.0,195.0,110.0,-0.728,155.0,-1.26,200.0,-2.26,10.16,32.48,,,,15,easa,Q7888128,1,easa,false,easa,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
+Discus_2c_18m,Discus 2c,Schempp-Hirth,Q185996,glider,377.0,188.0,100.0,-0.57,120.0,-0.76,150.0,-1.33,11.36,33.19,,,,18,name,Q7888128,,,,,,
+Discus A,Discus A,Schempp-Hirth,Q185996,glider,350.0,182.0,103.77,-0.72,155.65,-1.55,190.24,-3.1,10.58,33.08,,,,15,easa,Q1416538,1,easa,false,easa,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
+Discus B from Cumulus Soaring  GN II,Discus B,Schempp-Hirth,Q185996,glider,325.0,184.0,100.0,-0.661,150.0,-1.439,200.0,-3.11,10.58,30.72,,,,15,easa,Q1416538,1,easa,false,easa,EASA.A.050,https://www.easa.europa.eu/en/downloads/7425/en
+Duo Discus (PAS),Duo Discus,Schempp-Hirth,Q185996,glider,628.0,201.0,106.5,-0.79,168.11,-1.54,201.31,-2.9,16.4,38.29,,,,20,easa,Q1341050,2,easa,false,easa,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
+Duo Discus (PIL),Duo Discus,Schempp-Hirth,Q185996,glider,537.0,201.0,94.06,-0.72,155.49,-1.43,188.21,-2.7,16.4,32.74,,,,20,easa,Q1341050,2,easa,false,easa,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
+Duo Discus XT (PAS),Duo Discus XT,Schempp-Hirth,Q185996,glider,700.0,50.0,110.0,-0.664,155.0,-1.206,200.0,-2.287,16.4,42.68,,,,20,easa,Q1341050,2,easa,false,easa,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
+Duo Discus XT (PIL),Duo Discus XT,Schempp-Hirth,Q185996,glider,580.0,170.0,100.0,-0.605,150.0,-1.271,200.0,-2.668,16.4,35.37,,,,20,easa,Q1341050,2,easa,false,easa,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
+DuoDiscus T (PAS),DuoDiscus T,Schempp-Hirth,Q185996,glider,615.0,80.0,103.0,-0.64,152.0,-1.25,200.0,-2.51,16.4,37.5,,,,20,easa,Q1341050,2,easa,false,easa,EASA.A.074,https://www.easa.europa.eu/en/downloads/7376/en
+EB_28,EB 28,Binder Motorenbau,Q140548689,glider,670.0,180.0,100.0,-0.46,120.0,-0.61,150.0,-0.96,16.8,39.88,,,,28,easa,Q863610,2,easa,false,easa,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
+EB_28_Edition,EB 28 Edition,Binder Motorenbau,Q140548689,glider,670.0,180.0,100.0,-0.47,120.0,-0.63,150.0,-0.97,16.5,40.61,,,,28.3,easa,Q863610,2,easa,false,easa,EASA.A.512,https://www.easa.europa.eu/en/downloads/7100/en
+Genesis II,Genesis II,UAB Sportine aviacija,Q3547120,glider,374.0,151.0,94.0,-0.61,141.05,-1.18,172.4,-2.0,11.24,33.27,,,,15,wikipedia,Q2312580,,,,,,
+Glasfluegel_304,Glasfluegel 304,Glasflügel,Q1468885,glider,305.0,145.0,100.0,-0.78,120.0,-0.97,150.0,-1.43,9.9,30.81,,,,15,easa,Q1529455,1,easa,true,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+Grob G-103 Twin II (PAS),Grob G-103 Twin II,Grob Aircraft,Q561036,glider,580.0,0.0,99.0,-0.8,175.01,-1.95,225.02,-3.8,17.52,33.11,,,,17.5,easa,Q2482008,2,easa,false,easa,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
+Grob G-103 Twin II (PIL),Grob G-103 Twin II,Grob Aircraft,Q561036,glider,494.0,0.0,90.75,-0.74,161.42,-1.8,207.54,-3.5,17.52,28.2,,,,17.5,easa,Q2482008,2,easa,false,easa,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
+H-201 Std Libelle,H-201 Std Libelle,Glasflügel,Q1468885,glider,304.0,50.0,97.0,-0.79,152.43,-1.91,190.54,-3.3,9.8,31.02,,,,15,easa,Q5566714,1,easa,false,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+H-205_Club_Libelle,H-205 Club Libelle,Glasflügel,Q1468885,glider,295.0,0.0,100.0,-0.85,120.0,-1.21,150.0,-2.01,9.8,30.1,,,,15,easa,Q5566712,1,easa,false,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+H-206_Hornet,H-206 Hornet,Glasflügel,Q1468885,glider,345.0,60.0,90.0,-0.64,150.0,-1.59,190.0,-2.91,9.8,35.2,,,,15,easa,Q1529453,1,easa,false,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+H-301 Libelle,H-301 Libelle,Glasflügel,Q1468885,glider,300.0,50.0,94.0,-0.68,147.71,-2.03,184.64,-4.1,9.8,30.61,,,,15,easa,Q1529467,1,easa,true,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+ICP_Savannah,ICP Savannah,,,microlight,472.5,0.0,100.0,-2.5,130.0,-3.3,160.0,-4.8,12.87,36.71,,,,,,Q5969706,,,,,,
+IS-28B2 Lark with 1 person,IS-28B2 Lark,Industria Aeronautică Română,Q292773,glider,520.0,0.0,80.0,-0.67,94.0,-0.768,180.0,-3.55,18.24,28.51,,,,17,easa,Q12060660,2,easa,false,easa,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
+IS-28B2 Lark with 2 person,IS-28B2 Lark,Industria Aeronautică Română,Q292773,glider,590.0,0.0,85.0,-0.67,100.0,-0.817,180.0,-3.1,18.24,32.35,,,,17,easa,Q12060660,2,easa,false,easa,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
+IS-29D2 Lark,IS-29D2 Lark,Industria Aeronautică Română,Q292773,glider,360.0,0.0,100.0,-0.82,135.67,-1.55,184.12,-3.3,10.4,34.62,,,,15,easa,Q5969351,1,easa,false,easa,EASA.A.453,https://www.easa.europa.eu/en/downloads/7112/en
+Janus B (18.2m PAS),Janus B,Schempp-Hirth,Q185996,glider,603.0,170.0,115.5,-0.76,171.79,-1.98,209.96,-4.0,17.4,34.66,,,,18.2,name,Q2233237,2,name,,,,
+Janus B (18.2m PIL),Janus B,Schempp-Hirth,Q185996,glider,508.0,170.0,105.7,-0.7,157.65,-1.82,192.68,-3.6,17.4,29.2,,,,18.2,name,Q2233237,2,name,,,,
+Ka-6CR,Ka-6CR,Alexander Schleicher GmbH & Co,Q565371,glider,310.0,0.0,87.35,-0.81,141.92,-2.03,174.68,-3.5,12.4,25.0,,,,15,wikipedia,Q279906,,,,,,
+Ka8b,Ka8b,Alexander Schleicher GmbH & Co,Q565371,glider,290.0,0.0,74.1,-0.76,101.9,-1.27,166.7,-4.64,14.15,20.49,,,,15,wikipedia,Q1666190,,,,,,
+L-33 SOLO,L-33 SOLO,LET Aircraft Industries,Q302544,glider,330.0,0.0,87.2,-0.8,135.64,-1.73,174.4,-3.4,11.0,30.0,,,,14.12,easa,Q869111,1,easa,false,easa,EASA.A.045,https://www.easa.europa.eu/en/downloads/7434/en
+LAK-19_15m,LAK-19,,,glider,285.0,195.0,100.0,-0.64,120.0,-0.85,150.0,-1.41,9.06,31.46,,,,15,name,Q2312585,,,,,,
+LAK-19_18m,LAK-19,,,glider,295.0,185.0,100.0,-0.6,120.0,-0.82,150.0,-1.34,9.8,30.1,,,,18,name,Q2312585,,,,,,
+Lak17A-15,Lak17A-15,UAB Sportine aviacija,Q3547120,glider,285.0,180.0,95.0,-0.574,148.0,-1.31,200.0,-2.885,9.06,31.46,325.0,4,0:2;90:1;110:0;150:-1,,,Q2312589,,,true,polar,,
+Lak17A-18,Lak17A-18,UAB Sportine aviacija,Q3547120,glider,298.0,180.0,115.0,-0.68,158.0,-1.379,200.0,-2.975,9.8,30.41,330.0,4,0:2;90:1;110:0;150:-1,,,Q2312589,,,true,polar,,
+LS-10s_15m,LS-10s,DG Flugzeugbau,Q449793,glider,370.0,170.0,100.0,-0.64,120.0,-0.8,150.0,-1.26,10.27,36.03,,,,15,easa,Q2163977,1,easa,true,easa,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
+LS-10s_18m,LS-10s,DG Flugzeugbau,Q449793,glider,380.0,220.0,100.0,-0.58,120.0,-0.75,150.0,-1.21,11.45,33.19,,,,18,easa,Q2163977,1,easa,true,easa,EASA.A.157,https://www.easa.europa.eu/en/downloads/7284/en
+LS-1C,LS-1C,Rolladen Schneider Flugzeugbau,Q462234,glider,350.0,91.0,115.87,-1.02,154.49,-1.84,193.12,-3.3,9.74,35.93,,,,15,easa,Q2163975,1,easa,false,easa,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
+LS-3,LS-3,Rolladen Schneider Flugzeugbau,Q462234,glider,383.0,121.0,93.0,-0.64,127.0,-0.93,148.2,-1.28,10.5,36.48,,,,15,easa,Q338907,1,easa,true,easa,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
+LS-3_17m,LS-3,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,0.0,100.0,-0.61,120.0,-0.84,150.0,-1.53,11.22,28.97,,,,17,name,Q338907,,,,,,
+LS-4a,LS-4a,AMS Flight,Q4652729,glider,361.0,121.0,114.9,-0.8,172.3,-2.33,210.59,-4.5,10.35,34.88,,,,15,easa,Q544661,1,easa,true,easa,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
+LS-6-15,LS-6-15,Rolladen Schneider Flugzeugbau,Q462234,glider,327.0,160.0,90.0,-0.6,100.0,-0.658,183.0,-1.965,,,327.0,4,0:10;100:5;117:0;151:-5,,,Q2163984,,,true,polar,,
+LS-6-18W,LS-6-18W,Rolladen Schneider Flugzeugbau,Q462234,glider,330.0,140.0,90.0,-0.51,100.0,-0.57,183.0,-2.0,,,,,,,,Q2163984,,,,,,
+LS-8-15,LS-8-15,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,185.0,70.0,-0.51,115.0,-0.85,173.0,-2.0,,,,,,,,Q2163993,,,,,,
+LS-8-18,LS-8-18,Rolladen Schneider Flugzeugbau,Q462234,glider,325.0,185.0,80.0,-0.51,94.0,-0.56,173.0,-2.0,,,,,,,,Q2163993,,,,,,
+LS7wl,LS7,Rolladen Schneider Flugzeugbau,Q462234,glider,350.0,150.0,103.77,-0.73,155.65,-1.47,180.0,-2.66,9.8,35.71,,,,15,easa,Q2163986,1,easa,false,easa,EASA.A.095,https://www.easa.europa.eu/en/downloads/7339/en
+Mini Nimbus,Mini Nimbus,Schempp-Hirth,Q185996,glider,345.0,155.0,100.0,-0.69,120.0,-0.92,150.0,-1.45,9.86,34.99,,,,15,wikipedia,Q17150591,,,,,,
+Mosquito,Mosquito,Glasflügel,Q1468885,glider,450.0,0.0,100.0,-0.68,120.0,-0.92,150.0,-1.45,9.85,45.69,,,,15,easa,Q1529454,1,easa,true,easa,EASA.A.241,https://www.easa.europa.eu/en/downloads/7218/en
+Nimbus 2,Nimbus 2,Schempp-Hirth,Q185996,glider,493.0,159.0,119.83,-0.75,179.75,-2.14,219.69,-3.8,14.41,34.21,,,,20.3,wikipedia,Q3475325,,,,,,
+Nimbus 3,Nimbus 3,Schempp-Hirth,Q185996,glider,527.0,159.0,116.18,-0.67,174.28,-1.81,232.37,-3.8,16.7,31.56,,,,,,Q17145988,,,,,,
+Nimbus 3D (PAS),Nimbus 3D,Schempp-Hirth,Q185996,glider,712.0,168.0,93.64,-0.46,175.42,-1.48,218.69,-2.5,16.7,42.63,,,,22.9,wikipedia,Q17145988,2,name,,,,
+Nimbus 3D (PIL),Nimbus 3D,Schempp-Hirth,Q185996,glider,621.0,168.0,87.47,-0.43,163.86,-1.38,204.27,-2.3,16.7,37.19,,,,22.9,wikipedia,Q17145988,2,name,,,,
+Nimbus 3DM (PAS),Nimbus 3DM,Schempp-Hirth,Q185996,glider,820.0,168.0,114.97,-0.57,157.42,-0.98,222.24,-2.3,16.7,49.1,,,,22.9,wikipedia,Q17145988,2,name,,,,
+Nimbus 3T,Nimbus 3T,Schempp-Hirth,Q185996,glider,577.0,310.0,141.7,-0.99,182.35,-1.89,243.13,-4.0,16.7,34.55,,,,22.9,wikipedia,Q17145988,,,,,,
+Nimbus 4,Nimbus 4,Schempp-Hirth,Q185996,glider,597.0,303.0,85.1,-0.41,127.98,-0.75,162.74,-1.4,17.8,33.54,597.0,5,0:2;78:1;95:0;135:-1;165:-2,26.4,easa,Q3475327,1,easa,true,easa,EASA.A.063,https://www.easa.europa.eu/en/downloads/7399/en
+Nimbus 4D PAS,Nimbus 4D,Schempp-Hirth,Q185996,glider,743.0,303.0,107.5,-0.5,142.74,-0.83,181.51,-1.6,17.8,41.74,,,,26.5,wikipedia,Q3475327,2,name,,,,
+Nimbus 4D PIL,Nimbus 4D,Schempp-Hirth,Q185996,glider,652.0,303.0,99.0,-0.46,133.73,-0.78,170.07,-1.5,17.8,36.63,,,,26.5,wikipedia,Q3475327,2,name,,,,
+Nimbus 4DM (PAS),Nimbus 4DM,Schempp-Hirth,Q185996,glider,820.0,168.0,100.01,-0.48,150.01,-0.87,190.76,-1.6,17.8,46.07,,,,26.5,wikipedia,Q3475327,2,name,,,,
+Nimbus 4DM (PIL),Nimbus 4DM,Schempp-Hirth,Q185996,glider,729.0,168.0,94.31,-0.46,141.47,-0.82,179.9,-1.5,17.8,40.96,,,,26.5,wikipedia,Q3475327,2,name,,,,
+Para Competition based on Ozone Enzo,Para Competition based on Ozone Enzo,,,paraglider,100.0,0.0,40.0,-1.0,28.0,-1.1,60.0,-2.5,23.7,4.22,,,,,,,,,,,,
+Para EN A-DHV1,Para EN A-DHV1,,,paraglider,100.0,0.0,29.0,-1.1,34.0,-1.3,44.0,-2.3,28.0,3.57,,,,,,,,,,,,
+Para EN B-DHV12,Para EN B-DHV12,,,paraglider,100.0,0.0,29.5,-1.1,37.0,-1.2,50.0,-2.3,28.0,3.57,,,,,,,,,,,,
+Para EN-C @ 95kg,Para EN-C @ 95kg,,,paraglider,95.0,0.0,29.0,-0.9,38.0,-1.01,56.0,-2.06,25.7,3.7,,,,,,,,,,,,
+Para EN D-DHV23,Para EN D-DHV23,,,paraglider,100.0,0.0,33.0,-1.1,41.0,-1.2,58.0,-2.3,24.5,4.08,,,,,,,,,,,,
+Ozone Delta 2 ML @ 95kg,Ozone Delta 2 ML @ 95kg,,,paraglider,95.0,0.0,29.0,-0.9,38.0,-1.01,56.0,-2.06,25.7,3.7,,,,,,,,,,,,
+Para Ozone Enzo,Para Ozone Enzo,,,paraglider,100.0,0.0,40.0,-1.0,28.0,-1.1,60.0,-2.5,23.7,4.22,,,,,,,,,,,,
+Pegase 101A,Pegase 101A,SA Centrair,Q7388885,glider,344.0,120.0,85.0,-0.62,105.0,-0.75,175.0,-2.54,10.5,32.76,,,,15,wikipedia,Q2944382,,,,,,
+Phoebus_C,Phoebus C,Bölkow,Q173778,glider,310.0,150.0,100.0,-0.7,120.0,-0.98,150.0,-1.58,14.06,22.05,,,,17,easa,Q1019853,1,easa,false,easa,EASA.A.635,https://www.easa.europa.eu/en/downloads/21392/en
+PIK-20B,PIK-20B,Eiri-Avion,Q140548690,glider,354.0,144.0,102.5,-0.69,157.76,-1.59,216.91,-3.6,10.0,35.4,,,,15,wikipedia,Q1310570,,,,,,
+PIK-20D,PIK-20D,Eiri-Avion,Q140548690,glider,348.0,144.0,100.0,-0.69,156.54,-1.78,215.24,-4.2,10.0,34.8,,,,15,wikipedia,Q1310570,,,,,,
+PIK-20E,PIK-20E,Eiri-Avion,Q140548690,glider,437.0,80.0,109.61,-0.83,166.68,-2.0,241.15,-4.7,10.0,43.7,,,,15,wikipedia,Q1310570,,,,,,
+PIK-30M,PIK-30M,,,glider,460.0,0.0,123.6,-0.78,152.04,-1.12,200.22,-2.2,10.63,43.27,,,,,,,,,,,,
+PW-5 Smyk,PW-5 Smyk,PZL-Świdnik,Q2582531,glider,300.0,0.0,99.5,-0.95,158.48,-2.85,198.1,-5.1,10.16,29.53,,,,13.44,easa,Q1436638,1,easa,false,easa,EASA.A.087,https://www.easa.europa.eu/en/downloads/7352/en
+Russia AC-4,Russia AC-4,Aviastroitel,Q2874275,glider,250.0,0.0,99.3,-0.92,140.01,-1.8,170.01,-2.9,7.7,32.47,,,,12.6,wikipedia,Q2874276,,,,,,
+SF27,SF27,Scheibe Flugzeugbau,Q315350,glider,300.0,0.0,100.0,-0.81,120.0,-1.27,150.0,-2.5,13.0,23.08,,,,15,wikipedia,Q1438762,,,,,,
+Silent 2 electro,Silent 2 electro,Alisport,Q2837170,glider,276.0,0.0,80.0,-0.65,90.0,-0.65,150.0,-1.55,8.9,31.01,276.0,5,0:L;75:+1;90:0;110:-1;150:S,13.3,wikipedia,Q4727237,,,true,polar,,
+Speed Astir,Speed Astir,Grob Aircraft,Q561036,glider,351.0,90.0,90.0,-0.63,105.0,-0.72,157.0,-2.0,,,,,,15,easa,Q1547165,1,easa,true,easa,EASA.A.250,https://www.easa.europa.eu/en/downloads/7216/en
+Stemme S-10 PAS,Stemme S-10,Stemme AG,Q878020,glider,850.0,0.0,133.47,-0.83,167.75,-1.41,205.03,-2.3,18.7,45.45,,,,23,easa,Q1456624,2,easa,false,easa,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
+Stemme S-10 PIL,Stemme S-10,Stemme AG,Q878020,glider,759.0,0.0,125.8,-0.82,158.51,-1.33,193.74,-2.2,18.7,40.59,,,,23,easa,Q1456624,2,easa,false,easa,EASA.A.054,https://www.easa.europa.eu/en/downloads/7417/en
+SZD-30 Pirat,SZD-30 Pirat,PZL,Q965259,glider,340.0,0.0,75.0,-0.7,83.0,-0.739,150.0,-2.46,13.8,24.64,,,,15,wikipedia,Q1273276,,,,,,
+SZD-36 Cobra,SZD-36 Cobra,Szybowcowy Zakład Doświadczalny,Q3460326,glider,350.0,30.0,70.8,-0.6,94.5,-0.69,148.1,-1.83,11.6,30.17,,,,15,wikipedia,Q461005,,,,,,
+SZD-38A Jantar 1,SZD-38A Jantar 1,Szybowcowy Zakład Doświadczalny,Q3460326,glider,372.0,90.0,90.0,-0.53,130.0,-1.07,170.0,-2.0,13.38,27.8,372.0,5,0:2;70:1;90:0;110:-1;160:-2,19,wikipedia,Q7395316,,,true,polar,,
+SZD-42A Jantar 2,SZD-42A Jantar 2,Szybowcowy Zakład Doświadczalny,Q3460326,glider,482.0,191.0,109.5,-0.66,157.14,-1.47,196.42,-2.7,14.27,33.78,,,,20.5,wikipedia,Q2044896,,,,,,
+SZD-48-2 Jantar Std 2,SZD-48-2 Jantar Std 2,Szybowcowy Zakład Doświadczalny,Q3460326,glider,375.0,150.0,100.0,-0.73,120.0,-0.95,150.0,-1.6,10.66,35.18,,,,15,easa,Q7395319,1,easa,false,easa,EASA.A.041,https://www.easa.europa.eu/en/downloads/7442/en
+SZD-48-3 Jantar 3,SZD-48-3 Jantar 3,Szybowcowy Zakład Doświadczalny,Q3460326,glider,326.0,150.0,95.0,-0.66,180.0,-2.24,220.0,-3.85,10.66,30.58,,,,15,easa,Q7395319,1,easa,false,easa,EASA.A.041,https://www.easa.europa.eu/en/downloads/7442/en
+SZD-50_Puchacz,SZD-50 Puchacz,PZL,Q965259,glider,435.0,0.0,100.0,-1.0,120.0,-1.42,150.0,-2.35,18.16,23.95,,,,16.67,easa,Q9375,2,easa,false,easa,EASA.A.312,https://www.easa.europa.eu/en/downloads/7192/en
+SZD-51-1 Junior,SZD-51-1 Junior,PZL,Q965259,glider,333.0,0.0,70.0,-0.58,130.0,-1.6,180.0,-3.6,12.51,26.62,,,,15,easa,Q1304171,1,easa,false,easa,EASA.A.309,https://www.easa.europa.eu/en/downloads/21331/en
+SZD-55-1 Promyk,SZD-55-1 Promyk,PZL,Q965259,glider,350.0,200.0,100.0,-0.66,120.0,-0.86,150.0,-1.4,9.6,36.46,,,,15,wikipedia,Q2044911,,,,,,
+SZD-55-2 Diana 2,SZD-55-2 Diana 2,PZL,Q965259,glider,270.0,250.0,100.4700979,-0.557321508,146.3286293,-1.146988324,185.6359405,-2.146055459,8.66,31.18,350.0,7,0:28;75:21;80:14;87.5:8;109:3;156:0;188.5:-2,15,wikipedia,Q2044911,,,true,polar,,
+SZD-9bis 1E Bocian,SZD-9bis 1E Bocian,Szybowcowy Zakład Doświadczalny,Q3460326,glider,540.0,0.0,70.0,-0.83,90.0,-1.0,140.0,-2.53,20.0,27.0,,,,18.1,wikipedia,Q188414,,,,,,
+Taurus,Taurus,Pipistrel,Q1547378,glider,472.0,0.0,100.0,-0.71,120.0,-0.83,150.0,-1.35,12.26,38.5,,,,14.97,wikipedia,Q541588,,,,,,
+Ventus 2C (18m),Ventus 2C,Schempp-Hirth,Q185996,glider,385.0,180.0,80.0,-0.5,120.0,-0.73,180.0,-2.0,11.03,34.9,,,,18,easa,Q7887991,1,easa,true,easa,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
+Ventus 2CT (18m),Ventus 2CT,Schempp-Hirth,Q185996,glider,470.0,130.0,100.0,-0.56,150.0,-1.13,200.0,-2.28,11.03,42.61,,,,18,easa,Q7887991,1,easa,true,easa,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
+Ventus 2Cx (18m),Ventus 2Cx,Schempp-Hirth,Q185996,glider,385.0,215.0,80.0,-0.5,120.0,-0.73,180.0,-2.0,11.03,34.9,385.0,7,0:0;65:21;90:0;100:-1;125:-2;170:S;182:S1,18,easa,Q7887991,1,easa,true,easa,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
+Ventus 2CxT (18m),Ventus 2CxT,Schempp-Hirth,Q185996,glider,470.0,130.0,100.0,-0.56,150.0,-1.13,200.0,-2.28,11.03,42.61,,,,18,easa,Q7887991,1,easa,true,easa,EASA.A.301,https://www.easa.europa.eu/en/downloads/7196/en
+Ventus A-B (16.6m),Ventus A-B,Schempp-Hirth,Q185996,glider,358.0,151.0,100.17,-0.64,159.69,-1.47,239.54,-4.3,9.96,35.94,,,,16.6,name,Q2713118,,,,,,
+Ventus B (15m),Ventus B,Schempp-Hirth,Q185996,glider,341.0,151.0,97.69,-0.68,156.3,-1.46,234.45,-3.9,9.51,35.86,,,,15,easa,Q2713118,1,easa,true,easa,EASA.A.274,https://www.easa.europa.eu/en/downloads/7210/en
+Ventus CM (17.6m),Ventus CM,Schempp-Hirth,Q185996,glider,430.0,0.0,100.17,-0.6,159.7,-1.32,210.54,-2.5,10.14,42.41,,,,17.6,name,Q2713118,,,,,,
+VSO-10,VSO-10,ORLIČAN,Q53393699,glider,347.0,0.0,90.0,-0.78,130.0,-1.41,160.0,-2.44,12.0,28.92,,,,15,wikipedia,Q2647579,,,,,,
+VT-116,VT-116,Beneš-Mráz,Q817135,glider,335.0,0.0,80.0,-0.7,100.0,-1.05,120.0,-1.65,12.8,26.17,,,,16,wikipedia,Q1777845,,,,,,
+Zuni II,Zuni II,Applebay Sailplanes,Q2858741,glider,358.0,182.0,110.0,-0.88,167.0,-2.21,203.72,-3.6,10.13,35.34,,,,15,wikipedia,Q572208,,,,,,
